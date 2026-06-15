@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OllamaPlaylist Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 32px 40px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    header span {
+      font-size: 13px;
+      color: #666;
+      margin-left: auto;
+    }
+
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #1db954;
+      box-shadow: 0 0 8px #1db954;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 32px 40px 0;
+    }
+
+    .stat-card {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-card .sub {
+      font-size: 12px;
+      color: #444;
+      margin-top: 4px;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      padding: 16px 40px 0;
+    }
+
+    .chart-card {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .chart-card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      padding: 16px 40px 32px;
+    }
+
+    .history-card {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 24px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .history-card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .history-card::-webkit-scrollbar { width: 4px; }
+    .history-card::-webkit-scrollbar-track { background: #0a0a0a; }
+    .history-card::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+    .run-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .run-item:last-child { border-bottom: none; }
+
+    .run-item .run-date {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 4px;
+    }
+
+    .run-item .run-mood {
+      font-size: 14px;
+      font-weight: 500;
+      color: #e0e0e0;
+      margin-bottom: 4px;
+    }
+
+    .run-item .run-summary {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      background: #1a1a1a;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #888;
+      margin: 2px;
+    }
+
+    .energy-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .energy-bar .e-label {
+      font-size: 12px;
+      color: #555;
+      width: 60px;
+    }
+
+    .energy-bar .e-track {
+      flex: 1;
+      height: 6px;
+      background: #1a1a1a;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .energy-bar .e-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #1db954, #1ed760);
+    }
+
+    .energy-bar .e-count {
+      font-size: 12px;
+      color: #444;
+      width: 24px;
+      text-align: right;
+    }
+
+    .artist-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #151515;
+    }
+
+    .artist-row:last-child { border-bottom: none; }
+
+    .artist-name {
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .artist-count {
+      font-size: 12px;
+      color: #444;
+    }
+
+    #loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      flex-direction: column;
+      gap: 16px;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid #1a1a1a;
+      border-top-color: #1db954;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #app { display: none; }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <span>Loading your music data...</span>
+</div>
+
+<div id="app">
+  <header>
+    <div class="dot"></div>
+    <h1>OllamaPlaylist</h1>
+    <span id="last-updated"></span>
+  </header>
+
+  <div class="grid">
+    <div class="stat-card">
+      <div class="label">Total Runs</div>
+      <div class="value" id="stat-runs">—</div>
+      <div class="sub">playlist updates tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Current Mood</div>
+      <div class="value" id="stat-mood" style="font-size:18px">—</div>
+      <div class="sub" id="stat-mood-date"></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Top Genre</div>
+      <div class="value" id="stat-genre" style="font-size:18px">—</div>
+      <div class="sub">most frequent this month</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg Energy</div>
+      <div class="value" id="stat-energy">—</div>
+      <div class="sub">across all runs</div>
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h2>Mood Timeline</h2>
+      <canvas id="mood-chart" height="100"></canvas>
+    </div>
+    <div class="chart-card">
+      <h2>Genre Breakdown</h2>
+      <canvas id="genre-chart"></canvas>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="history-card">
+      <h2>Run History</h2>
+      <div id="run-history"></div>
+    </div>
+
+    <div class="history-card">
+      <h2>Energy Distribution</h2>
+      <div id="energy-dist" style="margin-top: 8px;"></div>
+    </div>
+
+    <div class="history-card">
+      <h2>Top Artists This Month</h2>
+      <div id="top-artists"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── fetch data from API (Vercel) or fallback to history.json directly ──
+  async function loadData() {
+    try {
+      let res = await fetch('/api/data')
+      if (!res.ok) throw new Error('api failed')
+      return await res.json()
+    } catch {
+      // fallback for local dev
+      let res = await fetch('../data/history.json')
+      return await res.json()
+    }
+  }
+
+  function energyToNumber(e) {
+    return e === 'high' ? 3 : e === 'medium' ? 2 : 1
+  }
+
+  function countOccurrences(arr) {
+    return arr.reduce((acc, val) => {
+      acc[val] = (acc[val] || 0) + 1
+      return acc
+    }, {})
+  }
+
+  async function init() {
+    const data = await loadData()
+
+    if (!data || data.length === 0) {
+      document.getElementById('loading').innerHTML = '<span style="color:#444">No runs yet. Run main.py first.</span>'
+      return
+    }
+
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('app').style.display = 'block'
+
+    const latest = data[data.length - 1]
+    const runs = data.length
+
+    // ── stat cards ──
+    document.getElementById('stat-runs').textContent = runs
+    document.getElementById('stat-mood').textContent = latest.mood
+    document.getElementById('stat-mood-date').textContent = `as of ${latest.date}`
+
+    const allGenres = data.flatMap(d => d.genres)
+    const genreCounts = countOccurrences(allGenres)
+    const topGenre = Object.entries(genreCounts).sort((a,b) => b[1]-a[1])[0]
+    document.getElementById('stat-genre').textContent = topGenre ? topGenre[0] : '—'
+
+    const energyMap = { low: 1, medium: 2, high: 3 }
+    const avgEnergy = data.reduce((s, d) => s + (energyMap[d.energy_level] || 2), 0) / runs
+    const energyLabel = avgEnergy > 2.4 ? 'High' : avgEnergy > 1.6 ? 'Medium' : 'Low'
+    document.getElementById('stat-energy').textContent = energyLabel
+
+    document.getElementById('last-updated').textContent =
+      `Last updated ${latest.date} at ${latest.time}`
+
+    // ── mood timeline chart ──
+    const moodCtx = document.getElementById('mood-chart').getContext('2d')
+    new Chart(moodCtx, {
+      type: 'line',
+      data: {
+        labels: data.map(d => d.date),
+        datasets: [{
+          label: 'Energy',
+          data: data.map(d => energyToNumber(d.energy_level)),
+          borderColor: '#1db954',
+          backgroundColor: 'rgba(29,185,84,0.08)',
+          borderWidth: 2,
+          pointBackgroundColor: '#1db954',
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            ticks: { color: '#444', font: { size: 11 } },
+            grid: { color: '#151515' }
+          },
+          y: {
+            min: 0, max: 4,
+            ticks: {
+              color: '#444',
+              font: { size: 11 },
+              callback: v => ['','Low','Medium','High',''][v]
+            },
+            grid: { color: '#151515' }
+          }
+        }
+      }
+    })
+
+    // ── genre doughnut ──
+    const top8Genres = Object.entries(genreCounts)
+      .sort((a,b) => b[1]-a[1]).slice(0, 8)
+    const genreCtx = document.getElementById('genre-chart').getContext('2d')
+    new Chart(genreCtx, {
+      type: 'doughnut',
+      data: {
+        labels: top8Genres.map(g => g[0]),
+        datasets: [{
+          data: top8Genres.map(g => g[1]),
+          backgroundColor: [
+            '#1db954','#158a3e','#0f5c29','#1ed760',
+            '#2ecc71','#27ae60','#16a085','#1abc9c'
+          ],
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#555', font: { size: 11 }, padding: 12 }
+          }
+        },
+        cutout: '65%',
+      }
+    })
+
+    // ── run history ──
+    const historyEl = document.getElementById('run-history')
+    ;[...data].reverse().forEach(run => {
+      const div = document.createElement('div')
+      div.className = 'run-item'
+      div.innerHTML = `
+        <div class="run-date">${run.date} at ${run.time}</div>
+        <div class="run-mood">${run.mood} · ${run.energy_level} energy</div>
+        <div class="run-summary">${run.summary}</div>
+        <div style="margin-top:6px">${run.genres.map(g => `<span class="tag">${g}</span>`).join('')}</div>
+      `
+      historyEl.appendChild(div)
+    })
+
+    // ── energy distribution ──
+    const energyCounts = countOccurrences(data.map(d => d.energy_level))
+    const energyEl = document.getElementById('energy-dist')
+    ;['high','medium','low'].forEach(level => {
+      const count = energyCounts[level] || 0
+      const pct = Math.round((count / runs) * 100)
+      const div = document.createElement('div')
+      div.className = 'energy-bar'
+      div.innerHTML = `
+        <div class="e-label">${level.charAt(0).toUpperCase() + level.slice(1)}</div>
+        <div class="e-track"><div class="e-fill" style="width:${pct}%"></div></div>
+        <div class="e-count">${count}</div>
+      `
+      energyEl.appendChild(div)
+    })
+
+    // ── top artists from latest run ──
+    const artistsEl = document.getElementById('top-artists')
+    const allArtists = data.flatMap(d => d.top_artists)
+    const artistCounts = countOccurrences(allArtists)
+    Object.entries(artistCounts)
+      .sort((a,b) => b[1]-a[1])
+      .slice(0, 10)
+      .forEach(([name, count]) => {
+        const div = document.createElement('div')
+        div.className = 'artist-row'
+        div.innerHTML = `
+          <span class="artist-name">${name}</span>
+          <span class="artist-count">${count} run${count > 1 ? 's' : ''}</span>
+        `
+        artistsEl.appendChild(div)
+      })
+  }
+
+  init()
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+[
+  {
+    "timestamp": "2026-06-15T16:24:58.092361",
+    "date": "2026-06-15",
+    "time": "16:24",
+    "mood": "relaxed",
+    "energy_level": "medium",
+    "genres": [
+      "alternative",
+      "indie",
+      "pop"
+    ],
+    "summary": "The listener enjoys a mix of alternative, indie, and pop music with a focus on artists like Wallows, Clairo, Tyler, The Creator, Olivia Rodrigo, and Dominic Fike. Their recent tracks include introspective lyrics and a medium energy level.",
+    "search_queries": [
+      "wallow music",
+      "clairo songs",
+      "taylor swift top artists",
+      "tyler the creator tracks",
+      "olivia rodriquez hits",
+      "dominic fike beats",
+      "kanye west songs",
+      "arctic monkeys tunes",
+      "danical caesar acoustic",
+      "edm indie pop"
+    ],
+    "tracks_added": 30,
+    "top_artists": [
+      "Malcolm Todd",
+      "Wallows",
+      "ROLE MODEL",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "Tyler, The Creator",
+      "Taylor Swift",
+      "Clairo",
+      "Arctic Monkeys",
+      "Frank Ocean"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Are You Bored Yet? (feat. Clairo)",
+        "artist": "Wallows"
+      },
+      {
+        "name": "No Role Modelz",
+        "artist": "J. Cole"
+      },
+      {
+        "name": "High Hopes 3000",
+        "artist": "ROLE MODEL"
+      },
+      {
+        "name": "Sofia",
+        "artist": "Clairo"
+      },
+      {
+        "name": "I Saw Your Face",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "Co2",
+        "artist": "Prateek Kuhad"
+      },
+      {
+        "name": "FISH N STEAK (WHAT IT IS) (feat. Tyler, The Creator & Jozzy)",
+        "artist": "A$AP Rocky"
+      },
+      {
+        "name": "Scrawny",
+        "artist": "Wallows"
+      },
+      {
+        "name": "Sally, When The Wine Runs Out",
+        "artist": "ROLE MODEL"
+      },
+      {
+        "name": "Juna",
+        "artist": "Clairo"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-15T16:39:10.690356",
+    "date": "2026-06-15",
+    "time": "16:39",
+    "runtime_seconds": 188.21,
+    "model": "qwen2.5:7b",
+    "mood": "relaxed",
+    "energy_level": "medium",
+    "genres": [
+      "alternative",
+      "indie_pop",
+      "emotional_trip_hop"
+    ],
+    "summary": "The listener prefers a medium energy level with a focus on alternative, indie_pop, and emotional_trip_hop genres. The music tends to be melancholic and often features slow, soothing tunes with an emphasis on emotional depth.",
+    "search_queries": [
+      "emotional indie music",
+      "trip hop revival",
+      "lo-fi hip hop piano",
+      "sad alternative songs",
+      "depressing pop tracks",
+      "melancholic indie rock",
+      "slow and soothing tunes",
+      "mellow lo-fi beats",
+      "soulful indie-pop ballads",
+      "dreamy indie-folk"
+    ],
+    "tracks_added": 30,
+    "top_artists": [
+      "Malcolm Todd",
+      "Wallows",
+      "ROLE MODEL",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "Tyler, The Creator",
+      "Taylor Swift",
+      "Clairo",
+      "Arctic Monkeys",
+      "Frank Ocean"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Just Like a Movie",
+        "artist": "Wallows"
+      },
+      {
+        "name": "cold/mess",
+        "artist": "Prateek Kuhad"
+      },
+      {
+        "name": "Coffee",
+        "artist": "beabadoobee"
+      },
+      {
+        "name": "back to friends",
+        "artist": "sombr"
+      },
+      {
+        "name": "Are You Bored Yet? (feat. Clairo)",
+        "artist": "Wallows"
+      },
+      {
+        "name": "No Role Modelz",
+        "artist": "J. Cole"
+      },
+      {
+        "name": "High Hopes 3000",
+        "artist": "ROLE MODEL"
+      },
+      {
+        "name": "Sofia",
+        "artist": "Clairo"
+      },
+      {
+        "name": "I Saw Your Face",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "Co2",
+        "artist": "Prateek Kuhad"
+      }
+    ]
+  }
+]
