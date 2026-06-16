@@ -67,10 +67,14 @@ Required schema:
 }}
 
 Rules:
-- EXACTLY 10 search_queries
-- EXACTLY 3 genres
-- energy_level must be low, medium, or high
-- JSON only
+- energy_level must be exactly one of: low, medium, high
+- search_queries must have EXACTLY 10 items
+- search_queries should be Spotify search phrases
+- prioritize artists similar to the user's top artists
+- include artist names when possible
+- avoid generic searches like "sad songs", "pop tracks", "music", "tunes", or "hits"
+- recommend artists adjacent to the user's taste
+- return ONLY valid JSON
 """
 
 
