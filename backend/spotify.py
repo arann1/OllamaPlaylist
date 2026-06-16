@@ -9,38 +9,18 @@ log = logging.getLogger(__name__)
 _user_market = None
 
 
-def _album_art_url(track):
-    """Pick a medium album image URL from a Spotify track object."""
-    images = (track.get("album") or {}).get("images") or []
-    if not images:
-        return None
-    return images[min(1, len(images) - 1)]["url"]
-
-
-def _artist_image_url(artist):
-    """Pick an artist profile image URL."""
-    images = artist.get("images") or []
-    if not images:
-        return None
-    return images[min(1, len(images) - 1)]["url"]
-
-
-def _track_dict(track):
-    return {
-        "id": track["id"],
-        "name": track["name"],
-        "artist": track["artists"][0]["name"],
-        "album_art": _album_art_url(track),
-    }
-
-
 def get_recently_played(limit=50):
     """Fetch recently played tracks and return as list with ids for filtering."""
     sp = get_sp()
     results = sp.current_user_recently_played(limit=limit)
     tracks = []
     for item in results["items"]:
-        tracks.append(_track_dict(item["track"]))
+        track = item["track"]
+        tracks.append({
+            "name": track["name"],
+            "artist": track["artists"][0]["name"],
+            "id": track["id"],
+        })
     return tracks
 
 
@@ -53,7 +33,6 @@ def get_top_artists(limit=20, time_range="short_term"):
         artists.append({
             "name": item["name"],
             "genres": item.get("genres", []),
-            "image": _artist_image_url(item),
         })
     return artists
 
@@ -132,7 +111,11 @@ def get_playlist_tracks(playlist_id, max_tracks=150, market=None):
             track = _playlist_item_track(item)
             if not track:
                 continue
-            tracks.append(_track_dict(track))
+            tracks.append({
+                "id": track["id"],
+                "name": track["name"],
+                "artist": track["artists"][0]["name"],
+            })
             if len(tracks) >= max_tracks:
                 break
 
