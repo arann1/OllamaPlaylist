@@ -321,19 +321,18 @@
   // ── fetch data from API (Vercel) or fallback to history.json directly ──
   async function loadData() {
     try {
+      // Try to fetch from deployed history
       let res = await fetch('../data/history.json')
-      if (!res.ok) throw new Error('fetch failed')
-      return await res.json()
-    } catch {
-      // fallback for API endpoint
-      try {
-        let res = await fetch('/api/data')
-        if (!res.ok) throw new Error('api failed')
-        return await res.json()
-      } catch {
-        return []
-      }
-    }
+      if (res.ok) return await res.json()
+    } catch {}
+
+    try {
+      // Try API endpoint if available
+      let res = await fetch('/api/data')
+      if (res.ok) return await res.json()
+    } catch {}
+
+    return []
   }
 
   function energyToNumber(e) {

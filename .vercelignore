@@ -1,0 +1,9 @@
+*.py
+venv/
+logs/
+.spotify_cache
+.cache
+__pycache__
+.env
+.env.local
+.github
