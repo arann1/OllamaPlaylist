@@ -2,6 +2,8 @@ import json
 import os
 from datetime import datetime
 
+from config import OLLAMA_MODEL
+
 backend_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.dirname(backend_dir)
 HISTORY_FILE = os.path.join(project_dir, "data", "history.json")
@@ -14,17 +16,22 @@ def load_history():
     try:
         with open(HISTORY_FILE, "r") as f:
             content = f.read().strip()
-
             if not content:
                 return []
-
             return json.loads(content)
-
     except Exception:
         return []
 
 
-def save_run(analysis, tracks, top_artists, track_count, runtime):
+def save_run(
+    analysis,
+    tracks,
+    top_artists,
+    track_count,
+    runtime,
+    library_artist_count=0,
+    source_playlists=None,
+):
     """Append a single run snapshot to history.json."""
     history = load_history()
 
@@ -32,21 +39,17 @@ def save_run(analysis, tracks, top_artists, track_count, runtime):
         "timestamp": datetime.now().isoformat(),
         "date": datetime.now().strftime("%Y-%m-%d"),
         "time": datetime.now().strftime("%H:%M"),
-
         "runtime_seconds": runtime,
-        "model": "qwen2.5:7b",
-
-
+        "model": OLLAMA_MODEL,
         "mood": analysis["mood"],
         "energy_level": analysis["energy_level"],
         "genres": analysis["genres"],
-        "taste_profile": analysis.get(
-            "taste_profile",
-            []
-        ),
+        "taste_profile": analysis.get("taste_profile", []),
+        "preferred_artists": analysis.get("preferred_artists", []),
         "summary": analysis["summary"],
-        "search_queries": analysis["search_queries"],
         "tracks_added": track_count,
+        "library_artist_count": library_artist_count,
+        "source_playlists": source_playlists or [],
         "top_artists": [a["name"] for a in top_artists[:10]],
         "recent_tracks_sample": [
             {"name": t["name"], "artist": t["artist"]}

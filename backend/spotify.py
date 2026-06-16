@@ -1,8 +1,9 @@
-from config import sp
+from config import get_sp, PLAYLIST_NAME
 
 
 def get_recently_played(limit=50):
     """Fetch recently played tracks and return as list with ids for filtering."""
+    sp = get_sp()
     results = sp.current_user_recently_played(limit=limit)
     tracks = []
     for item in results["items"]:
@@ -16,10 +17,8 @@ def get_recently_played(limit=50):
 
 
 def get_top_artists(limit=20, time_range="short_term"):
-    """
-    Fetch user's top artists over a time window.
-    short_term = last 4 weeks, medium_term = 6 months, long_term = all time
-    """
+    """Fetch user's top artists over a time window."""
+    sp = get_sp()
     results = sp.current_user_top_artists(limit=limit, time_range=time_range)
     artists = []
     for item in results["items"]:
@@ -30,30 +29,140 @@ def get_top_artists(limit=20, time_range="short_term"):
     return artists
 
 
-def search_tracks(queries, limit_per_query=6):
-    """Search Spotify for tracks matching each query."""
-    track_ids = []
-    for query in queries:
-        results = sp.search(q=query, type="track", limit=limit_per_query)
-        for track in results["tracks"]["items"]:
-            track_ids.append({
+def get_top_tracks(limit=20, time_range="short_term"):
+    """Fetch user's top tracks."""
+    sp = get_sp()
+    results = sp.current_user_top_tracks(limit=limit, time_range=time_range)
+    tracks = []
+    for item in results["items"]:
+        tracks.append({
+            "name": item["name"],
+            "artist": item["artists"][0]["name"],
+        })
+    return tracks
+
+
+def get_user_playlists(limit=50):
+    """Fetch the user's playlists."""
+    sp = get_sp()
+    results = sp.current_user_playlists(limit=limit)
+    return [
+        {
+            "id": p["id"],
+            "name": p["name"],
+            "track_count": p["tracks"]["total"],
+        }
+        for p in results["items"]
+    ]
+
+
+def get_playlist_tracks(playlist_id, max_tracks=150):
+    """Fetch tracks from a playlist with pagination."""
+    sp = get_sp()
+    tracks = []
+    offset = 0
+
+    while len(tracks) < max_tracks:
+        batch = sp.playlist_tracks(playlist_id, offset=offset, limit=100)
+        items = batch["items"]
+        if not items:
+            break
+
+        for item in items:
+            track = item.get("track")
+            if not track or track.get("is_local") or not track.get("id"):
+                continue
+            tracks.append({
                 "id": track["id"],
-                "artist": track["artists"][0]["name"],
                 "name": track["name"],
+                "artist": track["artists"][0]["name"],
             })
-    return track_ids
+            if len(tracks) >= max_tracks:
+                break
+
+        if not batch.get("next"):
+            break
+        offset += len(items)
+
+    return tracks
 
 
-def filter_tracks(candidates, recently_played_ids, max_per_artist=1, total=30):
+def collect_library_from_playlists(
+    exclude_name=None,
+    max_playlists=15,
+    max_tracks_per_playlist=150,
+):
     """
-    Remove recently played tracks and cap songs per artist.
-    Returns a clean list of track ids.
+    Build a track pool and artist index from the user's own playlists.
+    Only includes tracks already in the user's library — no discovery.
+    """
+    exclude_name = exclude_name or PLAYLIST_NAME
+    playlists = get_user_playlists(limit=50)
+
+    active = [
+        p for p in playlists
+        if p["name"] != exclude_name and p["track_count"] > 0
+    ][:max_playlists]
+
+    all_tracks = []
+    artist_counts = {}
+    seen_ids = set()
+
+    for playlist in active:
+        for track in get_playlist_tracks(
+            playlist["id"],
+            max_tracks=max_tracks_per_playlist,
+        ):
+            if track["id"] in seen_ids:
+                continue
+            seen_ids.add(track["id"])
+            all_tracks.append(track)
+            artist = track["artist"]
+            artist_counts[artist] = artist_counts.get(artist, 0) + 1
+
+    library_artists = sorted(
+        [{"name": name, "count": count} for name, count in artist_counts.items()],
+        key=lambda a: a["count"],
+        reverse=True,
+    )
+
+    return all_tracks, library_artists, [p["name"] for p in active]
+
+
+def _normalize(text):
+    return text.lower().strip()
+
+
+def _artist_matches(track_artist, preferred_artist):
+    track = _normalize(track_artist)
+    pref = _normalize(preferred_artist)
+    return pref in track or track in pref
+
+
+def select_library_tracks(
+    library_tracks,
+    preferred_artists,
+    recently_played_ids,
+    max_per_artist=1,
+    total=30,
+):
+    """
+    Pick tracks from the user's library pool, prioritizing Ollama's
+    preferred artists. Never pulls from outside the provided pool.
     """
     seen_ids = set(recently_played_ids)
     artist_count = {}
     final_ids = []
 
-    for track in candidates:
+    def rank(track):
+        for i, artist in enumerate(preferred_artists):
+            if _artist_matches(track["artist"], artist):
+                return i
+        return len(preferred_artists)
+
+    ranked = sorted(library_tracks, key=rank)
+
+    for track in ranked:
         tid = track["id"]
         artist = track["artist"]
 
@@ -71,50 +180,10 @@ def filter_tracks(candidates, recently_played_ids, max_per_artist=1, total=30):
 
     return final_ids
 
-def search_artist_tracks(artists, limit_per_artist=10):
-    tracks = []
-
-    for artist in artists:
-        results = sp.search(
-            q=f"artist:{artist}",
-            type="track",
-            limit=limit_per_artist
-        )
-
-        for track in results["tracks"]["items"]:
-            tracks.append({
-                "id": track["id"],
-                "artist": track["artists"][0]["name"],
-                "name": track["name"]
-            })
-
-    return tracks
-
-def get_top_tracks(limit=20, time_range="short_term"):
-    """
-    Fetch user's top tracks.
-    short_term = last 4 weeks
-    medium_term = 6 months
-    long_term = all time
-    """
-    results = sp.current_user_top_tracks(
-        limit=limit,
-        time_range=time_range
-    )
-
-    tracks = []
-
-    for item in results["items"]:
-        tracks.append({
-            "name": item["name"],
-            "artist": item["artists"][0]["name"]
-        })
-
-    return tracks
-
 
 def get_or_update_playlist(track_ids, playlist_name):
     """Find playlist by name and replace its tracks."""
+    sp = get_sp()
     playlists = sp.current_user_playlists(limit=50)
 
     playlist_id = None

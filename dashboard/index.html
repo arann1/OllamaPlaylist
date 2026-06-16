@@ -283,8 +283,9 @@
       <div class="sub">across all runs</div>
     </div>
     <div class="stat-card">
-      <div class="label">Taste Profile</div>
-      <div id="taste-profile-display" style="font-size:13px; line-height:1.4; margin-top:6px; color:#ccc"></div>
+      <div class="label">Library Artists</div>
+      <div class="value" id="stat-library" style="font-size:18px">—</div>
+      <div class="sub" id="stat-playlists"></div>
     </div>
   </div>
 
@@ -306,8 +307,8 @@
     </div>
 
     <div class="history-card">
-      <h2>Energy Distribution</h2>
-      <div id="energy-dist" style="margin-top: 8px;"></div>
+      <h2>Taste Profile</h2>
+      <div id="taste-profile-display" style="margin-top:8px"></div>
     </div>
 
     <div class="history-card">
@@ -318,19 +319,18 @@
 </div>
 
 <script>
-  // ── fetch data from API (Vercel) or fallback to history.json directly ──
   async function loadData() {
-    try {
-      // Try to fetch from deployed history
-      let res = await fetch('../data/history.json')
-      if (res.ok) return await res.json()
-    } catch {}
+    const sources = ['/api/data', '../data/history.json', '/data/history.json']
 
-    try {
-      // Try API endpoint if available
-      let res = await fetch('/api/data')
-      if (res.ok) return await res.json()
-    } catch {}
+    for (const url of sources) {
+      try {
+        const res = await fetch(url)
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data)) return data
+        }
+      } catch {}
+    }
 
     return []
   }
@@ -374,6 +374,13 @@
     const avgEnergy = data.reduce((s, d) => s + (energyMap[d.energy_level] || 2), 0) / runs
     const energyLabel = avgEnergy > 2.4 ? 'High' : avgEnergy > 1.6 ? 'Medium' : 'Low'
     document.getElementById('stat-energy').textContent = energyLabel
+
+    document.getElementById('stat-library').textContent =
+      latest.library_artist_count ? latest.library_artist_count : '—'
+    document.getElementById('stat-playlists').textContent =
+      latest.source_playlists?.length
+        ? `from ${latest.source_playlists.length} playlists`
+        : 'from your library'
 
     // ── taste profile display ──
     const tasteProfile = latest.taste_profile || []
@@ -467,25 +474,11 @@
       historyEl.appendChild(div)
     })
 
-    // ── energy distribution ──
-    const energyCounts = countOccurrences(data.map(d => d.energy_level))
-    const energyEl = document.getElementById('energy-dist')
-    ;['high','medium','low'].forEach(level => {
-      const count = energyCounts[level] || 0
-      const pct = Math.round((count / runs) * 100)
-      const div = document.createElement('div')
-      div.className = 'energy-bar'
-      div.innerHTML = `
-        <div class="e-label">${level.charAt(0).toUpperCase() + level.slice(1)}</div>
-        <div class="e-track"><div class="e-fill" style="width:${pct}%"></div></div>
-        <div class="e-count">${count}</div>
-      `
-      energyEl.appendChild(div)
-    })
-
-    // ── top artists from latest run ──
+    // ── top artists from all runs ──
     const artistsEl = document.getElementById('top-artists')
-    const allArtists = data.flatMap(d => d.top_artists)
+    const allArtists = data.flatMap(d =>
+      d.preferred_artists?.length ? d.preferred_artists : d.top_artists || []
+    )
     const artistCounts = countOccurrences(allArtists)
     Object.entries(artistCounts)
       .sort((a,b) => b[1]-a[1])

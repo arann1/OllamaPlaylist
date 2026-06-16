@@ -1,3 +1,8 @@
 {
-  "outputDirectory": "dashboard"
+  "outputDirectory": "dashboard",
+  "functions": {
+    "dashboard/api/data.js": {
+      "includeFiles": "data/history.json"
+    }
+  }
 }

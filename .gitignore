@@ -1,9 +1,9 @@
 venv/
+.venv/
 __pycache__/
 
 .spotify_cache
 .cache
 
 logs/
-data/history.json
 .vercel
