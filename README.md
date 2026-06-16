@@ -1,224 +1,244 @@
 # OllamaPlaylist
 
-AI-powered music taste analytics platform that analyzes your Spotify listening history and automatically generates personalized playlists.
+AI-powered music taste analytics platform that analyzes your Spotify listening history and automatically generates personalized playlists using local LLMs.
+
+**[Live Dashboard](https://spotify-ai-playlist-three.vercel.app)** | **[GitHub](https://github.com/a-r-a-n/OllamaPlaylist)**
 
 ## Features
 
-- **Spotify Integration**: Analyzes your recently played tracks, top artists, and top tracks
-- **Local AI Analysis**: Uses Ollama to run local LLMs for taste profile generation
-- **Taste Profile**: Generates 5 descriptors explaining WHY you like music (e.g., "emotional lyrics", "dreamy production")
-- **Smart Search Queries**: Creates discovery-oriented search queries based on your taste
-- **Auto-Playlist Update**: Automatically updates a Spotify playlist with AI-recommended tracks
-- **Analytics Dashboard**: Visualizes taste evolution over time with interactive charts
-- **History Tracking**: Maintains a complete history of all analysis runs
+- **Taste Profile Analysis**: AI generates 5 descriptors explaining WHY you like music (e.g., "emotional lyrics", "dreamy production")
+- **Smart Recommendations**: Creates discovery-oriented search queries based on your taste
+- **Auto-Playlist Update**: Updates Spotify playlist with AI-recommended tracks
+- **Analytics Dashboard**: Interactive charts showing taste evolution over time
+- **History Tracking**: Complete history of all playlist generation runs
+- **Local LLM**: Uses Ollama for private, on-device AI analysis
 
-## Architecture
+## Quick Start
 
-```
-Spotify Data (recently played, top artists, top tracks)
-    ↓
-Ollama Analysis (generates taste_profile + search queries)
-    ↓
-Smart Playlist Update (searches Spotify, filters for uniqueness)
-    ↓
-History Tracking (stores snapshot of each run)
-    ↓
-Analytics Dashboard (visualizes trends)
-```
-
-## Prerequisites
+### Prerequisites
 
 - Python 3.8+
-- Spotify Developer Account (for API credentials)
-- Ollama running locally or remotely
-- A Spotify playlist created (manually in the app first)
+- [Spotify Developer Account](https://developer.spotify.com/dashboard)
+- [Ollama](https://ollama.ai) running locally
+- A Spotify playlist (create manually in the app first)
 
-## Setup
-
-### 1. Install Dependencies
+### 1. Install
 
 ```bash
+cd backend
 pip install -r requirements.txt
 ```
 
-### 2. Create `.env` File
+### 2. Configure
+
+Create `.env` in the project root:
 
 ```env
-# Spotify API Credentials
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
+SPOTIFY_CLIENT_ID=your_id
+SPOTIFY_CLIENT_SECRET=your_secret
 SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
 
-# Ollama Configuration
-OLLAMA_HOST=http://192.168.1.77:11434
+OLLAMA_HOST=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:7b
 ```
 
-### 3. Get Spotify Credentials
+**Get Spotify credentials:**
+1. Visit https://developer.spotify.com/dashboard
+2. Create app → Copy Client ID and Secret
+3. Add Redirect URI: `http://localhost:8888/callback`
 
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new app
-3. Accept terms and create
-4. Copy Client ID and Client Secret to `.env`
-5. Add redirect URI: `http://localhost:8888/callback`
-
-### 4. Create Playlist in Spotify
-
-Create a playlist manually in Spotify called "OllamaPlaylist" (or set `PLAYLIST_NAME` in config.py)
-
-### 5. Verify Ollama is Running
+**Setup Ollama:**
 
 ```bash
-ollama serve
-# In another terminal:
-ollama pull qwen2.5:7b
+ollama serve          # Terminal 1: Start Ollama
+ollama pull qwen2.5:7b   # Terminal 2: Download model
 ```
 
-## Usage
-
-### Generate Playlist (One-time)
+### 3. Run
 
 ```bash
 cd backend
 python playlist_updater.py
 ```
 
-This will:
-1. Fetch your recent tracks, top artists, and top tracks
-2. Send to Ollama for analysis
-3. Generate search queries based on taste profile
-4. Search Spotify for recommendations
-5. Update your playlist
-6. Save run to history
+First run opens browser for Spotify OAuth. Subsequent runs use cached credentials.
 
-### View Dashboard
+### 4. View Dashboard
 
-Open `dashboard/index.html` in your browser to see analytics.
-
-For Vercel deployment:
-```bash
-vercel
-```
-
-## File Structure
-
-```
-.
-├── backend/                 # Python backend (local only)
-│   ├── playlist_updater.py  # Entry point to generate playlists
-│   ├── analyzer.py          # Ollama AI analysis
-│   ├── spotify.py           # Spotify API integration
-│   ├── tracker.py           # History tracking
-│   ├── config.py            # Configuration & auth
-│   └── requirements.txt      # Python dependencies
-├── dashboard/               # Web dashboard (deployed to Vercel)
-│   ├── index.html           # Frontend dashboard
-│   └── api/
-│       └── data.js          # API endpoint (optional)
-├── data/
-│   └── history.json         # Run history (generated by backend)
-├── logs/                    # Execution logs (local only)
-├── .github/
-│   └── workflows/ci.yml     # GitHub Actions CI
-├── vercel.json              # Vercel configuration
-└── README.md
-```
+Open https://spotify-ai-playlist-three.vercel.app (or local `dashboard/index.html`)
 
 ## How It Works
 
-### 1. Data Collection
+### Data Flow
 
-Fetches from Spotify:
-- Last 50 recently played tracks
-- Top 20 tracks (last 4 weeks)
-- Top 20 artists (last 4 weeks)
+```
+Your Spotify Account
+    ↓ (recently played, top artists, top tracks)
+Ollama AI Analysis
+    ↓ (generates taste_profile + search_queries)
+Spotify Search
+    ↓ (finds recommendations matching queries)
+Playlist Update
+    ↓ (adds 30 new tracks to playlist)
+History Tracking
+    ↓ (stores snapshot in data/history.json)
+Dashboard Display
+    ↓ (visualizes trends over time)
+```
 
-### 2. Taste Analysis
+### What Gets Generated
 
-Sends to Ollama with prompt requesting:
-- **Mood**: 2-3 word description
-- **Energy Level**: low/medium/high
-- **Genres**: Top 3 genres
-- **Taste Profile**: 5 descriptors (WHY you like music)
-- **Search Queries**: 10 discovery-oriented queries
-- **Summary**: One sentence overview
+Each run produces:
 
-### 3. Playlist Generation
+```json
+{
+  "mood": "Melancholic Indie",
+  "energy_level": "medium",
+  "genres": ["indie", "alternative", "art-pop"],
+  "taste_profile": [
+    "emotional lyrics",
+    "dreamy production",
+    "atmospheric vocals",
+    "introspective songwriting",
+    "indie aesthetics"
+  ],
+  "search_queries": [
+    "emotional indie artists",
+    "atmospheric bedroom pop",
+    "dreamy alternative vocals",
+    ...
+  ],
+  "summary": "Mix of emotional indie and atmospheric art-pop with introspective themes."
+}
+```
 
-For each search query:
-1. Search Spotify (up to 6 results per query)
-2. Filter already-played tracks
-3. Limit to 1 track per artist
-4. Take top 30 unique tracks
-5. Replace playlist contents
+## Project Structure
 
-### 4. History Tracking
+```
+.
+├── backend/                    # Python backend (local only)
+│   ├── playlist_updater.py     # Main entry point
+│   ├── analyzer.py             # Ollama AI integration
+│   ├── spotify.py              # Spotify API client
+│   ├── tracker.py              # History management
+│   ├── config.py               # Configuration
+│   └── requirements.txt         # Dependencies
+├── dashboard/                  # Web frontend (deployed to Vercel)
+│   └── index.html              # Interactive dashboard
+├── data/
+│   └── history.json            # Generated history (auto-created)
+├── .github/
+│   └── workflows/ci.yml        # GitHub Actions CI
+├── README.md                   # This file
+├── vercel.json                 # Vercel deployment config
+└── .gitignore
+```
 
-Saves to `data/history.json`:
-- Timestamp and runtime
-- Mood, energy, genres
-- Taste profile
-- Search queries
-- Tracks added
-- Top artists sample
+## Dashboard
 
-### 5. Dashboard Display
+**Live:** https://spotify-ai-playlist-three.vercel.app
 
-Visualizes:
-- Total runs
-- Current mood and energy
-- Top genre this month
-- Energy timeline chart
-- Genre breakdown (doughnut)
-- Run history
-- Energy distribution
-- Top artists
+**Features:**
+- Current mood, energy, taste profile
+- Energy level timeline chart
+- Genre distribution chart
+- Run history with summaries
+- Top artists across all runs
+- Energy distribution stats
+
+**Data Source:** Reads from `data/history.json` (generated by backend)
 
 ## Configuration
 
-Edit `config.py` to customize:
-- `PLAYLIST_NAME`: Playlist to update
-- `OLLAMA_HOST`: Ollama server URL
-- `OLLAMA_MODEL`: LLM model to use
-- `SPOTIFY_SCOPE`: API permissions
-
-## Environment Variables
+### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SPOTIFY_CLIENT_ID` | — | Required: Spotify API ID |
-| `SPOTIFY_CLIENT_SECRET` | — | Required: Spotify API secret |
-| `SPOTIFY_REDIRECT_URI` | — | Required: OAuth redirect URL |
-| `OLLAMA_HOST` | `http://192.168.1.77:11434` | Ollama server address |
-| `OLLAMA_MODEL` | `qwen2.5:7b` | LLM model name |
+| `SPOTIFY_CLIENT_ID` | — | **Required:** Spotify app ID |
+| `SPOTIFY_CLIENT_SECRET` | — | **Required:** Spotify app secret |
+| `SPOTIFY_REDIRECT_URI` | — | **Required:** OAuth redirect URL |
+| `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
+| `OLLAMA_MODEL` | `qwen2.5:7b` | LLM model to use |
+| `PLAYLIST_NAME` | `OllamaPlaylist` | Spotify playlist to update |
+
+### Running Automatically
+
+Use cron for scheduled updates:
+
+```bash
+# Every day at midnight
+0 0 * * * cd ~/spotify-ai-playlist/backend && python playlist_updater.py
+```
 
 ## Troubleshooting
 
-### "Playlist not found"
-Create the playlist manually in Spotify first, then run main.py
+**"Playlist not found"**
+→ Create playlist manually in Spotify app first, then run
 
-### "Ollama failed"
-- Verify Ollama is running: `curl http://localhost:11434/api/tags`
-- Check `OLLAMA_HOST` in `.env`
-- Ensure model is downloaded: `ollama pull qwen2.5:7b`
+**"Ollama connection failed"**
+→ Check Ollama is running: `curl http://localhost:11434/api/tags`
+→ Verify `OLLAMA_HOST` in `.env`
 
-### Dashboard shows "No runs yet"
-Run `python main.py` first to generate history.json
+**"Spotify authentication failed"**
+→ Delete `.spotify_cache` in root directory
+→ Verify Client ID/Secret in `.env`
+→ Check Redirect URI matches Spotify app settings
 
-### Spotify authentication fails
-- Clear `.spotify_cache` file
-- Verify credentials in `.env`
-- Ensure redirect URI matches Spotify app settings
+**Dashboard shows "No runs yet"**
+→ Run `python playlist_updater.py` to generate `data/history.json`
 
-## Future Improvements
+## Development
 
-- [ ] Taste Evolution chart (how taste changes over time)
-- [ ] CLI for scheduling (cron integration)
-- [ ] Support for different LLM models
+### Running Tests
+
+```bash
+cd backend
+python -m pytest  # If tests added
+```
+
+### CI/CD
+
+GitHub Actions runs on every push:
+- Python syntax validation (3.8, 3.9, 3.10, 3.11)
+- Import verification
+- Linting checks
+
+Dashboard auto-deploys to Vercel on every GitHub push.
+
+## Future Ideas
+
+- [ ] Taste evolution visualization (how preferences change over time)
+- [ ] CLI interface for scheduling
+- [ ] Support for multiple LLM models
 - [ ] Playlist filtering by decade/language
 - [ ] Integration with other music services
-- [ ] Mobile dashboard
+- [ ] Mobile app version
+- [ ] Cron integration for automatic daily updates
+
+## Architecture Notes
+
+### Backend/Frontend Separation
+
+- **Backend** (`/backend`): Local Python execution only
+  - Requires Spotify credentials and Ollama
+  - Generates `data/history.json`
+  - Not deployed anywhere
+
+- **Frontend** (`/dashboard`): Static HTML deployed to Vercel
+  - Reads from `data/history.json`
+  - No backend required
+  - Gracefully handles missing data
+
+This separation keeps credentials off cloud servers while making the dashboard globally accessible.
 
 ## License
 
 MIT
+
+## Author
+
+Built with Anthropic's Claude Code Assistant
+
+---
+
+**Questions?** Check the [GitHub Issues](https://github.com/a-r-a-n/OllamaPlaylist/issues) or README troubleshooting section.
