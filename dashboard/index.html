@@ -408,7 +408,7 @@
 
     .artist-item {
       display: grid;
-      grid-template-columns: 36px 28px 1fr auto;
+      grid-template-columns: 28px 1fr auto;
       gap: 12px;
       align-items: center;
       padding: 10px 0;
@@ -469,109 +469,16 @@
     .track-item:last-child { border-bottom: none; }
 
     .track-art {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
       background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(185, 103, 255, 0.25));
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.7);
-      flex-shrink: 0;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-    }
-
-    .track-art img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .artist-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: linear-gradient(135deg, rgba(30, 215, 96, 0.3), rgba(185, 103, 255, 0.3));
       flex-shrink: 0;
     }
-
-    .artist-avatar.fallback {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      color: #ccc;
-    }
-
-    .cover-section {
-      padding: 24px;
-      margin-bottom: 20px;
-      animation: fadeUp 0.6s ease 0.18s both;
-    }
-
-    .cover-strip {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-      gap: 14px;
-      margin-top: 4px;
-    }
-
-    .cover-card {
-      cursor: default;
-      transition: transform 0.2s ease;
-    }
-
-    .cover-card:hover { transform: translateY(-4px); }
-
-    .cover-card img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-      display: block;
-    }
-
-    .cover-card .cover-title {
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .cover-card .cover-artist {
-      font-size: 11px;
-      color: var(--dim);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .hero-covers {
-      display: flex;
-      gap: 0;
-      margin-top: 24px;
-    }
-
-    .hero-covers img {
-      width: 52px;
-      height: 52px;
-      border-radius: 10px;
-      object-fit: cover;
-      border: 2px solid rgba(5, 5, 5, 0.8);
-      margin-left: -14px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .hero-covers img:first-child { margin-left: 0; }
 
     .track-meta .title {
       font-size: 14px;
@@ -761,7 +668,6 @@
         <div class="hero-mood" id="hero-mood">—</div>
         <p class="hero-summary" id="hero-summary">—</p>
         <div class="hero-tags" id="hero-tags"></div>
-        <div class="hero-covers" id="hero-covers"></div>
         <div class="playlist-chips" id="source-playlists"></div>
       </div>
       <div class="hero-side">
@@ -800,14 +706,6 @@
           </div>
         </div>
       </div>
-    </section>
-
-    <section class="card cover-section" id="curated-section" style="display:none">
-      <div class="section-head">
-        <h2>Latest Curated Playlist</h2>
-        <span id="curated-count">—</span>
-      </div>
-      <div class="cover-strip" id="curated-covers"></div>
     </section>
 
     <section class="stats-row">
@@ -914,44 +812,6 @@
     const ENERGY_LABEL = { 1: 'Low', 2: 'Medium', 3: 'High' }
     const COLORS = ['#1ed760', '#1db954', '#59cfcf', '#b967ff', '#f037a5', '#ffa42b', '#477dff', '#ff6b6b']
 
-    function artistName(entry) {
-      return typeof entry === 'string' ? entry : entry?.name || '—'
-    }
-
-    function artHtml(image, label, round = false) {
-      const cls = round ? 'artist-avatar' : 'track-art'
-      if (image) {
-        return `<img class="${cls}" src="${image}" alt="${label || ''}" loading="lazy" referrerpolicy="no-referrer" />`
-      }
-      const initial = (label || '?')[0].toUpperCase()
-      return `<div class="${cls} fallback">${initial}</div>`
-    }
-
-    function renderTrackRow(track) {
-      return `
-        <div class="track-item">
-          ${artHtml(track.album_art, track.name)}
-          <div class="track-meta">
-            <div class="title">${track.name}</div>
-            <div class="artist">${track.artist}</div>
-          </div>
-        </div>
-      `
-    }
-
-    function renderCoverCard(track) {
-      const card = document.createElement('div')
-      card.className = 'cover-card'
-      card.innerHTML = `
-        ${track.album_art
-          ? `<img src="${track.album_art}" alt="${track.name}" loading="lazy" referrerpolicy="no-referrer" />`
-          : `<div class="track-art fallback" style="width:100%;aspect-ratio:1;height:auto;font-size:24px">${track.name[0]}</div>`}
-        <div class="cover-title">${track.name}</div>
-        <div class="cover-artist">${track.artist}</div>
-      `
-      return card
-    }
-
     async function loadData() {
       for (const url of ['/api/data', '/data/history.json', '../data/history.json']) {
         try {
@@ -982,16 +842,10 @@
       return sec >= 60 ? `${Math.round(sec)}s` : `${sec}s`
     }
 
-    function artistNames(run) {
-      const pref = run.preferred_artists || []
-      if (pref.length) return pref.map(a => artistName(a))
-      return (run.top_artists || []).map(a => artistName(a))
-    }
-
     function artistOverlap(runs) {
       if (runs.length < 2) return runs.length ? 100 : 0
-      const latest = new Set(artistNames(runs[runs.length - 1]))
-      const prev = new Set(artistNames(runs[runs.length - 2]))
+      const latest = new Set(runs[runs.length - 1].preferred_artists || runs[runs.length - 1].top_artists || [])
+      const prev = new Set(runs[runs.length - 2].preferred_artists || runs[runs.length - 2].top_artists || [])
       if (!latest.size || !prev.size) return 0
       let overlap = 0
       latest.forEach(a => { if (prev.has(a)) overlap++ })
@@ -1022,13 +876,12 @@
       })
     }
 
-    function renderArtists(el, artists, maxScore, imageMap = {}) {
+    function renderArtists(el, artists, maxScore) {
       el.innerHTML = ''
       artists.forEach(([name, score], i) => {
         const row = document.createElement('div')
         row.className = 'artist-item'
         row.innerHTML = `
-          ${artHtml(imageMap[name], name, true)}
           <div class="rank ${i < 3 ? 'top' : ''}">${i + 1}</div>
           <div class="artist-info">
             <div class="name">${name}</div>
@@ -1083,25 +936,6 @@
         t.textContent = name
         srcEl.appendChild(t)
       })
-
-      const curated = latest.curated_tracks_sample || []
-      const heroCovers = document.getElementById('hero-covers')
-      curated.slice(0, 8).forEach(track => {
-        if (!track.album_art) return
-        const img = document.createElement('img')
-        img.src = track.album_art
-        img.alt = track.name
-        img.loading = 'lazy'
-        img.referrerPolicy = 'no-referrer'
-        heroCovers.appendChild(img)
-      })
-
-      if (curated.length) {
-        document.getElementById('curated-section').style.display = 'block'
-        document.getElementById('curated-count').textContent = `${curated.length} tracks with cover art`
-        const strip = document.getElementById('curated-covers')
-        curated.forEach(track => strip.appendChild(renderCoverCard(track)))
-      }
 
       // Mini stats
       document.getElementById('stat-tracks').textContent = latest.tracks_added ?? '—'
@@ -1284,53 +1118,40 @@
       })
 
       // Preferred artists (latest)
-      const prefDetail = latest.preferred_artists_detail
-        || (latest.preferred_artists || []).map(name => ({ name, image: null }))
+      const pref = latest.preferred_artists || []
       const prefEl = document.getElementById('preferred-artists')
-      prefDetail.forEach((artist, i) => {
+      pref.forEach((name, i) => {
         const row = document.createElement('div')
         row.className = 'artist-item'
-        row.style.gridTemplateColumns = '36px 1fr auto'
         row.innerHTML = `
-          ${artHtml(artist.image, artist.name, true)}
-          <div class="artist-info"><div class="name">${artist.name}</div></div>
-          <div class="artist-score">${i < 3 ? '★' : ''}</div>
+          <div class="rank ${i < 3 ? 'top' : ''}">${i + 1}</div>
+          <div class="artist-info"><div class="name">${name}</div></div>
+          <div class="artist-score">★</div>
         `
         prefEl.appendChild(row)
       })
 
       // Leaderboard
-      const imageMap = {}
-      data.forEach(run => {
-        ;(run.top_artists || []).forEach(a => {
-          const name = artistName(a)
-          const image = typeof a === 'object' ? a.image : null
-          if (image && !imageMap[name]) imageMap[name] = image
-        })
-        ;(run.preferred_artists_detail || []).forEach(a => {
-          if (a.image && !imageMap[a.name]) imageMap[a.name] = a.image
-        })
-      })
-
-      const allArtists = data.flatMap(d => {
-        const pref = d.preferred_artists || []
-        const top = d.top_artists || []
-        const source = pref.length ? pref : top
-        return source.map(a => artistName(a))
-      })
+      const allArtists = data.flatMap(d =>
+        (d.preferred_artists?.length ? d.preferred_artists : d.top_artists) || []
+      )
       const artistCounts = count(allArtists)
       const sortedArtists = Object.entries(artistCounts).sort((a, b) => b[1] - a[1]).slice(0, 12)
-      renderArtists(
-        document.getElementById('artist-leaderboard'),
-        sortedArtists,
-        sortedArtists[0]?.[1] || 1,
-        imageMap,
-      )
+      renderArtists(document.getElementById('artist-leaderboard'), sortedArtists, sortedArtists[0]?.[1] || 1)
 
       // Recent tracks
       const recentEl = document.getElementById('recent-tracks')
       ;(latest.recent_tracks_sample || []).forEach(track => {
-        recentEl.insertAdjacentHTML('beforeend', renderTrackRow(track))
+        const row = document.createElement('div')
+        row.className = 'track-item'
+        row.innerHTML = `
+          <div class="track-art">♪</div>
+          <div class="track-meta">
+            <div class="title">${track.name}</div>
+            <div class="artist">${track.artist}</div>
+          </div>
+        `
+        recentEl.appendChild(row)
       })
 
       // Timeline

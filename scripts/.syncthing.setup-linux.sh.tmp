@@ -29,13 +29,11 @@ if [[ ! -f "$BACKEND/.spotify_cache" ]]; then
 fi
 
 echo "Creating virtualenv..."
-rm -rf "$VENV"
 python3 -m venv "$VENV"
 "$VENV/bin/pip" install --upgrade pip
 "$VENV/bin/pip" install -r "$ROOT/backend/requirements.txt"
 
 chmod +x "$ROOT/scripts/run_playlist_update.sh"
-chmod +x "$ROOT/scripts/push_history.sh"
 
 RUN_LINE="0 0 * * * $ROOT/scripts/run_playlist_update.sh"
 TMP_CRON="$(mktemp)"

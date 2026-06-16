@@ -65,6 +65,18 @@ chmod +x scripts/setup-linux.sh scripts/run_playlist_update.sh
 
 Cron logs go to `logs/cron_*.log`. Requires `backend/.spotify_cache` from one interactive auth run first. Use `OLLAMA_HOST=http://127.0.0.1:11434` when Ollama runs on the same machine.
 
+Add `GITHUB_TOKEN=ghp_...` to `.env` on Linux for auto-push after each run (GitHub → Settings → Developer settings → Personal access tokens, scope: `repo`).
+
+**Watch live logs from your Mac:**
+
+```bash
+chmod +x scripts/watch-linux.sh
+./scripts/watch-linux.sh
+# or with password auth: SSHPASS=yourpass ./scripts/watch-linux.sh
+```
+
+Tip: run `ssh-copy-id aran@192.168.1.77` once so you never need the password for watching logs.
+
 ## Project Structure
 
 ```

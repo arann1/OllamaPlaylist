@@ -94,9 +94,6 @@ def main():
     log.info(f"Updating playlist '{PLAYLIST_NAME}'...")
     get_or_update_playlist(final_ids, PLAYLIST_NAME)
 
-    library_by_id = {t["id"]: t for t in library_tracks}
-    curated_tracks = [library_by_id[tid] for tid in final_ids if tid in library_by_id]
-
     log.info("Saving run to history...")
     runtime = round(time() - start_time, 2)
     save_run(
@@ -107,7 +104,6 @@ def main():
         runtime,
         library_artist_count=len(library_artists),
         source_playlists=source_playlists,
-        curated_tracks=curated_tracks,
     )
 
     log.info(f"=== Done. Log saved to {log_file} ===")
