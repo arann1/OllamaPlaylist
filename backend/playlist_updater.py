@@ -15,8 +15,11 @@ from config import PLAYLIST_NAME
 from time import time
 
 # Setup logging
-os.makedirs("logs", exist_ok=True)
-log_file = f"logs/run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(backend_dir)
+logs_dir = os.path.join(project_dir, "logs")
+os.makedirs(logs_dir, exist_ok=True)
+log_file = f"{logs_dir}/run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,

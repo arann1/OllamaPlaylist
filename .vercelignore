@@ -1,32 +1,21 @@
-# Ignore all Python files
-*.py
-*.pyc
-*.pyo
-*.pyd
-__pycache__/
-*.egg-info/
+# Ignore backend completely
+backend/
 
-# Ignore Python virtual environment
+# Ignore Python environment
 venv/
 env/
 
 # Ignore config files
 .env
 .env.local
-.env.*.local
-pyproject.toml
 
 # Ignore logs and cache
 logs/
 .spotify_cache
 .cache
-*.log
 
-# Ignore git and CI
+# Ignore git
 .git/
 .github/
 .gitignore
 
-# Ignore development files
-data/
-.vercelignore

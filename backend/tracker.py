@@ -2,8 +2,9 @@ import json
 import os
 from datetime import datetime
 
-
-HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "history.json")
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(backend_dir)
+HISTORY_FILE = os.path.join(project_dir, "data", "history.json")
 
 
 def load_history():
