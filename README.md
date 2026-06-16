@@ -55,6 +55,16 @@ python playlist_updater.py
 
 First run opens the browser for Spotify OAuth. After each run, commit `data/history.json` to update the live dashboard.
 
+### Linux server automation (every 24h)
+
+```bash
+chmod +x scripts/setup-linux.sh scripts/run_playlist_update.sh
+./scripts/setup-linux.sh          # creates .venv + daily cron at midnight
+./scripts/run_playlist_update.sh  # test a run manually
+```
+
+Cron logs go to `logs/cron_*.log`. Requires `backend/.spotify_cache` from one interactive auth run first. Use `OLLAMA_HOST=http://127.0.0.1:11434` when Ollama runs on the same machine.
+
 ## Project Structure
 
 ```

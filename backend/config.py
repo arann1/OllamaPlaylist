@@ -32,8 +32,8 @@ def get_sp():
             client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
             redirect_uri=os.getenv("SPOTIFY_REDIRECT_URI"),
             scope=SPOTIFY_SCOPE,
-            open_browser=True,
-            cache_path=".spotify_cache",
+            open_browser=os.getenv("SPOTIFY_HEADLESS", "").lower() not in ("1", "true", "yes"),
+            cache_path=os.getenv("SPOTIFY_CACHE_PATH", ".spotify_cache"),
         ))
     return _sp
 
