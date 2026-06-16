@@ -1,4 +1,12 @@
+import logging
+
+from spotipy.exceptions import SpotifyException
+
 from config import get_sp, PLAYLIST_NAME
+
+log = logging.getLogger(__name__)
+
+_user_market = None
 
 
 def get_recently_played(limit=50):
@@ -42,35 +50,66 @@ def get_top_tracks(limit=20, time_range="short_term"):
     return tracks
 
 
+def _get_user_market():
+    """Return the user's country code for market-aware playlist requests."""
+    global _user_market
+    if _user_market is None:
+        try:
+            _user_market = get_sp().current_user().get("country")
+        except Exception:
+            _user_market = False
+    return _user_market or None
+
+
 def get_user_playlists(limit=50):
     """Fetch the user's playlists."""
     sp = get_sp()
     results = sp.current_user_playlists(limit=limit)
-    return [
-        {
+    playlists = []
+    for p in results["items"]:
+        track_count = (p.get("tracks") or {}).get("total", -1)
+        owner = p.get("owner") or {}
+        playlists.append({
             "id": p["id"],
             "name": p["name"],
-            "track_count": p["tracks"]["total"],
-        }
-        for p in results["items"]
-    ]
+            "track_count": track_count,
+            "owner_id": owner.get("id"),
+        })
+    return playlists
 
 
-def get_playlist_tracks(playlist_id, max_tracks=150):
+def _playlist_item_track(item):
+    """Extract a track object from a playlist item (handles API format changes)."""
+    track = item.get("track") or item.get("item")
+    if not track or track.get("type") != "track":
+        return None
+    if track.get("is_local") or item.get("is_local") or not track.get("id"):
+        return None
+    return track
+
+
+def get_playlist_tracks(playlist_id, max_tracks=150, market=None):
     """Fetch tracks from a playlist with pagination."""
     sp = get_sp()
+    if market is None:
+        market = _get_user_market()
     tracks = []
     offset = 0
 
     while len(tracks) < max_tracks:
-        batch = sp.playlist_tracks(playlist_id, offset=offset, limit=100)
+        batch = sp.playlist_tracks(
+            playlist_id,
+            offset=offset,
+            limit=100,
+            market=market,
+        )
         items = batch["items"]
         if not items:
             break
 
         for item in items:
-            track = item.get("track")
-            if not track or track.get("is_local") or not track.get("id"):
+            track = _playlist_item_track(item)
+            if not track:
                 continue
             tracks.append({
                 "id": track["id"],
@@ -99,20 +138,46 @@ def collect_library_from_playlists(
     exclude_name = exclude_name or PLAYLIST_NAME
     playlists = get_user_playlists(limit=50)
 
-    active = [
+    try:
+        user_id = get_sp().current_user()["id"]
+    except Exception:
+        user_id = None
+
+    eligible = [
         p for p in playlists
-        if p["name"] != exclude_name and p["track_count"] > 0
-    ][:max_playlists]
+        if p["name"] != exclude_name and p["track_count"] != 0
+    ]
+    owned = [p for p in eligible if user_id and p.get("owner_id") == user_id]
+    active = owned[:max_playlists]
+
+    if not active:
+        log.warning("No owned playlists found — skipping followed playlists to avoid 403 errors")
 
     all_tracks = []
     artist_counts = {}
     seen_ids = set()
+    used_playlists = []
 
     for playlist in active:
-        for track in get_playlist_tracks(
-            playlist["id"],
-            max_tracks=max_tracks_per_playlist,
-        ):
+        try:
+            playlist_tracks = get_playlist_tracks(
+                playlist["id"],
+                max_tracks=max_tracks_per_playlist,
+            )
+        except SpotifyException as exc:
+            if exc.http_status == 403:
+                log.warning(
+                    "Skipping playlist %r — not readable via API (403)",
+                    playlist["name"],
+                )
+                continue
+            raise
+
+        if not playlist_tracks:
+            continue
+
+        used_playlists.append(playlist)
+        for track in playlist_tracks:
             if track["id"] in seen_ids:
                 continue
             seen_ids.add(track["id"])
@@ -126,7 +191,7 @@ def collect_library_from_playlists(
         reverse=True,
     )
 
-    return all_tracks, library_artists, [p["name"] for p in active]
+    return all_tracks, library_artists, [p["name"] for p in used_playlists]
 
 
 def _normalize(text):

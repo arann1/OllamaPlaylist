@@ -1,7 +1,10 @@
 import json
+import logging
+import time
 
-from config import get_ollama, OLLAMA_MODEL
+from config import OLLAMA_HOST, OLLAMA_MODEL, get_ollama
 
+log = logging.getLogger(__name__)
 
 DEFAULT_ANALYSIS = {
     "mood": "Balanced Indie",
@@ -156,6 +159,26 @@ def validate(data, library_artists):
     return data
 
 
+def _log_ollama_stats(response, elapsed):
+    """Log token/timing stats that mirror what Ollama writes to journalctl."""
+    prompt_tokens = response.get("prompt_eval_count")
+    output_tokens = response.get("eval_count")
+    load_ms = response.get("load_duration", 0) / 1_000_000
+    prompt_ms = response.get("prompt_eval_duration", 0) / 1_000_000
+    eval_ms = response.get("eval_duration", 0) / 1_000_000
+
+    log.info(
+        "Ollama finished in %.1fs | load=%.0fms prompt=%.0fms eval=%.0fms | "
+        "tokens in=%s out=%s",
+        elapsed,
+        load_ms,
+        prompt_ms,
+        eval_ms,
+        prompt_tokens if prompt_tokens is not None else "?",
+        output_tokens if output_tokens is not None else "?",
+    )
+
+
 def analyze(
     tracks,
     top_artists,
@@ -173,26 +196,42 @@ def analyze(
         source_playlists,
     )
 
-    print(f"Sending to Ollama ({OLLAMA_MODEL})...")
+    log.info(
+        "Ollama request -> host=%s model=%s | recent=%d library=%d artists=%d playlists=%d prompt_chars=%d",
+        OLLAMA_HOST,
+        OLLAMA_MODEL,
+        len(tracks),
+        len(library_tracks),
+        len(library_artists),
+        len(source_playlists),
+        len(prompt),
+    )
 
     try:
+        started = time.time()
         response = get_ollama().chat(
             model=OLLAMA_MODEL,
             format="json",
             messages=[{"role": "user", "content": prompt}],
+            options={"temperature": 0.4},
         )
+        elapsed = time.time() - started
 
         raw = response["message"]["content"]
-        print("\n=== RAW OLLAMA RESPONSE ===")
-        print(raw)
-        print("===========================\n")
+        _log_ollama_stats(response, elapsed)
 
         data = json.loads(raw)
+        log.info(
+            "Ollama result mood=%r energy=%r genres=%s",
+            data.get("mood"),
+            data.get("energy_level"),
+            ", ".join(data.get("genres", [])),
+        )
         return validate(data, library_artists)
 
     except Exception as e:
-        print(f"Ollama failed: {e}")
-        print("Using fallback analysis from library artists.")
+        log.error("Ollama failed after request: %s", e)
+        log.warning("Using fallback analysis from library artists.")
 
         fallback = DEFAULT_ANALYSIS.copy()
         fallback["preferred_artists"] = [a["name"] for a in library_artists[:10]]

@@ -1,5 +1,4 @@
 venv/
-.venv/
 __pycache__/
 
 .spotify_cache
@@ -7,3 +6,4 @@ __pycache__/
 
 logs/
 .vercel
+dashboard/data/
