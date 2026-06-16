@@ -23,6 +23,14 @@ def load_history():
         return []
 
 
+def _track_snapshot(track):
+    return {
+        "name": track["name"],
+        "artist": track["artist"],
+        "album_art": track.get("album_art"),
+    }
+
+
 def save_run(
     analysis,
     tracks,
@@ -31,9 +39,13 @@ def save_run(
     runtime,
     library_artist_count=0,
     source_playlists=None,
+    curated_tracks=None,
 ):
     """Append a single run snapshot to history.json."""
     history = load_history()
+
+    artist_images = {a["name"]: a.get("image") for a in top_artists}
+    preferred = analysis.get("preferred_artists", [])
 
     snapshot = {
         "timestamp": datetime.now().isoformat(),
@@ -45,15 +57,24 @@ def save_run(
         "energy_level": analysis["energy_level"],
         "genres": analysis["genres"],
         "taste_profile": analysis.get("taste_profile", []),
-        "preferred_artists": analysis.get("preferred_artists", []),
+        "preferred_artists": preferred,
+        "preferred_artists_detail": [
+            {"name": name, "image": artist_images.get(name)}
+            for name in preferred
+        ],
         "summary": analysis["summary"],
         "tracks_added": track_count,
         "library_artist_count": library_artist_count,
         "source_playlists": source_playlists or [],
-        "top_artists": [a["name"] for a in top_artists[:10]],
+        "top_artists": [
+            {"name": a["name"], "image": a.get("image")}
+            for a in top_artists[:10]
+        ],
         "recent_tracks_sample": [
-            {"name": t["name"], "artist": t["artist"]}
-            for t in tracks[:10]
+            _track_snapshot(t) for t in tracks[:10]
+        ],
+        "curated_tracks_sample": [
+            _track_snapshot(t) for t in (curated_tracks or [])[:12]
         ],
     }
 
