@@ -350,7 +350,7 @@
     const data = await loadData()
 
     if (!data || data.length === 0) {
-      document.getElementById('loading').innerHTML = '<span style="color:#444">No runs yet. Run main.py first.</span>'
+      document.getElementById('loading').innerHTML = '<span style="color:#444">No runs yet. Run <code style="background:#1a1a1a;padding:2px 6px;border-radius:3px">cd backend && python playlist_updater.py</code> first.</span>'
       return
     }
 
