@@ -71,7 +71,26 @@ data/
 
 ## Dashboard
 
-The dashboard reads from `data/history.json` via `/api/data`. After running locally, commit the updated history file and push to deploy new data to Vercel.
+The dashboard is a static site on Vercel. The build step copies `data/history.json` into the deployed site at `/data/history.json`.
+
+**To update the live dashboard:**
+
+1. Run `python playlist_updater.py` locally
+2. Commit and push `data/history.json`
+3. Vercel redeploys automatically from GitHub
+
+**Deploy troubleshooting:** If Vercel builds fail with an unmatched function pattern, ensure `vercel.json` uses `api/data.js` (not `dashboard/api/data.js`) because `outputDirectory` is already set to `dashboard`.
+
+## Ollama logging (iMac)
+
+The Python run logs Ollama timing and token stats to your terminal/log file. For richer output in `journalctl -u ollama -f` on the iMac:
+
+```bash
+./scripts/enable-ollama-debug-logs.sh
+journalctl -u ollama -f
+```
+
+This sets `OLLAMA_DEBUG=1` on the systemd service so each `/api/chat` request shows load time, eval time, and token counts.
 
 ## Troubleshooting
 
@@ -80,7 +99,8 @@ The dashboard reads from `data/history.json` via `/api/data`. After running loca
 | Playlist not found | Create `OllamaPlaylist` in Spotify first |
 | No tracks in library | Add music to your personal playlists |
 | Ollama connection failed | Run `ollama serve`, check `OLLAMA_HOST` |
-| Auth failed | Delete `.spotify_cache`, verify `.env` credentials |
+| Auth failed | Delete `backend/.spotify_cache`, verify `.env` credentials |
+| 403 on playlist tracks | Delete `backend/.spotify_cache` and re-auth (scopes may have changed); some followed/editorial playlists are skipped automatically |
 | Dashboard empty | Run the backend, then commit `data/history.json` |
 
 ## License

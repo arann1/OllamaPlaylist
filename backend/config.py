@@ -13,9 +13,11 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
 SPOTIFY_SCOPE = " ".join([
     "user-read-recently-played",
     "user-top-read",
+    "user-read-private",
     "playlist-modify-public",
     "playlist-modify-private",
     "playlist-read-private",
+    "playlist-read-collaborative",
 ])
 
 _sp = None

@@ -1,8 +1,4 @@
 {
-  "outputDirectory": "dashboard",
-  "functions": {
-    "dashboard/api/data.js": {
-      "includeFiles": "data/history.json"
-    }
-  }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dashboard"
 }

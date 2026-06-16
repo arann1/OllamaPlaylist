@@ -4,7 +4,7 @@
   "description": "AI-powered music taste analytics dashboard",
   "private": true,
   "scripts": {
-    "build": "echo 'Static dashboard build'",
+    "build": "mkdir -p dashboard/data && cp data/history.json dashboard/data/history.json 2>/dev/null || echo '[]' > dashboard/data/history.json",
     "start": "echo 'This is a static deployment'"
   }
 }

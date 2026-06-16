@@ -1,1 +1,196 @@
-[]
+[
+  {
+    "timestamp": "2026-06-15T20:47:42.139479",
+    "date": "2026-06-15",
+    "time": "20:47",
+    "runtime_seconds": 453.22,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic romantic",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "alternative",
+      "indie rock"
+    ],
+    "taste_profile": [
+      "romantic",
+      "nostalgic",
+      "emotional",
+      "upbeat",
+      "sentimental"
+    ],
+    "preferred_artists": [
+      "Malcolm Todd",
+      "Clairo",
+      "ROLE MODEL",
+      "Olivia Rodrigo",
+      "Wallows",
+      "Frank Ocean",
+      "Tyler, The Creator",
+      "The Cure",
+      "Daniel Caesar",
+      "Dominic Fike"
+    ],
+    "summary": "A listener with a nostalgic and romantic taste in music, preferring artists like Malcolm Todd and Clairo.",
+    "tracks_added": 30,
+    "library_artist_count": 121,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Malcolm Todd",
+      "Wallows",
+      "ROLE MODEL",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "Taylor Swift",
+      "Clairo",
+      "Tyler, The Creator",
+      "Arctic Monkeys",
+      "Frank Ocean"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Glamorous Indie Rock & Roll",
+        "artist": "The Killers"
+      },
+      {
+        "name": "Lonely Song",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "X's & O's",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "Gun To My Head",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "Malcolm In The Middle",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "Fable",
+        "artist": "Gigi Perez"
+      },
+      {
+        "name": "the cure",
+        "artist": "Olivia Rodrigo"
+      },
+      {
+        "name": "the cure",
+        "artist": "Olivia Rodrigo"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-16T12:21:11.293282",
+    "date": "2026-06-16",
+    "time": "12:21",
+    "runtime_seconds": 447.0,
+    "model": "qwen2.5:7b",
+    "mood": "relaxed, reflective",
+    "energy_level": "medium",
+    "genres": [
+      "indie rock",
+      "R&B",
+      "alternative"
+    ],
+    "taste_profile": [
+      "nostalgic",
+      "emotional",
+      "dreamy",
+      "reflective",
+      "melodic"
+    ],
+    "preferred_artists": [
+      "Malcolm Todd",
+      "Wallows",
+      "ROLE MODEL",
+      "Olivia Rodrigo",
+      "Clairo",
+      "Frank Ocean",
+      "Daniel Caesar",
+      "Dominic Fike",
+      "Tyler, The Creator",
+      "LAUV"
+    ],
+    "summary": "The listener enjoys a mix of indie rock and R&B with an emotional and reflective touch, often revisiting familiar artists like Frank Ocean and Clairo.",
+    "tracks_added": 30,
+    "library_artist_count": 121,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Malcolm Todd",
+      "Wallows",
+      "ROLE MODEL",
+      "Olivia Rodrigo",
+      "Gracie Abrams",
+      "Taylor Swift",
+      "Clairo",
+      "Tyler, The Creator",
+      "Arctic Monkeys",
+      "Frank Ocean"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "I Was Made For Lovin' You",
+        "artist": "KISS"
+      },
+      {
+        "name": "Where\u2019s My Love - Alternate Version",
+        "artist": "SYML"
+      },
+      {
+        "name": "505",
+        "artist": "Arctic Monkeys"
+      },
+      {
+        "name": "Stress Relief",
+        "artist": "late night drive home"
+      },
+      {
+        "name": "Hell N Back",
+        "artist": "Bakar"
+      },
+      {
+        "name": "Welcome To Japan",
+        "artist": "The Strokes"
+      },
+      {
+        "name": "Passionfruit",
+        "artist": "Drake"
+      },
+      {
+        "name": "misses",
+        "artist": "Dominic Fike"
+      },
+      {
+        "name": "Japanese Denim",
+        "artist": "Daniel Caesar"
+      },
+      {
+        "name": "Ivy",
+        "artist": "Frank Ocean"
+      }
+    ]
+  }
+]
