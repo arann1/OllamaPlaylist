@@ -1,6 +1,0 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-
-[tool.vercel]
-build-command = "echo 'Static build only'"
-output-directory = "dashboard"

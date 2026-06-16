@@ -1,4 +1,5 @@
 {
-  "buildCommand": "echo 'Static build'",
-  "outputDirectory": "dashboard"
+  "buildCommand": "exit 0",
+  "outputDirectory": "dashboard",
+  "installCommand": "exit 0"
 }
