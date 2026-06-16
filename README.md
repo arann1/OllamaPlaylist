@@ -81,9 +81,9 @@ The dashboard is a static site on Vercel. The build step copies `data/history.js
 
 **Deploy troubleshooting:** If Vercel builds fail with an unmatched function pattern, ensure `vercel.json` uses `api/data.js` (not `dashboard/api/data.js`) because `outputDirectory` is already set to `dashboard`.
 
-## Ollama logging (iMac)
+## Ollama logging
 
-The Python run logs Ollama timing and token stats to your terminal/log file. For richer output in `journalctl -u ollama -f` on the iMac:
+The Python run logs Ollama timing and token stats to your terminal/log file. For richer output in `journalctl -u ollama -f` on the terminal:
 
 ```bash
 ./scripts/enable-ollama-debug-logs.sh
