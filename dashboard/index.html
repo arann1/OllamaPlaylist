@@ -321,13 +321,18 @@
   // ── fetch data from API (Vercel) or fallback to history.json directly ──
   async function loadData() {
     try {
-      let res = await fetch('/api/data')
-      if (!res.ok) throw new Error('api failed')
+      let res = await fetch('../data/history.json')
+      if (!res.ok) throw new Error('fetch failed')
       return await res.json()
     } catch {
-      // fallback for local dev
-      let res = await fetch('../data/history.json')
-      return await res.json()
+      // fallback for API endpoint
+      try {
+        let res = await fetch('/api/data')
+        if (!res.ok) throw new Error('api failed')
+        return await res.json()
+      } catch {
+        return []
+      }
     }
   }
 
