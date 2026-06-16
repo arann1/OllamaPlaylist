@@ -37,6 +37,9 @@ if [[ -f "$ROOT/package.json" ]] && command -v npm >/dev/null; then
 fi
 
 git add data/history.json
+# Syncthing may copy scripts before git tracks them — add to avoid pull conflicts
+git add scripts/*.sh 2>/dev/null || true
+
 if git diff --cached --quiet; then
   echo "No history changes to push" | tee -a "$LOG_FILE"
   exit 0
