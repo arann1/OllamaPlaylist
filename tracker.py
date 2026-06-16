@@ -39,6 +39,10 @@ def save_run(analysis, tracks, top_artists, track_count, runtime):
         "mood": analysis["mood"],
         "energy_level": analysis["energy_level"],
         "genres": analysis["genres"],
+        "taste_profile": analysis.get(
+            "taste_profile",
+            []
+        ),
         "summary": analysis["summary"],
         "search_queries": analysis["search_queries"],
         "tracks_added": track_count,

@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm install",
+  "outputDirectory": "dashboard",
+  "framework": "static",
+  "rewrites": [
+    {
+      "source": "/api/data",
+      "destination": "/api/data.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

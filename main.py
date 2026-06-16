@@ -1,7 +1,14 @@
 import os
 import logging
 from datetime import datetime
-from spotify import get_recently_played, get_top_artists, search_tracks, filter_tracks, get_or_update_playlist
+from spotify import (
+    get_recently_played,
+    get_top_artists,
+    get_top_tracks,
+    search_tracks,
+    filter_tracks,
+    get_or_update_playlist
+)
 from analyzer import analyze
 from tracker import save_run
 from config import PLAYLIST_NAME
@@ -33,12 +40,17 @@ def main():
     recently_played_ids = [t["id"] for t in recent_tracks]
     log.info(f"Got {len(recent_tracks)} recent tracks")
 
+    log.info("Fetching top tracks...")
+    top_tracks = get_top_tracks(limit=20, time_range="short_term")
+    log.info(f"Got {len(top_tracks)} top tracks")
+
     log.info("Fetching top artists (last 4 weeks)...")
     top_artists = get_top_artists(limit=20, time_range="short_term")
     log.info(f"Got {len(top_artists)} top artists")
 
     log.info("Analyzing with Ollama...")
-    analysis = analyze(recent_tracks, top_artists)
+    analysis = analyze(recent_tracks, top_artists, top_tracks)
+    log.info(f"Taste Profile: {analysis['taste_profile']}")
 
     log.info(f"Mood: {analysis['mood']}")
     log.info(f"Energy: {analysis['energy_level']}")

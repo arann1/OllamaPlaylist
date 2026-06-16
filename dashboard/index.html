@@ -49,7 +49,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
       padding: 32px 40px 0;
     }
@@ -282,11 +282,15 @@
       <div class="value" id="stat-energy">—</div>
       <div class="sub">across all runs</div>
     </div>
+    <div class="stat-card">
+      <div class="label">Taste Profile</div>
+      <div id="taste-profile-display" style="font-size:13px; line-height:1.4; margin-top:6px; color:#ccc"></div>
+    </div>
   </div>
 
   <div class="charts">
     <div class="chart-card">
-      <h2>Mood Timeline</h2>
+      <h2>Energy Timeline</h2>
       <canvas id="mood-chart" height="100"></canvas>
     </div>
     <div class="chart-card">
@@ -366,6 +370,15 @@
     const avgEnergy = data.reduce((s, d) => s + (energyMap[d.energy_level] || 2), 0) / runs
     const energyLabel = avgEnergy > 2.4 ? 'High' : avgEnergy > 1.6 ? 'Medium' : 'Low'
     document.getElementById('stat-energy').textContent = energyLabel
+
+    // ── taste profile display ──
+    const tasteProfile = latest.taste_profile || []
+    const tasteEl = document.getElementById('taste-profile-display')
+    if (tasteProfile.length > 0) {
+      tasteEl.innerHTML = tasteProfile.map(t => `<div class="tag" style="display:inline-block; margin-bottom:4px">${t}</div>`).join(' ')
+    } else {
+      tasteEl.textContent = '—'
+    }
 
     document.getElementById('last-updated').textContent =
       `Last updated ${latest.date} at ${latest.time}`

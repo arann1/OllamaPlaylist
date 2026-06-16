@@ -90,6 +90,28 @@ def search_artist_tracks(artists, limit_per_artist=10):
 
     return tracks
 
+def get_top_tracks(limit=20, time_range="short_term"):
+    """
+    Fetch user's top tracks.
+    short_term = last 4 weeks
+    medium_term = 6 months
+    long_term = all time
+    """
+    results = sp.current_user_top_tracks(
+        limit=limit,
+        time_range=time_range
+    )
+
+    tracks = []
+
+    for item in results["items"]:
+        tracks.append({
+            "name": item["name"],
+            "artist": item["artists"][0]["name"]
+        })
+
+    return tracks
+
 
 def get_or_update_playlist(track_ids, playlist_name):
     """Find playlist by name and replace its tracks."""
