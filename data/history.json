@@ -433,5 +433,199 @@
         "album_art": "https://i.scdn.co/image/ab67616d00001e020fc793716c44bcd8939bc3bc"
       }
     ]
+  },
+  {
+    "timestamp": "2026-06-16T14:01:18.843142",
+    "date": "2026-06-16",
+    "time": "14:01",
+    "runtime_seconds": 448.81,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic reflective",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "rock",
+      "indie"
+    ],
+    "taste_profile": [
+      "emotional",
+      "melodic",
+      "upbeat",
+      "relatable",
+      "sentimental"
+    ],
+    "preferred_artists": [
+      "Clairo",
+      "Frank Ocean",
+      "Drake",
+      "The Strokes",
+      "Malcolm Todd",
+      "Tyler, The Creator",
+      "Olivia Rodrigo",
+      "Daniel Caesar",
+      "ROLE MODEL",
+      "Arctic Monkeys"
+    ],
+    "summary": "This user has a mix of pop and rock with an indie edge, showing a preference for emotional and relatable music.",
+    "tracks_added": 30,
+    "library_artist_count": 121,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Malcolm Todd",
+      "Wallows",
+      "ROLE MODEL",
+      "Olivia Rodrigo",
+      "Gracie Abrams",
+      "Taylor Swift",
+      "Clairo",
+      "Tyler, The Creator",
+      "Arctic Monkeys",
+      "Frank Ocean"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Sawaar Loon",
+        "artist": "Monali Thakur"
+      },
+      {
+        "name": "Nazar Na Lag Jaaye",
+        "artist": "Ash King"
+      },
+      {
+        "name": "Ishq Wala Love",
+        "artist": "Vishal-Shekhar"
+      },
+      {
+        "name": "Ambarsariya",
+        "artist": "Sona Mohapatra"
+      },
+      {
+        "name": "Main Naiyo Jaana",
+        "artist": "Amrinder Gill"
+      },
+      {
+        "name": "If I Cannot Be Yours",
+        "artist": "Prateek Kuhad"
+      },
+      {
+        "name": "Orbiter",
+        "artist": "Noah Kahan"
+      },
+      {
+        "name": "I Really Want to Stay at Your House",
+        "artist": "Rosa Walton"
+      },
+      {
+        "name": "Jane!",
+        "artist": "The Long Faces"
+      },
+      {
+        "name": "Da Ya Think I'm Sexy?",
+        "artist": "Rod Stewart"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-16T14:24:19.265860",
+    "date": "2026-06-16",
+    "time": "14:24",
+    "runtime_seconds": 132.13,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic reflective",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "rock",
+      "indie"
+    ],
+    "taste_profile": [
+      "melancholic",
+      "emotional",
+      "sentimental",
+      "upbeat",
+      "dramatic"
+    ],
+    "preferred_artists": [
+      "Clairo",
+      "Frank Ocean",
+      "The Strokes",
+      "Malcolm Todd",
+      "Olivia Rodrigo",
+      "Tyler, The Creator",
+      "Daniel Caesar",
+      "Drake",
+      "Bakar",
+      "ROLE MODEL"
+    ],
+    "summary": "A listener with a mix of nostalgic and reflective tastes, preferring artists known for their emotional and dramatic music.",
+    "tracks_added": 30,
+    "library_artist_count": 121,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Malcolm Todd",
+      "ROLE MODEL",
+      "Wallows",
+      "Olivia Rodrigo",
+      "Gracie Abrams",
+      "Taylor Swift",
+      "Clairo",
+      "Tyler, The Creator",
+      "Arctic Monkeys",
+      "Frank Ocean"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Sawaar Loon",
+        "artist": "Monali Thakur"
+      },
+      {
+        "name": "Nazar Na Lag Jaaye",
+        "artist": "Ash King"
+      },
+      {
+        "name": "Ishq Wala Love",
+        "artist": "Vishal-Shekhar"
+      },
+      {
+        "name": "Ambarsariya",
+        "artist": "Sona Mohapatra"
+      },
+      {
+        "name": "Main Naiyo Jaana",
+        "artist": "Amrinder Gill"
+      },
+      {
+        "name": "If I Cannot Be Yours",
+        "artist": "Prateek Kuhad"
+      },
+      {
+        "name": "Orbiter",
+        "artist": "Noah Kahan"
+      },
+      {
+        "name": "I Really Want to Stay at Your House",
+        "artist": "Rosa Walton"
+      },
+      {
+        "name": "Jane!",
+        "artist": "The Long Faces"
+      },
+      {
+        "name": "Da Ya Think I'm Sexy?",
+        "artist": "Rod Stewart"
+      }
+    ]
   }
 ]
