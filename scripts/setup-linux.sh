@@ -29,6 +29,7 @@ if [[ ! -f "$BACKEND/.spotify_cache" ]]; then
 fi
 
 echo "Creating virtualenv..."
+rm -rf "$VENV"
 python3 -m venv "$VENV"
 "$VENV/bin/pip" install --upgrade pip
 "$VENV/bin/pip" install -r "$ROOT/backend/requirements.txt"
