@@ -9,6 +9,7 @@ from spotify import (
     get_top_tracks,
     collect_library_from_playlists,
     select_library_tracks,
+    get_tracks_details,
     get_or_update_playlist,
 )
 from analyzer import analyze
@@ -94,6 +95,16 @@ def main():
     log.info(f"Updating playlist '{PLAYLIST_NAME}'...")
     get_or_update_playlist(final_ids, PLAYLIST_NAME)
 
+    log.info("Enriching curated tracks with album art...")
+    curated_details = get_tracks_details(final_ids)
+
+    # Build preferred_artists_detail using images from top_artists where available
+    name_to_image = {a["name"]: a.get("image") for a in top_artists}
+    preferred_artists_detail = [
+        {"name": name, "image": name_to_image.get(name)}
+        for name in analysis.get("preferred_artists", [])
+    ]
+
     log.info("Saving run to history...")
     runtime = round(time() - start_time, 2)
     save_run(
@@ -104,6 +115,11 @@ def main():
         runtime,
         library_artist_count=len(library_artists),
         source_playlists=source_playlists,
+        preferred_artists_detail=preferred_artists_detail,
+        curated_tracks_sample=[
+            {"name": t["name"], "artist": t["artist"], "album_art": t.get("album_art")}
+            for t in curated_details
+        ],
     )
 
     log.info(f"=== Done. Log saved to {log_file} ===")

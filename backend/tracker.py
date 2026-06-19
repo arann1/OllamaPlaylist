@@ -31,6 +31,8 @@ def save_run(
     runtime,
     library_artist_count=0,
     source_playlists=None,
+    preferred_artists_detail=None,
+    curated_tracks_sample=None,
 ):
     """Append a single run snapshot to history.json."""
     history = load_history()
@@ -46,6 +48,7 @@ def save_run(
         "genres": analysis["genres"],
         "taste_profile": analysis.get("taste_profile", []),
         "preferred_artists": analysis.get("preferred_artists", []),
+        "preferred_artists_detail": preferred_artists_detail or [],
         "summary": analysis["summary"],
         "tracks_added": track_count,
         "library_artist_count": library_artist_count,
@@ -55,6 +58,7 @@ def save_run(
             {"name": t["name"], "artist": t["artist"]}
             for t in tracks[:10]
         ],
+        "curated_tracks_sample": curated_tracks_sample or [],
     }
 
     history.append(snapshot)

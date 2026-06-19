@@ -30,9 +30,11 @@ def get_top_artists(limit=20, time_range="short_term"):
     results = sp.current_user_top_artists(limit=limit, time_range=time_range)
     artists = []
     for item in results["items"]:
+        images = item.get("images") or []
         artists.append({
             "name": item["name"],
             "genres": item.get("genres", []),
+            "image": images[0]["url"] if images else None,
         })
     return artists
 
@@ -244,6 +246,25 @@ def select_library_tracks(
             break
 
     return final_ids
+
+
+def get_tracks_details(track_ids):
+    """Fetch name, artist, and album art for a list of Spotify track IDs (max 50 per batch)."""
+    sp = get_sp()
+    result = []
+    for i in range(0, len(track_ids), 50):
+        batch = sp.tracks(track_ids[i:i + 50])
+        for track in batch.get("tracks") or []:
+            if not track:
+                continue
+            images = (track.get("album") or {}).get("images") or []
+            result.append({
+                "id": track["id"],
+                "name": track["name"],
+                "artist": track["artists"][0]["name"],
+                "album_art": images[0]["url"] if images else None,
+            })
+    return result
 
 
 def get_or_update_playlist(track_ids, playlist_name):
