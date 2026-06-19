@@ -14,20 +14,21 @@ if [[ -f "$ROOT/.env" ]]; then
   set +a
 fi
 
-if [[ -z "${GITHUB_TOKEN:-}" ]]; then
-  echo "Skipping git push — set GITHUB_TOKEN in .env" | tee -a "$LOG_FILE"
-  exit 0
-fi
-
 if ! command -v git >/dev/null; then
   echo "Skipping git push — git not installed" | tee -a "$LOG_FILE"
   exit 0
 fi
 
+# Determine remote: use GITHUB_TOKEN from .env to build URL, or fall back to
+# the already-configured 'origin' (which may have the token baked into its URL).
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/a-r-a-n/OllamaPlaylist.git"
+else
+  REMOTE="origin"
+fi
+
 git config user.email "${GIT_USER_EMAIL:-ollama-playlist@local.bot}"
 git config user.name "${GIT_USER_NAME:-OllamaPlaylist Bot}"
-
-REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/a-r-a-n/OllamaPlaylist.git"
 
 echo "Syncing with GitHub..." | tee -a "$LOG_FILE"
 git fetch "$REMOTE" main 2>>"$LOG_FILE" || true
@@ -37,7 +38,6 @@ if [[ -f "$ROOT/package.json" ]] && command -v npm >/dev/null; then
 fi
 
 git add data/history.json
-# Syncthing may copy scripts before git tracks them — add to avoid pull conflicts
 git add scripts/*.sh 2>/dev/null || true
 
 if git diff --cached --quiet; then
