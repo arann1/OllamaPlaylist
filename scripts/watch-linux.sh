@@ -5,7 +5,7 @@
 set -euo pipefail
 
 HOST="${LINUX_HOST:-aran@192.168.1.77}"
-PROJECT="${LINUX_PROJECT:-/home/aran/Desktop/Storage/spotify-ai-playlist}"
+PROJECT="${LINUX_PROJECT:-/home/aran/Desktop/Storage/OllamaPlaylist}"
 
 echo "Connecting to $HOST ..."
 echo "Streaming $PROJECT/logs/live.log (Ctrl+C to stop)"
