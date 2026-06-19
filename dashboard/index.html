@@ -27,7 +27,9 @@
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-inner">
+      <div class="hero-top">
+
+        <!-- Main terminal -->
         <div class="terminal-box">
           <div class="tb-bar"><span></span><span></span><span></span></div>
           <div class="tb-body">
@@ -46,14 +48,27 @@
           </div>
         </div>
 
-        <!-- Taste tags -->
-        <div class="taste-wrap">
+        <!-- Live log terminal -->
+        <div class="log-terminal">
+          <div class="tb-bar">
+            <span></span><span></span><span></span>
+            <span class="log-status" id="log-status">● CONNECTING</span>
+          </div>
+          <div class="log-tb-title">LIVE LOGS · 192.168.1.77</div>
+          <div class="log-tb-body">
+            <pre id="log-output">connecting...</pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Taste + Genres row (compact) -->
+      <div class="hero-meta">
+        <div class="meta-block">
           <div class="sec-label">TASTE PROFILE</div>
           <div id="taste-tags"></div>
         </div>
-
-        <!-- Genres -->
-        <div class="genres-wrap">
+        <div class="meta-block">
           <div class="sec-label">GENRE DNA</div>
           <div id="genre-bars"></div>
         </div>
@@ -78,15 +93,9 @@
       <div id="recent-list" class="recent-list"></div>
     </section>
 
-    <!-- RUN NAV -->
-    <div class="run-nav">
-      <button class="rnb" id="btn-prev">◄ PREV</button>
-      <div class="rn-center">
-        <div id="rn-label"></div>
-        <div id="rn-sub" class="dim"></div>
-      </div>
-      <button class="rnb" id="btn-next">NEXT ►</button>
-    </div>
+    <footer class="footer">
+      <span class="dim">OLLAMAPLAYLIST · LATEST RUN · <span id="ft-date"></span></span>
+    </footer>
 
   </div><!-- #app -->
 
