@@ -622,6 +622,70 @@
 
     #app { display: none; }
 
+    .artist-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(30,215,96,0.3), rgba(185,103,255,0.3));
+    }
+
+    .artist-avatar-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(30,215,96,0.12);
+      border: 1px solid rgba(30,215,96,0.2);
+    }
+
+    .curated-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .curated-track {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .curated-track:hover { background: rgba(255,255,255,0.06); }
+
+    .curated-art {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(30,215,96,0.2), rgba(185,103,255,0.2));
+    }
+
+    .curated-art-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: linear-gradient(135deg, rgba(30,215,96,0.2), rgba(185,103,255,0.2));
+    }
+
     @media (max-width: 1100px) {
       .hero, .charts-grid, .bottom-grid, .dna-grid, .stats-row {
         grid-template-columns: 1fr;
@@ -787,6 +851,14 @@
       </div>
     </section>
 
+    <section class="card chart-card" id="curated-section" style="margin-bottom:20px;display:none">
+      <div class="section-head">
+        <h2>Curated Playlist</h2>
+        <span id="curated-count">tracks added this run</span>
+      </div>
+      <div class="curated-grid" id="curated-tracks"></div>
+    </section>
+
     <section class="bottom-grid">
       <div class="card panel">
         <div class="section-head"><h2>Artist Leaderboard</h2><span>across all runs</span></div>
@@ -839,7 +911,26 @@
 
     function formatRuntime(sec) {
       if (!sec) return '—'
-      return sec >= 60 ? `${Math.round(sec)}s` : `${sec}s`
+      if (sec >= 60) {
+        const m = Math.floor(sec / 60)
+        const s = Math.round(sec % 60)
+        return `${m}m ${s}s`
+      }
+      return `${Math.round(sec)}s`
+    }
+
+    function relativeTime(iso) {
+      if (!iso) return null
+      const diff = Date.now() - new Date(iso).getTime()
+      const mins = Math.floor(diff / 60000)
+      if (mins < 1) return 'just now'
+      if (mins < 60) return `${mins}m ago`
+      const hrs = Math.floor(mins / 60)
+      if (hrs < 24) return `${hrs}h ago`
+      const days = Math.floor(hrs / 24)
+      if (days === 1) return 'yesterday'
+      if (days < 7) return `${days} days ago`
+      return null
     }
 
     function artistOverlap(runs) {
@@ -852,17 +943,22 @@
       return Math.round((overlap / Math.max(latest.size, prev.size)) * 100)
     }
 
+    const GAUGE_COLOR = { low: '#59cfcf', medium: '#ffa42b', high: '#1ed760' }
+
     function drawGauge(level) {
       const val = ENERGY[level] || 2
+      const color = GAUGE_COLOR[level] || '#1ed760'
       const ctx = document.getElementById('energy-gauge').getContext('2d')
-      document.getElementById('gauge-value').textContent = ENERGY_LABEL[val]
+      const valueEl = document.getElementById('gauge-value')
+      valueEl.textContent = ENERGY_LABEL[val]
+      valueEl.style.color = color
 
       new Chart(ctx, {
         type: 'doughnut',
         data: {
           datasets: [{
             data: [val, 3 - val],
-            backgroundColor: ['#1ed760', 'rgba(255,255,255,0.06)'],
+            backgroundColor: [color, 'rgba(255,255,255,0.06)'],
             borderWidth: 0,
             circumference: 270,
             rotation: 225,
@@ -913,7 +1009,7 @@
       document.getElementById('hero-mood').textContent = latest.mood
       document.getElementById('hero-summary').textContent = latest.summary
       document.getElementById('model-pill').textContent = latest.model || 'ollama'
-      document.getElementById('last-updated').textContent = `${latest.date} · ${latest.time}`
+      document.getElementById('last-updated').textContent = relativeTime(latest.timestamp) || `${latest.date} · ${latest.time}`
 
       const heroTags = document.getElementById('hero-tags')
       latest.genres.forEach(g => {
@@ -1117,19 +1213,51 @@
         dnaEl.appendChild(el)
       })
 
-      // Preferred artists (latest)
-      const pref = latest.preferred_artists || []
+      // Preferred artists (latest) — use detail list with images if available
+      const prefDetail = latest.preferred_artists_detail || []
+      const prefNames = latest.preferred_artists || []
       const prefEl = document.getElementById('preferred-artists')
-      pref.forEach((name, i) => {
+
+      const prefList = prefDetail.length
+        ? prefDetail.map(a => ({ name: a.name, image: a.image }))
+        : prefNames.map(name => ({ name, image: null }))
+
+      prefList.forEach((artist, i) => {
         const row = document.createElement('div')
         row.className = 'artist-item'
+        const avatarHtml = artist.image
+          ? `<img class="artist-avatar" src="${artist.image}" alt="${artist.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'artist-avatar-placeholder',textContent:'${artist.name[0]}'}))">`
+          : `<div class="artist-avatar-placeholder">${artist.name[0]}</div>`
         row.innerHTML = `
+          ${avatarHtml}
+          <div class="artist-info" style="flex:1"><div class="name">${artist.name}</div></div>
           <div class="rank ${i < 3 ? 'top' : ''}">${i + 1}</div>
-          <div class="artist-info"><div class="name">${name}</div></div>
-          <div class="artist-score">★</div>
         `
         prefEl.appendChild(row)
       })
+
+      // Curated tracks (AI-selected)
+      const curated = latest.curated_tracks_sample || []
+      if (curated.length) {
+        document.getElementById('curated-section').style.display = 'block'
+        document.getElementById('curated-count').textContent = `${curated.length} tracks added this run`
+        const curatedEl = document.getElementById('curated-tracks')
+        curated.forEach(track => {
+          const el = document.createElement('div')
+          el.className = 'curated-track'
+          const artHtml = track.album_art
+            ? `<img class="curated-art" src="${track.album_art}" alt="${track.name}" loading="lazy" onerror="this.className='curated-art-placeholder';this.textContent='♪'">`
+            : `<div class="curated-art-placeholder">♪</div>`
+          el.innerHTML = `
+            ${artHtml}
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${track.name}</div>
+              <div style="font-size:11px;color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${track.artist}</div>
+            </div>
+          `
+          curatedEl.appendChild(el)
+        })
+      }
 
       // Leaderboard
       const allArtists = data.flatMap(d =>
@@ -1159,16 +1287,18 @@
       ;[...data].reverse().forEach(run => {
         const item = document.createElement('div')
         item.className = 'timeline-item'
+        const genreChips = (run.genres || []).map(g => `<span class="tag green" style="font-size:10px;padding:3px 8px">${g}</span>`).join('')
         item.innerHTML = `
           <div class="timeline-date">${run.date} · ${run.time}</div>
           <div class="timeline-mood">${run.mood}</div>
           <div class="timeline-summary">${run.summary}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${genreChips}</div>
           <div class="timeline-meta">
             <span>${run.energy_level} energy</span>
             <span>·</span>
             <span>${run.tracks_added} tracks</span>
             <span>·</span>
-            <span>${run.runtime_seconds}s</span>
+            <span>${formatRuntime(run.runtime_seconds)}</span>
           </div>
         `
         timelineEl.appendChild(item)
