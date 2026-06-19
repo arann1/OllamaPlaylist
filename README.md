@@ -65,7 +65,13 @@ chmod +x scripts/setup-linux.sh scripts/run_playlist_update.sh
 
 Cron logs go to `logs/cron_*.log`. Requires `backend/.spotify_cache` from one interactive auth run first. Use `OLLAMA_HOST=http://127.0.0.1:11434` when Ollama runs on the same machine.
 
-Add `GITHUB_TOKEN=ghp_...` to `.env` on Linux for auto-push after each run (GitHub → Settings → Developer settings → Personal access tokens, scope: `repo`).
+For auto-push to GitHub after each run, the easiest setup is to configure the git remote URL on the server with a token:
+
+```bash
+git remote set-url origin https://x-access-token:YOUR_TOKEN@github.com/your-username/OllamaPlaylist.git
+```
+
+Alternatively add `GITHUB_TOKEN=ghp_...` to `.env` (GitHub → Settings → Developer settings → Personal access tokens, scope: `repo`).
 
 **Watch live logs from your Mac:**
 
