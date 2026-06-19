@@ -1,22 +1,71 @@
-export const SECS = [
-  { key: 'OVERVIEW', label: 'Run Overview',  icon: '📊', col: 0x334444, y: 0  },
-  { key: 'ENERGY',   label: 'Energy',        icon: '⚡', col: 0x1ed760, y: 8  },
-  { key: 'MOOD',     label: 'Mood',          icon: '💭', col: 0x9b7fb6, y: 15 },
-  { key: 'GENRES',   label: 'Genre DNA',     icon: '🎵', col: 0xb967ff, y: 22 },
-  { key: 'ARTISTS',  label: 'Top Artists',   icon: '👤', col: 0xffa42b, y: 28 },
-  { key: 'DNA',      label: 'Taste Profile', icon: '🧬', col: 0x59cfcf, y: 34 },
-  { key: 'CURATED',  label: 'Curated',       icon: '🎧', col: 0xf037a5, y: 40 },
+/* Boombox pixel art grid — 22 cols × 9 rows
+   A=antenna  H=handle  F=frame
+   L=left speaker ring  G=left speaker glow
+   R=right speaker ring S=right speaker glow
+   C=cassette frame  T=cassette tape
+   K=button  .=empty
+*/
+export const GRID = [
+  ['.','.','.','.','.','.','.','.','.','.',  'A','.','.','.','.','.','.','.','.','.','.','.',],
+  ['.','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','.','.',],
+  ['.','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','.',],
+  ['.','F','L','L','L','L','L','.','C','C','C','C','C','C','.','R','R','R','R','R','F','.',],
+  ['.','F','L','G','G','G','L','.','C','T','T','T','T','C','.','R','S','S','S','R','F','.',],
+  ['.','F','L','G','G','G','L','.','C','T','T','T','T','C','.','R','S','S','S','R','F','.',],
+  ['.','F','L','L','L','L','L','.','C','C','C','C','C','C','.','R','R','R','R','R','F','.',],
+  ['.','F','.','K','.','K','.','.','.',  'K','K','K','.','.','.','.','K','.','K','.','F','.',],
+  ['.','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','F','.',],
 ];
 
-export const ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 };
-export const ENERGY_H   = { low: 1, medium: 2, high: 3 };
-export const ARTIST_COL = [0xffa42b, 0xffcc44, 0xff8c00, 0xffaa22, 0xe89020];
-export const DNA_COL    = [0xb967ff, 0x59cfcf, 0xf037a5, 0x477dff, 0xffa42b];
-export const CURATED_C  = [0x1ed760, 0x59cfcf, 0xb967ff, 0xf037a5, 0xffa42b];
-export const GC         = [0xb967ff, 0xf037a5, 0x477dff, 0xff8c00, 0x59cfcf];
-export const GCS        = ['#b967ff', '#f037a5', '#477dff', '#ff8c00', '#59cfcf'];
+export const PIXEL_COLORS = {
+  A: '#ffee00',   // antenna  – yellow
+  H: '#8a8a8a',   // handle   – mid gray
+  F: '#c0c0c0',   // frame    – silver
+  L: '#111111',   // left speaker ring
+  G: '#1ed760',   // left speaker glow  – green
+  R: '#111111',   // right speaker ring
+  S: '#59cfcf',   // right speaker glow – cyan
+  C: '#333333',   // cassette frame
+  T: '#b967ff',   // cassette tape      – purple
+  K: '#ff2244',   // button             – red
+};
 
-export const SEC_NAMES = {
-  OVERVIEW: 'Run Overview', ENERGY: 'Energy Level', MOOD: 'Mood',
-  GENRES: 'Genre DNA', ARTISTS: 'Top Artists', DNA: 'Taste Profile', CURATED: 'Curated Playlist',
+export const PIXEL_PARTS = {
+  A: 'antenna', H: 'handle', F: 'frame',
+  L: 'left-speaker',  G: 'left-speaker',
+  R: 'right-speaker', S: 'right-speaker',
+  C: 'cassette', T: 'cassette',
+  K: 'buttons',
+};
+
+/* Section definitions – each maps to one boombox part exploding */
+export const SECTIONS = [
+  { key: 'OVERVIEW', label: 'RUN OVERVIEW',   panelId: 'panel-overview'  },
+  { key: 'ENERGY',   label: 'ENERGY LEVEL',   panelId: 'panel-energy'    },
+  { key: 'MOOD',     label: 'MOOD',            panelId: 'panel-mood'      },
+  { key: 'GENRES',   label: 'GENRE DNA',       panelId: 'panel-genres'    },
+  { key: 'ARTISTS',  label: 'TOP ARTISTS',     panelId: 'panel-artists'   },
+  { key: 'DNA',      label: 'TASTE PROFILE',   panelId: 'panel-dna'       },
+  { key: 'CURATED',  label: 'CURATED MIX',     panelId: 'panel-curated'   },
+];
+
+/* Timeline timestamps (ms) — total duration is 10 000 ms */
+export const TL_DURATION = 10000;
+
+export const TL = {
+  ANTENNA_START:      700,
+  HANDLE_START:       2000,
+  L_SPEAKER_START:    3100,
+  CASSETTE_START:     4200,
+  R_SPEAKER_START:    5300,
+  BUTTONS_START:      6400,
+  FRAME_START:        7400,
+
+  OVERVIEW_IN:        1700,
+  ENERGY_IN:          2900,
+  MOOD_IN:            4000,
+  GENRES_IN:          5100,
+  ARTISTS_IN:         6200,
+  DNA_IN:             7200,
+  CURATED_IN:         8800,
 };

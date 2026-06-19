@@ -3,46 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OllamaPlaylist · Taste Tower</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <!-- Three.js r134 via classic scripts (must load before any ES module) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/renderers/CSS2DRenderer.js"></script>
+  <title>OllamaPlaylist</title>
+  <!-- Anime.js v3 — sets window.anime before any module runs -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
 
   <header class="topbar">
-    <div class="tb-left">
-      <span class="logo">OllamaPlaylist</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="logo">OLLAMAPLAYLIST</span>
       <span id="mpill" class="pill">—</span>
     </div>
     <span id="last-upd"></span>
   </header>
 
-  <div id="loading"><div class="spin"></div><p>Loading taste data…</p></div>
-
-  <div id="app">
-    <div id="wrap">
-      <canvas id="c"></canvas>
-      <!-- CSS2DRenderer mounts here -->
-      <div id="dots"></div>
-      <div id="hud"></div>
-      <div id="hint">scroll · arrow keys · click a floor</div>
-      <div id="run-nav">
-        <button class="nb" id="bp">‹</button>
-        <div id="ni"><div id="nm"></div><div id="nd"></div></div>
-        <button class="nb" id="bn">›</button>
-      </div>
-      <div id="tip"><b id="tt"></b><span id="ts"></span><em>click to explore →</em></div>
-      <aside id="panel">
-        <button id="px">×</button>
-        <div id="pb"><p style="color:var(--dim);font-size:13px;margin-top:36px">Click any section to explore your music data.</p></div>
-      </aside>
-    </div>
+  <div id="loading">
+    <div class="spin"></div>
+    <p>LOADING...</p>
   </div>
 
-  <!-- ES modules reference window.THREE set by the classic scripts above -->
+  <div id="app">
+    <div id="scroller">
+      <div id="stage">
+
+        <!-- Pixel-art boombox -->
+        <div id="boombox-scale">
+          <div id="boombox-container"></div>
+        </div>
+
+        <!-- Data panels (populated by JS, revealed by scroll) -->
+        <div id="panels-wrap"></div>
+
+        <!-- HUD overlay -->
+        <div id="hud">
+          <span id="section-label"></span>
+          <span id="scroll-hint">▼ SCROLL TO DISASSEMBLE</span>
+          <div id="section-dots"></div>
+        </div>
+
+        <!-- Run navigator -->
+        <div id="run-nav">
+          <button class="rnb" id="bp">◄</button>
+          <div style="text-align:center">
+            <div id="run-mood"></div>
+            <div id="run-info"></div>
+          </div>
+          <button class="rnb" id="bn">►</button>
+        </div>
+
+      </div><!-- #stage -->
+    </div><!-- #scroller -->
+  </div><!-- #app -->
+
   <script type="module" src="./js/main.js"></script>
 
 </body>

@@ -1,93 +1,138 @@
-/* Entry point — fetch data, boot Three.js, run animation loop */
-import { SECS } from './constants.js';
+/* Entry point — fetch → boot → scroll-driven timeline */
+import { SECTIONS, TL_DURATION } from './constants.js';
 import { relTime } from './utils.js';
-import { state } from './state.js';
-import { renderer, scene, camera, labelR, initSecLights } from './scene.js';
-import { buildTower } from './tower.js';
-import { goToRun, updateDots } from './ui.js';
+import { renderBoombox, scaleBoombox } from './boombox.js';
+import { buildPanels, populatePanels } from './panels.js';
+import { buildTimeline, sectionAt } from './timeline.js';
 
-const THREE = window.THREE;
+const anime = window.anime;
 
-/* ── Data fetch ─────────────────────────────── */
+/* ── State ─────────────────────────────────────── */
+let allData    = [];
+let runIdx     = 0;
+let masterTL   = null;
+let rafId      = null;
+let hasScrolled = false;
+
+const el = id => document.getElementById(id);
+
+/* ── Data fetch ─────────────────────────────────── */
 fetch('./data/history.json')
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(data => {
     if (!data || !data.length) { showErr('No run history yet.'); return; }
-    boot(data);
+    allData = data;
+    runIdx  = data.length - 1;
+    boot();
   })
   .catch(e => showErr('Cannot load history: ' + e.message));
 
 function showErr(msg) {
-  document.getElementById('loading').innerHTML =
-    `<p style="color:#444;max-width:300px;text-align:center;line-height:1.8">${msg}</p>`;
+  el('loading').innerHTML = `<p style="color:#555;max-width:280px;text-align:center;font-family:monospace;line-height:1.9">${msg}</p>`;
 }
 
-/* ── Boot ───────────────────────────────────── */
-function boot(data) {
-  state.allData = data;
-  state.runIdx  = data.length - 1;
+/* ── Boot ───────────────────────────────────────── */
+function boot() {
+  const latest = allData[allData.length - 1];
+  el('mpill').textContent    = latest.model || 'ollama';
+  el('last-upd').textContent = relTime(latest.timestamp);
 
-  const latest = data[data.length - 1];
-  document.getElementById('mpill').textContent = latest.model || 'ollama';
-  document.getElementById('last-upd').textContent = 'Last run ' + relTime(latest.timestamp);
+  el('loading').style.display = 'none';
+  el('app').style.display     = 'block';
 
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  /* Build DOM structure */
+  buildPanels(el('panels-wrap'));
 
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    initSecLights();
-    goToRun(state.runIdx);
-    updateDots(0);
-    document.getElementById('hud').textContent = SECS[0].icon + ' ' + SECS[0].label;
-    animate();
-  }));
+  /* Scale boombox */
+  scaleBoombox(el('boombox-scale'));
+
+  /* Build dots nav */
+  const dotsEl = el('section-dots');
+  SECTIONS.forEach((s, i) => {
+    const d = document.createElement('button');
+    d.className = 'sdot';
+    d.title = s.label;
+    d.addEventListener('click', () => scrollToSection(i));
+    dotsEl.appendChild(d);
+  });
+
+  /* Run nav */
+  el('bp').addEventListener('click', () => { if (runIdx > 0) loadRun(runIdx - 1); });
+  el('bn').addEventListener('click', () => { if (runIdx < allData.length - 1) loadRun(runIdx + 1); });
+
+  window.addEventListener('resize', () => scaleBoombox(el('boombox-scale')));
+
+  loadRun(runIdx);
 }
 
-/* ── Animation loop ─────────────────────────── */
-const clock = new THREE.Clock();
-const CAM_R = 10, CAM_ELEV = 5;
+/* ── Load a run ─────────────────────────────────── */
+function loadRun(idx) {
+  runIdx = idx;
+  const run = allData[idx];
 
-function animate() {
-  requestAnimationFrame(animate);
-  const t = clock.getElapsedTime();
+  /* Update header */
+  el('mpill').textContent    = run.model || 'ollama';
+  el('last-upd').textContent = relTime(run.timestamp);
 
-  /* Per-object animations */
-  state.anims.forEach(a => {
-    if (a.type === 'pulse') {
-      a.mat.emissiveIntensity = a.base + a.amp * (0.5 + 0.5 * Math.sin(t * a.freq + a.phase));
-    } else if (a.type === 'rotY') {
-      a.obj.rotation.y += a.speed;
-    } else if (a.type === 'bob') {
-      a.obj.position.y = a.by0 + a.amp * Math.sin(t * a.freq + a.phase);
-    } else if (a.type === 'orbit') {
-      a.obj.position.set(
-        a.cx + a.r * Math.cos(t * a.speed + a.phase),
-        a.cy,
-        a.cz + a.r * Math.sin(t * a.speed + a.phase),
-      );
-    }
+  /* Update run nav */
+  el('run-mood').textContent = (run.mood || '—').toUpperCase();
+  el('run-info').textContent = run.date + '  ' + (idx + 1) + ' / ' + allData.length;
+  el('bp').disabled = idx === 0;
+  el('bn').disabled = idx === allData.length - 1;
+
+  /* Reset all panels to invisible */
+  document.querySelectorAll('.panel').forEach(p => {
+    p.style.opacity = '0';
+    p.style.pointerEvents = 'none';
+    anime.set(p, { translateX: 0, translateY: 0, scale: 1 });
   });
 
-  /* Smooth scroll camera */
-  state.camAngle    += 0.004;
-  state.smoothY     += (state.targetY - state.smoothY)     * 0.055;
-  state.smoothLookY  = state.smoothLookY !== undefined
-    ? state.smoothLookY + (state.targetY - state.smoothLookY) * 0.055
-    : state.targetY;
+  /* Render boombox (resets pixel positions too) */
+  renderBoombox(el('boombox-container'));
 
-  camera.position.set(
-    CAM_R * Math.cos(state.camAngle),
-    state.smoothY + CAM_ELEV,
-    CAM_R * Math.sin(state.camAngle),
-  );
-  camera.lookAt(0, state.smoothLookY, 0);
+  /* Populate panel content */
+  populatePanels(run);
 
-  /* Section light fade */
-  state.secLights.forEach((pl, i) => {
-    const tgt = i === state.currentSnap ? 1.8 : 0.3;
-    pl.intensity += (tgt - pl.intensity) * 0.05;
+  /* Rebuild timeline (new pixel elements) */
+  masterTL = buildTimeline();
+
+  /* Re-seek to current scroll position */
+  seekToScroll();
+}
+
+/* ── Scroll → timeline ──────────────────────────── */
+function seekToScroll() {
+  if (!masterTL) return;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const progress  = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+  const ms        = progress * TL_DURATION;
+
+  masterTL.seek(ms);
+
+  /* Update section label & dots */
+  const secIdx = sectionAt(ms);
+  const sec    = SECTIONS[secIdx];
+  el('section-label').textContent = sec ? sec.label : '';
+  document.querySelectorAll('.sdot').forEach((d, i) => {
+    d.classList.toggle('on', i === secIdx);
   });
 
-  renderer.render(scene, camera);
-  labelR.render(scene, camera);
+  /* Hint fades after first real scroll */
+  if (!hasScrolled && window.scrollY > 10) {
+    hasScrolled = true;
+    anime({ targets: '#scroll-hint', opacity: 0, duration: 600, easing: 'linear' });
+  }
+}
+
+/* Throttle scroll handler to one RAF per frame */
+window.addEventListener('scroll', () => {
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(seekToScroll);
+}, { passive: true });
+
+/* ── Jump to a section by dot click ─────────────── */
+function scrollToSection(idx) {
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const target    = (idx / SECTIONS.length) * maxScroll;
+  window.scrollTo({ top: target, behavior: 'smooth' });
 }

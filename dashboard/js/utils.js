@@ -1,19 +1,6 @@
-export function moodCol(mood) {
-  const m = (mood || '').toLowerCase();
-  if (m.includes('nostalgic'))                        return 0x9b7fb6;
-  if (m.includes('happy') || m.includes('joyful'))   return 0xd4a820;
-  if (m.includes('energetic') || m.includes('upbeat')) return 0xff6b35;
-  if (m.includes('melancholic') || m.includes('sad')) return 0x4a7c9e;
-  if (m.includes('calm') || m.includes('peaceful'))  return 0x5fa8a8;
-  if (m.includes('reflective') || m.includes('introspective')) return 0x6b84a0;
-  if (m.includes('dark') || m.includes('moody'))     return 0x6a4090;
-  if (m.includes('relaxed') || m.includes('chill'))  return 0x3a8a7a;
-  if (m.includes('romantic'))                        return 0xc0508a;
-  return 0x8b4a6b;
-}
-
-export function hex2css(h) {
-  return '#' + h.toString(16).padStart(6, '0');
+export function fmtSec(s) {
+  if (!s) return '—';
+  return Math.floor(s / 60) + 'm ' + Math.round(s % 60) + 's';
 }
 
 export function relTime(ts) {
@@ -24,7 +11,53 @@ export function relTime(ts) {
   return Math.round(s / 86400) + 'd ago';
 }
 
-export function fmtSec(s) {
-  if (!s) return '—';
-  return Math.floor(s / 60) + 'm ' + Math.round(s % 60) + 's';
+/* Deterministic scatter offset for a pixel — stable across seeks */
+export function partOffset(char, col, row) {
+  /* Two independent noise seeds, deterministic per pixel position */
+  const s1 = ((col * 7)  + (row * 13) + (col * row * 3)) % 100; // 0-99
+  const s2 = ((col * 11) + (row * 17)) % 100;                    // 0-99
+  const n1 = s1 - 50;  // -50 .. 49
+  const n2 = s2 - 50;
+
+  switch (char) {
+    case 'A':
+      return { tx: n1 * 0.5, ty: -320 - s1, rot: n1 * 4 };
+
+    case 'H':
+      return { tx: (col - 10.5) * 14 + n1 * 1.5, ty: -180 - s1 * 2, rot: n1 * 3 };
+
+    case 'L':
+    case 'G':
+      return { tx: -270 - s1 * 2.5, ty: (row - 4.5) * 28 + n1 * 2, rot: -Math.abs(n1) * 3 };
+
+    case 'R':
+    case 'S':
+      return { tx: 270 + s1 * 2.5, ty: (row - 4.5) * 28 + n1 * 2, rot: Math.abs(n1) * 3 };
+
+    case 'C':
+    case 'T':
+      return { tx: n1 * 3, ty: 270 + s1 * 2.5, rot: n1 * 4 };
+
+    case 'K':
+      return {
+        tx: (col - 10.5) * 22 + n1 * 4,
+        ty: 190 + s1 * 4,
+        rot: n1 * 7,
+      };
+
+    case 'F': {
+      /* Frame pixels explode OUTWARD from boombox centre */
+      const bcx = 10.5, bcy = 4.5;
+      const dx = col - bcx, dy = row - bcy;
+      const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 0.5);
+      return {
+        tx: Math.round((dx / dist) * (290 + s1 * 3) + n2 * 0.4),
+        ty: Math.round((dy / dist) * (290 + s1 * 3) + n1 * 0.4),
+        rot: n1 * 5,
+      };
+    }
+
+    default:
+      return { tx: 0, ty: 0, rot: 0 };
+  }
 }
