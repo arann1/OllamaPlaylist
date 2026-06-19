@@ -4,59 +4,92 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OllamaPlaylist</title>
-  <!-- Anime.js v3 — sets window.anime before any module runs -->
-  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
 
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <span class="logo">OLLAMAPLAYLIST</span>
-      <span id="mpill" class="pill">—</span>
-    </div>
-    <span id="last-upd"></span>
-  </header>
-
   <div id="loading">
     <div class="spin"></div>
-    <p>LOADING...</p>
+    <p>BOOTING...</p>
   </div>
 
-  <div id="app">
-    <div id="scroller">
-      <div id="stage">
+  <div id="app" hidden>
 
-        <!-- Pixel-art boombox -->
-        <div id="boombox-scale">
-          <div id="boombox-container"></div>
-        </div>
+    <header class="topbar">
+      <span class="logo">OLLAMAPLAYLIST</span>
+      <div class="topbar-right">
+        <span id="h-model" class="pill"></span>
+        <span id="h-time" class="dim"></span>
+      </div>
+    </header>
 
-        <!-- Data panels (populated by JS, revealed by scroll) -->
-        <div id="panels-wrap"></div>
-
-        <!-- HUD overlay -->
-        <div id="hud">
-          <span id="section-label"></span>
-          <span id="scroll-hint">▼ SCROLL TO DISASSEMBLE</span>
-          <div id="section-dots"></div>
-        </div>
-
-        <!-- Run navigator -->
-        <div id="run-nav">
-          <button class="rnb" id="bp">◄</button>
-          <div style="text-align:center">
-            <div id="run-mood"></div>
-            <div id="run-info"></div>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="terminal-box">
+          <div class="tb-bar"><span></span><span></span><span></span></div>
+          <div class="tb-body">
+            <div class="prompt">$ ollama-playlist --report</div>
+            <div class="tb-row"><span class="tk">DATE</span><span class="tv" id="h-date"></span></div>
+            <div class="tb-row"><span class="tk">MOOD</span><span class="tv mood" id="h-mood"></span></div>
+            <div class="tb-row"><span class="tk">ENERGY</span><span class="tv" id="h-energy"></span></div>
+            <div class="tb-row"><span class="tk">TRACKS</span><span class="tv" id="h-tracks"></span></div>
+            <div class="tb-row"><span class="tk">RUNTIME</span><span class="tv" id="h-runtime"></span></div>
+            <div class="tb-row"><span class="tk">LIBRARY</span><span class="tv" id="h-library"></span></div>
+            <div class="summary-box" id="h-summary"></div>
+            <div class="tb-row playlists-row">
+              <span class="tk">PLAYLISTS</span>
+              <span class="tv" id="h-playlists"></span>
+            </div>
           </div>
-          <button class="rnb" id="bn">►</button>
         </div>
 
-      </div><!-- #stage -->
-    </div><!-- #scroller -->
+        <!-- Taste tags -->
+        <div class="taste-wrap">
+          <div class="sec-label">TASTE PROFILE</div>
+          <div id="taste-tags"></div>
+        </div>
+
+        <!-- Genres -->
+        <div class="genres-wrap">
+          <div class="sec-label">GENRE DNA</div>
+          <div id="genre-bars"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARTISTS -->
+    <section class="section">
+      <h2 class="sec-h">PREFERRED ARTISTS</h2>
+      <div id="artists-grid" class="artists-grid"></div>
+    </section>
+
+    <!-- CURATED TRACKS -->
+    <section class="section">
+      <h2 class="sec-h">CURATED MIX</h2>
+      <div id="tracks-grid" class="tracks-grid"></div>
+    </section>
+
+    <!-- RECENT TRACKS -->
+    <section class="section">
+      <h2 class="sec-h">RECENT LIBRARY</h2>
+      <div id="recent-list" class="recent-list"></div>
+    </section>
+
+    <!-- RUN NAV -->
+    <div class="run-nav">
+      <button class="rnb" id="btn-prev">◄ PREV</button>
+      <div class="rn-center">
+        <div id="rn-label"></div>
+        <div id="rn-sub" class="dim"></div>
+      </div>
+      <button class="rnb" id="btn-next">NEXT ►</button>
+    </div>
+
   </div><!-- #app -->
 
   <script type="module" src="./js/main.js"></script>
-
 </body>
 </html>

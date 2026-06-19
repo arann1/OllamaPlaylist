@@ -1,138 +1,136 @@
-/* Entry point — fetch → boot → scroll-driven timeline */
-import { SECTIONS, TL_DURATION } from './constants.js';
-import { relTime } from './utils.js';
-import { renderBoombox, scaleBoombox } from './boombox.js';
-import { buildPanels, populatePanels } from './panels.js';
-import { buildTimeline, sectionAt } from './timeline.js';
+import { fmtSec, relTime } from './utils.js';
 
-const anime = window.anime;
+const ENERGY_FILLS = { low: 3, medium: 6, high: 10 };
+const GENRE_COLORS = ['#1ed760', '#59cfcf', '#b967ff', '#ffa42b', '#f037a5'];
 
-/* ── State ─────────────────────────────────────── */
-let allData    = [];
-let runIdx     = 0;
-let masterTL   = null;
-let rafId      = null;
-let hasScrolled = false;
+let allRuns = [];
+let runIdx  = 0;
 
-const el = id => document.getElementById(id);
+/* ── Helpers ─────────────────────────────────────── */
+const $ = id => document.getElementById(id);
 
-/* ── Data fetch ─────────────────────────────────── */
-fetch('./data/history.json')
-  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(data => {
-    if (!data || !data.length) { showErr('No run history yet.'); return; }
-    allData = data;
-    runIdx  = data.length - 1;
-    boot();
-  })
-  .catch(e => showErr('Cannot load history: ' + e.message));
-
-function showErr(msg) {
-  el('loading').innerHTML = `<p style="color:#555;max-width:280px;text-align:center;font-family:monospace;line-height:1.9">${msg}</p>`;
+function block(n, total = 10) {
+  return '█'.repeat(n) + '░'.repeat(total - n);
 }
 
-/* ── Boot ───────────────────────────────────────── */
-function boot() {
-  const latest = allData[allData.length - 1];
-  el('mpill').textContent    = latest.model || 'ollama';
-  el('last-upd').textContent = relTime(latest.timestamp);
-
-  el('loading').style.display = 'none';
-  el('app').style.display     = 'block';
-
-  /* Build DOM structure */
-  buildPanels(el('panels-wrap'));
-
-  /* Scale boombox */
-  scaleBoombox(el('boombox-scale'));
-
-  /* Build dots nav */
-  const dotsEl = el('section-dots');
-  SECTIONS.forEach((s, i) => {
-    const d = document.createElement('button');
-    d.className = 'sdot';
-    d.title = s.label;
-    d.addEventListener('click', () => scrollToSection(i));
-    dotsEl.appendChild(d);
-  });
-
-  /* Run nav */
-  el('bp').addEventListener('click', () => { if (runIdx > 0) loadRun(runIdx - 1); });
-  el('bn').addEventListener('click', () => { if (runIdx < allData.length - 1) loadRun(runIdx + 1); });
-
-  window.addEventListener('resize', () => scaleBoombox(el('boombox-scale')));
-
-  loadRun(runIdx);
-}
-
-/* ── Load a run ─────────────────────────────────── */
-function loadRun(idx) {
-  runIdx = idx;
-  const run = allData[idx];
-
-  /* Update header */
-  el('mpill').textContent    = run.model || 'ollama';
-  el('last-upd').textContent = relTime(run.timestamp);
-
-  /* Update run nav */
-  el('run-mood').textContent = (run.mood || '—').toUpperCase();
-  el('run-info').textContent = run.date + '  ' + (idx + 1) + ' / ' + allData.length;
-  el('bp').disabled = idx === 0;
-  el('bn').disabled = idx === allData.length - 1;
-
-  /* Reset all panels to invisible */
-  document.querySelectorAll('.panel').forEach(p => {
-    p.style.opacity = '0';
-    p.style.pointerEvents = 'none';
-    anime.set(p, { translateX: 0, translateY: 0, scale: 1 });
-  });
-
-  /* Render boombox (resets pixel positions too) */
-  renderBoombox(el('boombox-container'));
-
-  /* Populate panel content */
-  populatePanels(run);
-
-  /* Rebuild timeline (new pixel elements) */
-  masterTL = buildTimeline();
-
-  /* Re-seek to current scroll position */
-  seekToScroll();
-}
-
-/* ── Scroll → timeline ──────────────────────────── */
-function seekToScroll() {
-  if (!masterTL) return;
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const progress  = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-  const ms        = progress * TL_DURATION;
-
-  masterTL.seek(ms);
-
-  /* Update section label & dots */
-  const secIdx = sectionAt(ms);
-  const sec    = SECTIONS[secIdx];
-  el('section-label').textContent = sec ? sec.label : '';
-  document.querySelectorAll('.sdot').forEach((d, i) => {
-    d.classList.toggle('on', i === secIdx);
-  });
-
-  /* Hint fades after first real scroll */
-  if (!hasScrolled && window.scrollY > 10) {
-    hasScrolled = true;
-    anime({ targets: '#scroll-hint', opacity: 0, duration: 600, easing: 'linear' });
+function imgWrap(src, alt, cls) {
+  if (src) {
+    return `<img class="${cls}" src="${src}" alt="${alt}" loading="lazy" />`;
   }
+  return `<div class="${cls.replace('img','placeholder')}">${alt.charAt(0).toUpperCase()}</div>`;
 }
 
-/* Throttle scroll handler to one RAF per frame */
-window.addEventListener('scroll', () => {
-  cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(seekToScroll);
-}, { passive: true });
+/* ── Render ──────────────────────────────────────── */
+function render(run) {
+  /* ── Header ── */
+  $('h-model').textContent   = run.model || '—';
+  $('h-time').textContent    = relTime(run.timestamp);
 
-/* ── Jump to a section by dot click ─────────────── */
-function scrollToSection(idx) {
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const target    = (idx / SECTIONS.length) * maxScroll;
-  window.scrollTo({ top: target, behavior: 'smooth' });
+  /* ── Terminal hero ── */
+  $('h-date').textContent    = (run.date || '—') + '  ' + (run.time || '');
+  $('h-mood').textContent    = run.mood || '—';
+  $('h-tracks').textContent  = (run.tracks_added ?? '—') + ' TRACKS ADDED';
+  $('h-runtime').textContent = fmtSec(run.runtime_seconds);
+  $('h-library').textContent = (run.library_artist_count ?? '—') + ' ARTISTS IN LIBRARY';
+  $('h-summary').textContent = run.summary || '';
+
+  const playlists = (run.source_playlists || []).join('  ·  ');
+  $('h-playlists').textContent = playlists || '—';
+
+  /* Energy */
+  const eLvl  = (run.energy_level || 'medium').toLowerCase();
+  const eFill = ENERGY_FILLS[eLvl] ?? 5;
+  $('h-energy').innerHTML =
+    `<span class="energy-bar energy-${eLvl}">[${block(eFill)}] ${eLvl.toUpperCase()}</span>`;
+
+  /* ── Taste tags ── */
+  $('taste-tags').innerHTML = (run.taste_profile || [])
+    .map(t => `<span class="taste-tag">${t.toUpperCase()}</span>`)
+    .join('');
+
+  /* ── Genre bars ── */
+  const genres = (run.genres || []).slice(0, 6);
+  const maxG   = genres.length;
+  $('genre-bars').innerHTML = genres.map((g, i) => {
+    const fill = Math.round(10 - (i / maxG) * 7);
+    return `<div class="genre-row">
+      <div class="genre-name" style="color:${GENRE_COLORS[i % 5]}">${g}</div>
+      <div class="genre-bar">[${block(fill)}]</div>
+    </div>`;
+  }).join('');
+
+  /* ── Artists grid ── */
+  const artists = run.preferred_artists_detail || [];
+  $('artists-grid').innerHTML = artists.map(a => `
+    <div class="artist-card">
+      <div class="artist-img-wrap">
+        ${a.image
+          ? `<img class="artist-img" src="${a.image}" alt="${a.name}" loading="lazy" />`
+          : `<div class="artist-placeholder">${a.name.charAt(0)}</div>`}
+      </div>
+      <div class="artist-name">${a.name.toUpperCase()}</div>
+    </div>
+  `).join('');
+
+  /* ── Curated tracks grid ── */
+  const curated = run.curated_tracks_sample || [];
+  $('tracks-grid').innerHTML = curated.map(t => `
+    <div class="track-card">
+      <div class="track-art-wrap">
+        ${t.album_art
+          ? `<img class="track-art" src="${t.album_art}" alt="${t.name}" loading="lazy" />`
+          : `<div class="track-placeholder">♪</div>`}
+        <div class="track-overlay">
+          <div class="track-title">${t.name}</div>
+          <div class="track-artist">${t.artist}</div>
+        </div>
+      </div>
+      <div class="track-meta">
+        <div class="track-meta-title">${t.name}</div>
+        <div class="track-meta-artist">${t.artist}</div>
+      </div>
+    </div>
+  `).join('');
+
+  /* ── Recent list ── */
+  const recent = run.recent_tracks_sample || [];
+  $('recent-list').innerHTML = recent.map((t, i) => `
+    <div class="recent-row">
+      <span class="recent-num">${String(i + 1).padStart(2, '0')}</span>
+      <div class="recent-info">
+        <div class="recent-name">${t.name}</div>
+        <div class="recent-art">${t.artist}</div>
+      </div>
+    </div>
+  `).join('');
+
+  /* ── Run nav ── */
+  $('rn-label').textContent = (run.mood || '').toUpperCase();
+  $('rn-sub').textContent   = `${run.date || ''}  ·  RUN ${runIdx + 1} / ${allRuns.length}`;
+  $('btn-prev').disabled    = runIdx === 0;
+  $('btn-next').disabled    = runIdx === allRuns.length - 1;
 }
+
+/* ── Boot ─────────────────────────────────────────── */
+async function boot() {
+  try {
+    const res = await fetch('./data/history.json');
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    allRuns = (Array.isArray(data) ? data : [data])
+      .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+  } catch (e) {
+    $('loading').innerHTML = `<p style="color:#ff4444;font-family:monospace">LOAD ERROR: ${e.message}</p>`;
+    return;
+  }
+
+  $('loading').style.display = 'none';
+  $('app').removeAttribute('hidden');
+
+  $('btn-prev').addEventListener('click', () => { if (runIdx > 0) { runIdx--; render(allRuns[runIdx]); window.scrollTo(0, 0); } });
+  $('btn-next').addEventListener('click', () => { if (runIdx < allRuns.length - 1) { runIdx++; render(allRuns[runIdx]); window.scrollTo(0, 0); } });
+
+  render(allRuns[0]);
+}
+
+boot();
