@@ -73,7 +73,7 @@ git remote set-url origin https://x-access-token:YOUR_TOKEN@github.com/your-user
 
 Alternatively add `GITHUB_TOKEN=ghp_...` to `.env` (GitHub → Settings → Developer settings → Personal access tokens, scope: `repo`).
 
-**Watch live logs from your Mac:**
+**Watch live logs from your Machine:**
 
 ```bash
 chmod +x scripts/watch-linux.sh
