@@ -7,8 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.148.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
       --bg: #050505;
@@ -695,7 +701,7 @@
 
     #tower-canvas-wrap {
       position: relative;
-      height: 420px;
+      height: 500px;
       border-radius: 10px;
       overflow: hidden;
     }
@@ -708,24 +714,80 @@
 
     #tower-tooltip {
       position: absolute;
-      background: rgba(10, 10, 10, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 10px 14px;
+      background: rgba(8, 8, 8, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 12px 16px;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.12s;
-      z-index: 10;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      max-width: 220px;
-      line-height: 1.6;
+      transition: opacity 0.1s;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      max-width: 240px;
+      line-height: 1.65;
+    }
+
+    #tower-tooltip .tt-mood {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: capitalize;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    #tower-tooltip .tt-date {
+      font-size: 11px;
+      color: #5a5a5a;
+      margin-bottom: 6px;
+    }
+
+    #tower-tooltip .tt-genres {
+      font-size: 11px;
+      color: #a0a0a0;
+      margin-bottom: 4px;
+    }
+
+    #tower-tooltip .tt-meta {
+      font-size: 11px;
+      color: #5a5a5a;
+      margin-bottom: 8px;
+    }
+
+    #tower-tooltip .tt-cta {
+      font-size: 10px;
+      font-weight: 600;
+      color: #1ed760;
+      letter-spacing: 0.03em;
+    }
+
+    .fl-label {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding-left: 8px;
+      border-left: 2px solid currentColor;
+    }
+
+    .fl-mood {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      text-transform: capitalize;
+      text-shadow: 0 0 10px currentColor;
+      white-space: nowrap;
+    }
+
+    .fl-date {
+      font-size: 9px;
+      color: #555;
+      white-space: nowrap;
     }
 
     .timeline-item { transition: background 0.3s; }
 
     @media (max-width: 640px) {
-      #tower-canvas-wrap { height: 260px; }
+      #tower-canvas-wrap { height: 320px; }
     }
 
     @media (max-width: 1100px) {
@@ -1040,157 +1102,6 @@
         `
         el.appendChild(row)
       })
-    }
-
-    function buildTower(data) {
-      if (typeof THREE === 'undefined') return
-
-      const wrap = document.getElementById('tower-canvas-wrap')
-      const canvas = document.getElementById('tower-canvas')
-      const tooltip = document.getElementById('tower-tooltip')
-      const W = wrap.clientWidth
-      const H = wrap.clientHeight
-
-      const scene = new THREE.Scene()
-      const camera = new THREE.PerspectiveCamera(28, W / H, 0.1, 100)
-      camera.position.set(8, 5, 8)
-
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-      renderer.setSize(W, H)
-      renderer.setClearColor(0x000000, 0)
-
-      scene.add(new THREE.AmbientLight(0xffffff, 0.5))
-      const sun = new THREE.DirectionalLight(0xffffff, 0.9)
-      sun.position.set(6, 12, 6)
-      scene.add(sun)
-      const fill = new THREE.DirectionalLight(0x8899ff, 0.2)
-      fill.position.set(-4, 2, -4)
-      scene.add(fill)
-
-      const controls = new THREE.OrbitControls(camera, renderer.domElement)
-      controls.enableDamping = true
-      controls.dampingFactor = 0.06
-      controls.enablePan = false
-      controls.minDistance = 5
-      controls.maxDistance = 22
-
-      const ENERGY_H  = { low: 0.32, medium: 0.52, high: 0.78 }
-      const ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 }
-      const GENRE_COLS = [0xb967ff, 0xf037a5, 0x477dff]
-      const CUBE_XZ   = [[-0.85, -0.75], [0.1, 0.82], [0.85, -0.2]]
-
-      const tower = new THREE.Group()
-      scene.add(tower)
-
-      const floorMeshes = []
-      let yOffset = 0
-
-      data.forEach((run, i) => {
-        const h   = ENERGY_H[run.energy_level]  || 0.52
-        const col = ENERGY_COL[run.energy_level] || 0x1ed760
-
-        const geo = new THREE.BoxGeometry(3, h, 3)
-        const mat = new THREE.MeshLambertMaterial({ color: col, emissive: col, emissiveIntensity: 0.1 })
-        const mesh = new THREE.Mesh(geo, mat)
-        mesh.position.y = yOffset + h / 2
-        mesh.userData = { run, index: i, baseEmissive: 0.1 }
-        tower.add(mesh)
-        floorMeshes.push(mesh)
-
-        // crisp edge outline
-        const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.13 })
-        const lines = new THREE.LineSegments(new THREE.EdgesGeometry(geo), lineMat)
-        lines.position.copy(mesh.position)
-        tower.add(lines)
-
-        // genre cubes on top
-        ;(run.genres || []).slice(0, 3).forEach((_, gi) => {
-          const cm = new THREE.MeshLambertMaterial({ color: GENRE_COLS[gi], emissive: GENRE_COLS[gi], emissiveIntensity: 0.4 })
-          const cube = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), cm)
-          cube.position.set(CUBE_XZ[gi][0], yOffset + h + 0.14, CUBE_XZ[gi][1])
-          tower.add(cube)
-        })
-
-        yOffset += h + 0.1
-      })
-
-      tower.position.y = -yOffset / 2
-      camera.lookAt(0, 0, 0)
-      controls.target.set(0, 0, 0)
-      controls.update()
-
-      let spinning = true
-      controls.addEventListener('start', () => { spinning = false })
-      controls.addEventListener('end',   () => { setTimeout(() => { spinning = true }, 2500) })
-
-      const raycaster = new THREE.Raycaster()
-      const mouse = new THREE.Vector2()
-      let hovered = null
-
-      wrap.addEventListener('mousemove', e => {
-        const r = wrap.getBoundingClientRect()
-        mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1
-        mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1
-        raycaster.setFromCamera(mouse, camera)
-        const hits = raycaster.intersectObjects(floorMeshes)
-
-        if (hits.length) {
-          const mesh = hits[0].object
-          if (hovered !== mesh) {
-            if (hovered) hovered.material.emissiveIntensity = hovered.userData.baseEmissive
-            hovered = mesh
-            mesh.material.emissiveIntensity = 0.6
-            document.body.style.cursor = 'pointer'
-          }
-          const run = mesh.userData.run
-          tooltip.innerHTML = `
-            <div style="font-weight:700;font-size:13px;text-transform:capitalize;margin-bottom:5px;color:#fff">${run.mood}</div>
-            <div style="color:#6a6a6a;font-size:11px;margin-bottom:5px">${run.date} · ${run.time}</div>
-            <div style="color:#a7a7a7;font-size:11px;margin-bottom:3px">${(run.genres||[]).join(' · ')}</div>
-            <div style="color:#6a6a6a;font-size:11px">${run.energy_level} energy &nbsp;·&nbsp; ${run.tracks_added} tracks</div>
-          `
-          tooltip.style.opacity = '1'
-          const tx = e.clientX - r.left + 16
-          const ty = e.clientY - r.top - 10
-          tooltip.style.left = Math.min(tx, r.width - 240) + 'px'
-          tooltip.style.top  = Math.max(ty, 4) + 'px'
-        } else {
-          if (hovered) { hovered.material.emissiveIntensity = hovered.userData.baseEmissive; hovered = null; document.body.style.cursor = '' }
-          tooltip.style.opacity = '0'
-        }
-      })
-
-      wrap.addEventListener('mouseleave', () => {
-        if (hovered) { hovered.material.emissiveIntensity = hovered.userData.baseEmissive; hovered = null; document.body.style.cursor = '' }
-        tooltip.style.opacity = '0'
-      })
-
-      wrap.addEventListener('click', () => {
-        if (!hovered) return
-        const idx = hovered.userData.index
-        const items = document.querySelectorAll('#run-timeline .timeline-item')
-        const target = items[items.length - 1 - idx]
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          target.style.background = 'rgba(30,215,96,0.1)'
-          setTimeout(() => { target.style.background = '' }, 2000)
-        }
-      })
-
-      window.addEventListener('resize', () => {
-        const W2 = wrap.clientWidth, H2 = wrap.clientHeight
-        camera.aspect = W2 / H2
-        camera.updateProjectionMatrix()
-        renderer.setSize(W2, H2)
-      })
-
-      ;(function animate() {
-        requestAnimationFrame(animate)
-        if (spinning) tower.rotation.y += 0.004
-        controls.update()
-        renderer.render(scene, camera)
-      })()
     }
 
     async function init() {
@@ -1508,10 +1419,378 @@
         timelineEl.appendChild(item)
       })
 
-      buildTower(data)
     }
 
     init()
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls }  from 'three/addons/controls/OrbitControls.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    async function buildTower() {
+      let data;
+      try {
+        const r = await fetch('./data/history.json');
+        data = await r.json();
+        if (!Array.isArray(data) || !data.length) return;
+      } catch { return; }
+
+      const wrap    = document.getElementById('tower-canvas-wrap');
+      const canvas  = document.getElementById('tower-canvas');
+      const tooltip = document.getElementById('tower-tooltip');
+      let W = wrap.clientWidth;
+      let H = wrap.clientHeight;
+
+      /* ── Renderer ─────────────────────────────────────────── */
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+      renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.85;
+      renderer.outputColorSpace  = THREE.SRGBColorSpace;
+
+      /* ── CSS2D label renderer ─────────────────────────────── */
+      const labelRenderer = new CSS2DRenderer();
+      labelRenderer.setSize(W, H);
+      labelRenderer.domElement.style.cssText =
+        'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;';
+      wrap.appendChild(labelRenderer.domElement);
+
+      /* ── Scene ────────────────────────────────────────────── */
+      const scene = new THREE.Scene();
+      scene.fog   = new THREE.FogExp2(0x000000, 0.018);
+
+      /* ── Camera ───────────────────────────────────────────── */
+      const camera = new THREE.PerspectiveCamera(28, W / H, 0.1, 120);
+      camera.position.set(10, 7, 10);
+
+      /* ── Orbit controls ───────────────────────────────────── */
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping   = true;
+      controls.dampingFactor   = 0.05;
+      controls.enablePan       = false;
+      controls.minDistance     = 6;
+      controls.maxDistance     = 28;
+      controls.minPolarAngle   = 0.15;
+      controls.maxPolarAngle   = Math.PI / 2 + 0.08;
+
+      /* ── Lights ───────────────────────────────────────────── */
+      scene.add(new THREE.AmbientLight(0x111133, 1.2));
+
+      const sun = new THREE.DirectionalLight(0xffeedd, 0.7);
+      sun.position.set(8, 16, 8);
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(1024, 1024);
+      sun.shadow.camera.near   = 0.5;
+      sun.shadow.camera.far    = 60;
+      sun.shadow.camera.left   = -14;
+      sun.shadow.camera.right  = 14;
+      sun.shadow.camera.top    = 14;
+      sun.shadow.camera.bottom = -14;
+      scene.add(sun);
+
+      const fill = new THREE.DirectionalLight(0x2233ff, 0.28);
+      fill.position.set(-6, 4, -6);
+      scene.add(fill);
+
+      /* ── Post-processing: bloom ───────────────────────────── */
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 1.1, 0.55, 0.72);
+      composer.addPass(bloom);
+
+      /* ── Ground grid ──────────────────────────────────────── */
+      const grid = new THREE.GridHelper(24, 24, 0x1a1a2e, 0x0d0d18);
+      scene.add(grid);
+
+      /* ── Palette ──────────────────────────────────────────── */
+      const ENERGY_H = { low: 0.55, medium: 0.85, high: 1.2 };
+      const BODY_COL = { low: 0x0b1d2c, medium: 0x1c1000, high: 0x081a0e };
+      const WIN_COL  = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 };
+      const TRIM_COL = { low: 0x0f3044, medium: 0x321e00, high: 0x0c3016 };
+      const EDGE_COL = WIN_COL;
+
+      /* ── Tower group ──────────────────────────────────────── */
+      const tower = new THREE.Group();
+      scene.add(tower);
+
+      const floorGroups = [];
+      const twinkling   = [];
+      let yOffset = 0;
+
+      function addWindows(group, h, winHex) {
+        const cols    = 3;
+        const rows    = Math.max(2, Math.floor(h * 4.5));
+        const winColor = new THREE.Color(winHex);
+        const usableW  = 2.3;
+        const usableH  = h - 0.22;
+        const gapX = usableW / (cols - 1);
+        const gapY = rows > 1 ? usableH / (rows - 1) : 0;
+
+        [
+          new THREE.Vector3(0, 0,  1),
+          new THREE.Vector3(0, 0, -1),
+          new THREE.Vector3( 1, 0, 0),
+          new THREE.Vector3(-1, 0, 0),
+        ].forEach(n => {
+          for (let c = 0; c < cols; c++) {
+            for (let ro = 0; ro < rows; ro++) {
+              const lit = Math.random() > 0.18;
+              const ei  = lit ? 0.9 + Math.random() * 0.8 : 0.0;
+              const mat = new THREE.MeshStandardMaterial({
+                color: winColor, emissive: winColor, emissiveIntensity: ei,
+                roughness: 0.08, metalness: 0.4,
+              });
+              const win = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.16, 0.06), mat);
+              const wx = -usableW / 2 + c * gapX;
+              const wy = 0.13 + ro * gapY;
+              if (n.z !== 0) {
+                win.position.set(wx, wy, n.z * 1.48);
+              } else {
+                win.position.set(n.x * 1.48, wy, wx);
+                win.rotation.y = Math.PI / 2;
+              }
+              group.add(win);
+              if (lit) twinkling.push({ mat, phase: Math.random() * Math.PI * 2, base: ei });
+            }
+          }
+        });
+      }
+
+      /* Build each floor */
+      data.forEach((run, i) => {
+        const h       = ENERGY_H[run.energy_level] || 0.85;
+        const bodyHex = BODY_COL[run.energy_level] || 0x081a0e;
+        const winHex  = WIN_COL[run.energy_level]  || 0x1ed760;
+        const trimHex = TRIM_COL[run.energy_level] || 0x0c3016;
+        const edgeHex = EDGE_COL[run.energy_level] || 0x1ed760;
+
+        const group = new THREE.Group();
+        group.position.y = yOffset;
+        group.userData   = { run, index: i, h };
+        tower.add(group);
+        floorGroups.push(group);
+
+        /* Main body */
+        const bodyGeo = new THREE.BoxGeometry(3, h, 3);
+        const bodyMat = new THREE.MeshStandardMaterial({
+          color: bodyHex, roughness: 0.92, metalness: 0.06,
+        });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y    = h / 2;
+        body.castShadow    = true;
+        body.receiveShadow = true;
+        body.userData      = { floorGroup: group, run, index: i };
+        group.add(body);
+        group._body = body;
+
+        /* Trim bands */
+        const trimGeo = new THREE.BoxGeometry(3.1, 0.08, 3.1);
+        const trimMat = new THREE.MeshStandardMaterial({ color: trimHex, roughness: 0.65, metalness: 0.25 });
+        const trimT = new THREE.Mesh(trimGeo, trimMat); trimT.position.y = h - 0.04; group.add(trimT);
+        const trimB = new THREE.Mesh(trimGeo, trimMat); trimB.position.y = 0.04; group.add(trimB);
+
+        /* Edge outlines */
+        const edgeMat = new THREE.LineBasicMaterial({
+          color: new THREE.Color(edgeHex).multiplyScalar(0.45),
+          transparent: true, opacity: 0.55,
+        });
+        const outlines = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo), edgeMat);
+        outlines.position.y = h / 2;
+        group.add(outlines);
+
+        /* Windows */
+        addWindows(group, h, winHex);
+
+        /* CSS2D label — floats beside the floor */
+        const div = document.createElement('div');
+        div.className = 'fl-label';
+        div.style.color = `#${new THREE.Color(winHex).getHexString()}`;
+        div.innerHTML = `<span class="fl-mood">${run.mood}</span><span class="fl-date">${run.date}</span>`;
+        const label2d = new CSS2DObject(div);
+        label2d.position.set(2.05, h / 2, 0);
+        group.add(label2d);
+
+        yOffset += h + 0.14;
+      });
+
+      /* Center tower */
+      tower.position.y = -yOffset / 2;
+      camera.lookAt(0, 0, 0);
+      controls.target.set(0, 0, 0);
+      controls.update();
+
+      /* ── Roof detail: antennas, beacon, AC units ────────────── */
+      const topG  = floorGroups[floorGroups.length - 1];
+      const topH  = topG.userData.h;
+      const stMat = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, metalness: 0.9, roughness: 0.2 });
+
+      [[0.0, 0.0, 0.4, 0.28], [0.75, 0.0, -0.55, 0.42], [-0.65, 0.0, 0.25, 0.56]].forEach(([ox,, oz, aH]) => {
+        const ant = new THREE.Mesh(new THREE.BoxGeometry(0.05, aH, 0.05), stMat);
+        ant.position.set(ox, topH + aH / 2, oz);
+        topG.add(ant);
+      });
+
+      const beaconMat = new THREE.MeshStandardMaterial({
+        color: 0xff1111, emissive: 0xff0000, emissiveIntensity: 2.5, roughness: 0.1, metalness: 0,
+      });
+      const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), beaconMat);
+      beacon.position.set(-0.65, topH + 0.56 + 0.07, 0.25);
+      topG.add(beacon);
+      twinkling.push({ mat: beaconMat, phase: 0, base: 2.5, isBeacon: true });
+
+      const acMat = new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.8, metalness: 0.3 });
+      [[ 1.0, 0, 0.8], [-1.0, 0, -0.8]].forEach(([ox,, oz]) => {
+        const ac = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.28, 0.38), acMat);
+        ac.position.set(ox, topH + 0.14, oz);
+        topG.add(ac);
+      });
+
+      /* ── Floating particles ───────────────────────────────── */
+      const N   = 450;
+      const pos = new Float32Array(N * 3);
+      const dx  = new Float32Array(N);
+      const dy  = new Float32Array(N);
+      const dz  = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        pos[i*3]   = (Math.random() - 0.5) * 18;
+        pos[i*3+1] = (Math.random() - 0.5) * (yOffset + 4);
+        pos[i*3+2] = (Math.random() - 0.5) * 18;
+        dx[i] = (Math.random() - 0.5) * 0.0014;
+        dy[i] = Math.random() * 0.0022 + 0.0008;
+        dz[i] = (Math.random() - 0.5) * 0.0014;
+      }
+      const pGeo = new THREE.BufferGeometry();
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const pMat = new THREE.PointsMaterial({
+        color: 0x59cfcf, size: 0.04, transparent: true, opacity: 0.48, sizeAttenuation: true,
+      });
+      scene.add(new THREE.Points(pGeo, pMat));
+
+      /* ── Auto-rotate ──────────────────────────────────────── */
+      let spinning = true;
+      controls.addEventListener('start', () => { spinning = false; });
+      controls.addEventListener('end',   () => { setTimeout(() => { spinning = true; }, 3000); });
+
+      /* ── Raycasting ───────────────────────────────────────── */
+      const raycaster   = new THREE.Raycaster();
+      const mouse       = new THREE.Vector2();
+      const bodyMeshes  = floorGroups.map(g => g._body);
+      let hovered = null;
+
+      wrap.addEventListener('mousemove', e => {
+        const rect = wrap.getBoundingClientRect();
+        mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+        mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(bodyMeshes);
+
+        if (hits.length) {
+          const mesh = hits[0].object;
+          const g    = mesh.userData.floorGroup;
+          if (hovered !== g) {
+            if (hovered) {
+              hovered._body.material.emissive.setHex(0x000000);
+              hovered._body.material.emissiveIntensity = 0;
+            }
+            hovered = g;
+            const run = mesh.userData.run;
+            hovered._body.material.emissive.setHex(WIN_COL[run.energy_level] || 0x1ed760);
+            hovered._body.material.emissiveIntensity = 0.2;
+            document.body.style.cursor = 'pointer';
+          }
+          const run = mesh.userData.run;
+          tooltip.innerHTML = `
+            <div class="tt-mood">${run.mood}</div>
+            <div class="tt-date">${run.date} &nbsp;·&nbsp; ${run.time}</div>
+            <div class="tt-genres">${(run.genres || []).join(' · ')}</div>
+            <div class="tt-meta">${run.energy_level} energy &nbsp;·&nbsp; ${run.tracks_added} tracks</div>
+            <div class="tt-cta">click to jump ↓</div>
+          `;
+          tooltip.style.opacity = '1';
+          const tx = e.clientX - rect.left + 20;
+          const ty = e.clientY - rect.top  - 14;
+          tooltip.style.left = Math.min(tx, rect.width - 260) + 'px';
+          tooltip.style.top  = Math.max(ty, 4) + 'px';
+        } else {
+          if (hovered) {
+            hovered._body.material.emissive.setHex(0x000000);
+            hovered._body.material.emissiveIntensity = 0;
+            hovered = null;
+            document.body.style.cursor = '';
+          }
+          tooltip.style.opacity = '0';
+        }
+      });
+
+      wrap.addEventListener('mouseleave', () => {
+        if (hovered) {
+          hovered._body.material.emissive.setHex(0x000000);
+          hovered._body.material.emissiveIntensity = 0;
+          hovered = null;
+          document.body.style.cursor = '';
+        }
+        tooltip.style.opacity = '0';
+      });
+
+      wrap.addEventListener('click', () => {
+        if (!hovered) return;
+        const idx   = hovered.userData.index;
+        const items = document.querySelectorAll('#run-timeline .timeline-item');
+        const target = items[items.length - 1 - idx];
+        if (!target) return;
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.background = 'rgba(30,215,96,0.12)';
+        setTimeout(() => { target.style.background = ''; }, 2500);
+      });
+
+      /* ── Resize ───────────────────────────────────────────── */
+      window.addEventListener('resize', () => {
+        W = wrap.clientWidth;
+        H = wrap.clientHeight;
+        camera.aspect = W / H;
+        camera.updateProjectionMatrix();
+        renderer.setSize(W, H);
+        labelRenderer.setSize(W, H);
+        composer.setSize(W, H);
+        bloom.resolution.set(W, H);
+      });
+
+      /* ── Animate ──────────────────────────────────────────── */
+      const clock = new THREE.Clock();
+      (function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+
+        if (spinning) tower.rotation.y += 0.0028;
+        controls.update();
+
+        twinkling.forEach(({ mat, phase, base, isBeacon }) => {
+          mat.emissiveIntensity = isBeacon
+            ? 1.5 + 1.5 * Math.sin(t * 2.8 + phase)
+            : base * (0.78 + 0.22 * Math.sin(t * 1.3 + phase));
+        });
+
+        for (let i = 0; i < N; i++) {
+          pos[i*3]   += dx[i];
+          pos[i*3+1] += dy[i];
+          pos[i*3+2] += dz[i];
+          if (pos[i*3+1] > yOffset / 2 + 2) pos[i*3+1] = -yOffset / 2 - 2;
+        }
+        pGeo.attributes.position.needsUpdate = true;
+
+        composer.render();
+        labelRenderer.render(scene, camera);
+      })();
+    }
+
+    buildTower();
   </script>
 </body>
 </html>
