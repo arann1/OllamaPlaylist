@@ -6,18 +6,13 @@
   <title>OllamaPlaylist · Taste Tower</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.148.0/examples/jsm/"
-    }
-  }
-  </script>
+  <!-- Three.js classic scripts — no importmap, works everywhere -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/renderers/CSS2DRenderer.js"></script>
   <style>
     :root {
       --bg: #050505;
-      --surface: rgba(14,14,14,0.97);
       --border: rgba(255,255,255,0.06);
       --text: #ffffff;
       --muted: #a7a7a7;
@@ -30,14 +25,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100%;
-      overflow: hidden;
-    }
+    html, body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100%; overflow: hidden; }
 
     .bg-mesh {
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -46,295 +34,128 @@
         radial-gradient(ellipse 55% 35% at 85% 5%, rgba(185,103,255,0.07), transparent 50%);
     }
 
-    /* ── TOPBAR ─────────────────────────────────────────────────── */
+    /* TOPBAR */
     .topbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      height: 52px;
-      display: flex; align-items: center; justify-content: space-between;
+      height: 52px; display: flex; align-items: center; justify-content: space-between;
       padding: 0 20px;
-      background: rgba(5,5,5,0.92);
+      background: rgba(5,5,5,0.94);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
     }
-
     .topbar-left { display: flex; align-items: center; gap: 10px; }
-
-    .logo {
-      font-size: 15px; font-weight: 800;
-      letter-spacing: -0.03em; color: var(--text);
-    }
-
-    .model-pill {
-      font-size: 10px; padding: 2px 9px;
-      background: rgba(30,215,96,0.08);
-      color: var(--green);
-      border: 1px solid rgba(30,215,96,0.18);
-      border-radius: 20px; font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
+    .logo { font-size: 15px; font-weight: 800; letter-spacing: -0.03em; }
+    .model-pill { font-size: 10px; padding: 2px 9px; background: rgba(30,215,96,0.08); color: var(--green); border: 1px solid rgba(30,215,96,0.18); border-radius: 20px; font-weight: 700; }
     #last-updated { font-size: 11px; color: var(--dim); }
 
-    /* ── LOADING ────────────────────────────────────────────────── */
+    /* LOADING */
     #loading {
       position: fixed; inset: 0; z-index: 100;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 14px; color: var(--muted); font-size: 13px;
     }
-
-    .spinner {
-      width: 28px; height: 28px;
-      border: 2px solid var(--border);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-    }
-
+    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.75s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── APP SHELL ──────────────────────────────────────────────── */
-    #app {
-      position: fixed;
-      top: 52px; left: 0; right: 0; bottom: 0;
-      display: flex;
-      z-index: 1;
-    }
+    /* APP */
+    #app { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; display: flex; z-index: 1; }
 
-    /* ── TOWER CANVAS AREA ──────────────────────────────────────── */
-    #tower-wrap {
-      position: relative;
-      flex: 1;
-      min-width: 0;
-      height: 100%;
-      overflow: hidden;
-    }
+    /* TOWER */
+    #tower-wrap { position: relative; flex: 1; min-width: 0; height: 100%; overflow: hidden; }
+    #tower-canvas { display: block; position: absolute; inset: 0; }
 
-    #tower-canvas {
-      display: block;
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+    /* FLOOR LABELS */
+    .fl-label { pointer-events: none; white-space: nowrap; padding-left: 7px; border-left: 2px solid currentColor; }
+    .fl-text { display: block; font-size: 10px; font-weight: 800; color: currentColor; text-transform: uppercase; letter-spacing: 0.06em; text-shadow: 0 0 8px currentColor; font-family: 'Inter', sans-serif; }
 
-    /* ── FLOOR LABELS (CSS2D) ───────────────────────────────────── */
-    .fl-label {
-      pointer-events: none;
-      white-space: nowrap;
-      padding-left: 7px;
-      border-left: 2px solid currentColor;
-      opacity: 0.9;
-    }
-
-    .fl-text {
-      display: block;
-      font-size: 10px;
-      font-weight: 800;
-      color: currentColor;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      text-shadow: 0 0 10px currentColor;
-    }
-
-    /* ── TOOLTIP ────────────────────────────────────────────────── */
+    /* TOOLTIP */
     #tower-tooltip {
-      position: absolute;
-      background: rgba(6,6,6,0.95);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 10px;
-      padding: 9px 13px;
-      font-size: 12px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.08s;
-      z-index: 30;
-      max-width: 190px;
-      line-height: 1.55;
-      backdrop-filter: blur(8px);
+      position: absolute; background: rgba(6,6,6,0.95); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px; padding: 9px 13px; font-size: 12px; pointer-events: none;
+      opacity: 0; transition: opacity 0.08s; z-index: 30; max-width: 200px; line-height: 1.55;
     }
+    #tower-tooltip strong { display: block; font-size: 13px; margin-bottom: 3px; color: #fff; }
+    #tower-tooltip em { font-style: normal; color: var(--green); font-size: 10px; display: block; margin-top: 4px; }
 
-    #tower-tooltip strong { display: block; font-size: 13px; margin-bottom: 3px; }
-    #tower-tooltip em { font-style: normal; color: var(--green); font-size: 10px; }
-
-    /* ── RUN NAVIGATOR ──────────────────────────────────────────── */
+    /* RUN NAV */
     #run-nav {
-      position: absolute;
-      bottom: 20px; left: 50%;
-      transform: translateX(-50%);
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
       display: flex; align-items: center; gap: 14px;
-      background: rgba(6,6,6,0.88);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 7px 18px;
-      backdrop-filter: blur(12px);
-      white-space: nowrap;
-      z-index: 10;
+      background: rgba(6,6,6,0.88); border: 1px solid var(--border); border-radius: 28px;
+      padding: 7px 18px; backdrop-filter: blur(12px); white-space: nowrap; z-index: 10;
     }
-
-    .nav-btn {
-      background: none; border: none;
-      color: var(--muted); font-size: 18px;
-      cursor: pointer; padding: 0 2px; line-height: 1;
-      transition: color 0.12s;
-    }
-    .nav-btn:hover:not(:disabled) { color: #fff; }
-    .nav-btn:disabled { color: #222; cursor: default; }
-
+    .nav-btn { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; transition: color 0.12s; }
+    .nav-btn:hover:not([disabled]) { color: #fff; }
+    .nav-btn[disabled] { color: #222; cursor: default; }
     #run-info { display: flex; flex-direction: column; align-items: center; gap: 1px; }
     #run-mood { font-size: 12px; font-weight: 700; color: var(--text); text-transform: capitalize; }
     #run-meta { font-size: 10px; color: var(--dim); }
 
-    /* ── HINT ───────────────────────────────────────────────────── */
-    #tower-hint {
-      position: absolute;
-      top: 14px; left: 50%; transform: translateX(-50%);
-      font-size: 10px; color: #333;
-      pointer-events: none; white-space: nowrap;
-    }
+    /* HINT */
+    #tower-hint { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #2a2a2a; pointer-events: none; white-space: nowrap; }
 
-    /* ── INFO PANEL ─────────────────────────────────────────────── */
+    /* INFO PANEL */
     #info-panel {
-      width: 360px;
-      min-width: 300px;
-      max-width: 42vw;
-      height: 100%;
-      background: rgba(8,8,8,0.98);
-      border-left: 1px solid var(--border);
-      transform: translateX(100%);
-      transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 26px 22px 40px;
-      position: relative;
-      scrollbar-width: thin;
-      scrollbar-color: #1a1a1a transparent;
+      width: 360px; min-width: 300px; max-width: 42vw; height: 100%;
+      background: rgba(8,8,8,0.99); border-left: 1px solid var(--border);
+      transform: translateX(100%); transition: transform 0.26s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto; overflow-x: hidden; padding: 26px 22px 40px;
+      position: relative; scrollbar-width: thin; scrollbar-color: #1a1a1a transparent;
     }
-
     #info-panel.open { transform: translateX(0); }
-
     #panel-close {
-      position: absolute; top: 14px; right: 14px;
-      background: none; border: 1px solid var(--border);
-      color: var(--dim); width: 26px; height: 26px;
-      border-radius: 50%; cursor: pointer; font-size: 14px; line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.12s;
+      position: absolute; top: 14px; right: 14px; background: none; border: 1px solid var(--border);
+      color: var(--dim); width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+      font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.12s;
     }
     #panel-close:hover { color: #fff; border-color: rgba(255,255,255,0.18); }
 
     .panel-icon { font-size: 26px; display: block; margin-bottom: 8px; }
     .panel-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
-    .panel-sub {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.09em; color: var(--dim); margin: 20px 0 10px;
-    }
+    .panel-sub { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--dim); margin: 20px 0 10px; }
     .panel-meta { font-size: 11px; color: var(--dim); margin-bottom: 12px; }
     .panel-summary { font-size: 13px; color: var(--muted); line-height: 1.75; margin-top: 10px; }
     .panel-placeholder { color: var(--dim); font-size: 13px; margin-top: 16px; line-height: 1.6; }
 
-    /* Energy badge */
-    .energy-badge {
-      font-size: 30px; font-weight: 900;
-      text-transform: uppercase; letter-spacing: 0.04em;
-      margin-bottom: 22px; display: block;
-    }
+    .energy-badge { font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 22px; display: block; }
 
-    /* Stat grid */
-    .stat-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-bottom: 6px;
-    }
-    .stat-item {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border);
-      border-radius: 10px; padding: 11px 12px;
-    }
-    .stat-item span {
-      display: block; font-size: 9px; color: var(--dim);
-      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px;
-    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+    .stat-item { background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; }
+    .stat-item span { display: block; font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
     .stat-item strong { font-size: 13px; font-weight: 700; }
 
-    /* Tags */
     .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag {
-      font-size: 11px; padding: 4px 9px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px; color: var(--muted);
-    }
-    .tag.green { background: rgba(30,215,96,0.08); border-color: rgba(30,215,96,0.2); color: var(--green); }
+    .tag { font-size: 11px; padding: 4px 9px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; color: var(--muted); }
     .tag.purple { background: rgba(185,103,255,0.08); border-color: rgba(185,103,255,0.2); color: var(--purple); }
 
-    /* Mood */
-    .mood-display {
-      font-size: 22px; font-weight: 800;
-      text-transform: capitalize; margin-bottom: 12px;
-    }
+    .mood-display { font-size: 22px; font-weight: 800; text-transform: capitalize; margin-bottom: 12px; }
 
-    /* Genre bars */
     .genre-bars { display: flex; flex-direction: column; gap: 9px; }
     .genre-row { display: flex; align-items: center; gap: 10px; }
     .genre-row > span { font-size: 12px; width: 100px; text-transform: capitalize; color: var(--muted); }
     .bar-track { flex: 1; height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 3px; }
 
-    /* Artists */
     .artist-list { display: flex; flex-direction: column; gap: 9px; }
     .artist-row { display: flex; align-items: center; gap: 11px; }
-    .av {
-      width: 34px; height: 34px; border-radius: 50%;
-      object-fit: cover; flex-shrink: 0;
-      background: rgba(255,255,255,0.06);
-    }
-    .av-placeholder {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; flex-shrink: 0;
-    }
+    .av { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .av-ph { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
     .artist-name { font-size: 13px; font-weight: 600; flex: 1; }
     .rank { font-size: 10px; color: var(--dim); font-weight: 600; }
     .rank.top { color: var(--green); }
 
-    /* DNA */
     .dna-list { display: flex; flex-direction: column; gap: 6px; }
-    .dna-item {
-      font-size: 16px; font-weight: 800;
-      text-transform: capitalize; color: var(--purple);
-      letter-spacing: 0.01em;
-      opacity: 1;
-    }
+    .dna-item { font-size: 16px; font-weight: 800; text-transform: capitalize; letter-spacing: 0.01em; }
 
-    /* Track list */
     .track-list { display: flex; flex-direction: column; gap: 9px; }
     .track-row { display: flex; align-items: center; gap: 11px; }
-    .track-art {
-      width: 38px; height: 38px; border-radius: 6px;
-      object-fit: cover; flex-shrink: 0;
-    }
-    .track-art-ph {
-      width: 38px; height: 38px; border-radius: 6px;
-      background: rgba(255,255,255,0.05);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; flex-shrink: 0; color: var(--dim);
-    }
-    .track-name { font-size: 12px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .track-art { width: 38px; height: 38px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+    .track-art-ph { width: 38px; height: 38px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; color: var(--dim); }
+    .track-name { font-size: 12px; font-weight: 600; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
     .track-artist { font-size: 10px; color: var(--dim); }
 
-    /* MOBILE */
     @media (max-width: 680px) {
-      #info-panel {
-        position: fixed;
-        width: 100%; max-width: 100%;
-        height: 58%;
-        bottom: 0; left: 0; right: 0; top: auto;
-        border-left: none;
-        border-top: 1px solid var(--border);
-        transform: translateY(100%);
-        max-width: 100%;
-      }
+      #info-panel { position: fixed; width: 100%; max-width: 100%; height: 58%; bottom: 0; left: 0; right: 0; top: auto; border-left: none; border-top: 1px solid var(--border); transform: translateY(100%); }
       #info-panel.open { transform: translateY(0); }
     }
   </style>
@@ -358,608 +179,575 @@
   <div id="app" style="display:none">
     <div id="tower-wrap">
       <canvas id="tower-canvas"></canvas>
-      <!-- CSS2DRenderer attaches here -->
       <div id="tower-tooltip"></div>
       <div id="tower-hint">drag to orbit · click a floor to explore</div>
       <div id="run-nav">
-        <button class="nav-btn" id="run-prev" title="Older run">‹</button>
+        <button class="nav-btn" id="run-prev">‹</button>
         <div id="run-info">
           <span id="run-mood"></span>
           <span id="run-meta"></span>
         </div>
-        <button class="nav-btn" id="run-next" title="Newer run">›</button>
+        <button class="nav-btn" id="run-next">›</button>
       </div>
     </div>
-
     <aside id="info-panel">
-      <button id="panel-close" title="Close">×</button>
+      <button id="panel-close">×</button>
       <div id="panel-content">
         <p class="panel-placeholder">Click any floor of the tower to explore your music data.</p>
       </div>
     </aside>
   </div>
 
-  <!-- Non-module helpers (available to module via window) -->
   <script>
-    function formatRuntime(sec) {
+    /* ── Utilities ─────────────────────────────────────────────── */
+    function fmtTime(sec) {
       if (!sec) return '—';
-      if (sec < 60) return `${Math.round(sec)}s`;
-      return `${Math.floor(sec / 60)}m ${Math.round(sec % 60)}s`;
+      if (sec < 60) return Math.round(sec) + 's';
+      return Math.floor(sec / 60) + 'm ' + Math.round(sec % 60) + 's';
     }
-
     function relTime(ts) {
       if (!ts) return '';
-      const s = (Date.now() - new Date(ts)) / 1000;
-      if (s < 3600)  return `${Math.round(s / 60)}m ago`;
-      if (s < 86400) return `${Math.round(s / 3600)}h ago`;
-      return `${Math.round(s / 86400)}d ago`;
+      var s = (Date.now() - new Date(ts)) / 1000;
+      if (s < 3600)  return Math.round(s / 60)  + 'm ago';
+      if (s < 86400) return Math.round(s / 3600) + 'h ago';
+      return Math.round(s / 86400) + 'd ago';
+    }
+    var EC  = { low: '#59cfcf', medium: '#ffa42b', high: '#1ed760' };
+    var GC  = ['#b967ff','#f037a5','#477dff','#ff8c00','#59cfcf'];
+
+    function renderPanel(section, run) {
+      var c = document.getElementById('panel-content');
+      var html = '';
+      if (section === 'OVERVIEW' || section === 'BODY') {
+        html = '<span class="panel-icon">📊</span><h2 class="panel-title">Run Overview</h2>'
+          + '<div class="stat-grid">'
+          + '<div class="stat-item"><span>Date</span><strong>' + run.date + '</strong></div>'
+          + '<div class="stat-item"><span>Time</span><strong>' + run.time + '</strong></div>'
+          + '<div class="stat-item"><span>Tracks</span><strong>' + run.tracks_added + '</strong></div>'
+          + '<div class="stat-item"><span>Runtime</span><strong>' + fmtTime(run.runtime_seconds) + '</strong></div>'
+          + '<div class="stat-item"><span>Model</span><strong>' + (run.model || '—') + '</strong></div>'
+          + '<div class="stat-item"><span>Library</span><strong>' + (run.library_artist_count || '—') + ' artists</strong></div>'
+          + '</div>'
+          + '<div class="panel-sub">Source playlists</div>'
+          + '<div class="tag-list">' + (run.source_playlists || []).map(function(p){ return '<span class="tag">' + p + '</span>'; }).join('') + '</div>';
+      } else if (section === 'ENERGY') {
+        html = '<span class="panel-icon">⚡</span><h2 class="panel-title">Energy Level</h2>'
+          + '<span class="energy-badge" style="color:' + (EC[run.energy_level] || '#1ed760') + '">' + run.energy_level + '</span>'
+          + '<div class="stat-grid">'
+          + '<div class="stat-item"><span>Tracks added</span><strong>' + run.tracks_added + '</strong></div>'
+          + '<div class="stat-item"><span>Runtime</span><strong>' + fmtTime(run.runtime_seconds) + '</strong></div>'
+          + '</div>';
+      } else if (section === 'MOOD') {
+        html = '<span class="panel-icon">💭</span><h2 class="panel-title">Mood</h2>'
+          + '<div class="mood-display">' + run.mood + '</div>'
+          + '<p class="panel-summary">' + (run.summary || '') + '</p>';
+      } else if (section === 'GENRES') {
+        html = '<span class="panel-icon">🎵</span><h2 class="panel-title">Genre DNA</h2>'
+          + '<div class="genre-bars">'
+          + (run.genres || []).map(function(g, i) {
+              return '<div class="genre-row"><span>' + g + '</span>'
+                + '<div class="bar-track"><div class="bar-fill" style="width:' + (100 - i * 16) + '%;background:' + GC[i % 5] + '"></div></div></div>';
+            }).join('')
+          + '</div>'
+          + '<div class="panel-sub">Taste profile</div>'
+          + '<div class="tag-list">' + (run.taste_profile || []).map(function(t){ return '<span class="tag purple">' + t + '</span>'; }).join('') + '</div>';
+      } else if (section === 'ARTISTS') {
+        html = '<span class="panel-icon">👤</span><h2 class="panel-title">Top Artists</h2>'
+          + '<div class="artist-list">'
+          + (run.preferred_artists_detail || []).map(function(a, i) {
+              var name = a.name || '?';
+              var av = a.image
+                ? '<img class="av" src="' + a.image + '" alt="" onerror="this.style.display=\'none\'">'
+                : '<div class="av-ph">' + name[0] + '</div>';
+              return '<div class="artist-row">' + av
+                + '<span class="artist-name">' + name + '</span>'
+                + '<span class="rank' + (i < 3 ? ' top' : '') + '">#' + (i + 1) + '</span></div>';
+            }).join('')
+          + '</div>';
+      } else if (section === 'DNA') {
+        html = '<span class="panel-icon">🧬</span><h2 class="panel-title">Taste Profile</h2>'
+          + '<div class="dna-list">'
+          + (run.taste_profile || []).map(function(t, i) {
+              return '<div class="dna-item" style="font-size:' + (20 - i * 2) + 'px;color:' + GC[i % 5] + '">' + t + '</div>';
+            }).join('')
+          + '</div>';
+      } else if (section === 'CURATED') {
+        html = '<span class="panel-icon">🎧</span><h2 class="panel-title">Curated Playlist</h2>'
+          + '<p class="panel-meta">' + (run.curated_tracks_sample || []).length + ' tracks · AI selected from your library</p>'
+          + '<div class="track-list">'
+          + (run.curated_tracks_sample || []).map(function(t) {
+              var art = t.album_art
+                ? '<img class="track-art" src="' + t.album_art + '" alt="">'
+                : '<div class="track-art-ph">♪</div>';
+              return '<div class="track-row">' + art
+                + '<div><div class="track-name">' + t.name + '</div><div class="track-artist">' + t.artist + '</div></div></div>';
+            }).join('')
+          + '</div>';
+      }
+      c.innerHTML = html;
+      document.getElementById('info-panel').classList.add('open');
     }
 
-    window.SECTION_NAMES = {
-      OVERVIEW: 'Run Overview',
-      ENERGY:   'Energy Level',
-      MOOD:     'Mood',
-      GENRES:   'Genre DNA',
-      ARTISTS:  'Top Artists',
-      DNA:      'Taste Profile',
-      CURATED:  'Curated Playlist',
-    };
-
-    const GENRE_COLORS  = ['#b967ff','#f037a5','#477dff','#ff8c00','#59cfcf'];
-    const EC = { low: '#59cfcf', medium: '#ffa42b', high: '#1ed760' };
-
-    window.renderPanel = function(section, run) {
-      const content = document.getElementById('panel-content');
-
-      const panels = {
-        OVERVIEW: () => `
-          <span class="panel-icon">📊</span>
-          <h2 class="panel-title">Run Overview</h2>
-          <div class="stat-grid">
-            <div class="stat-item"><span>Date</span><strong>${run.date}</strong></div>
-            <div class="stat-item"><span>Time</span><strong>${run.time}</strong></div>
-            <div class="stat-item"><span>Tracks</span><strong>${run.tracks_added}</strong></div>
-            <div class="stat-item"><span>Runtime</span><strong>${formatRuntime(run.runtime_seconds)}</strong></div>
-            <div class="stat-item"><span>Model</span><strong>${run.model || '—'}</strong></div>
-            <div class="stat-item"><span>Library</span><strong>${run.library_artist_count || '—'} artists</strong></div>
-          </div>
-          <div class="panel-sub">Source playlists</div>
-          <div class="tag-list">${(run.source_playlists||[]).map(p=>`<span class="tag">${p}</span>`).join('')||'<span class="tag">—</span>'}</div>
-        `,
-        ENERGY: () => `
-          <span class="panel-icon">⚡</span>
-          <h2 class="panel-title">Energy Level</h2>
-          <span class="energy-badge" style="color:${EC[run.energy_level]||'#1ed760'}">${run.energy_level}</span>
-          <div class="stat-grid">
-            <div class="stat-item"><span>Tracks added</span><strong>${run.tracks_added}</strong></div>
-            <div class="stat-item"><span>Runtime</span><strong>${formatRuntime(run.runtime_seconds)}</strong></div>
-          </div>
-        `,
-        MOOD: () => `
-          <span class="panel-icon">💭</span>
-          <h2 class="panel-title">Mood</h2>
-          <div class="mood-display">${run.mood}</div>
-          <p class="panel-summary">${run.summary || ''}</p>
-        `,
-        GENRES: () => `
-          <span class="panel-icon">🎵</span>
-          <h2 class="panel-title">Genre DNA</h2>
-          <div class="genre-bars">
-            ${(run.genres||[]).map((g,i)=>`
-              <div class="genre-row">
-                <span>${g}</span>
-                <div class="bar-track"><div class="bar-fill" style="width:${100-i*16}%;background:${GENRE_COLORS[i%5]}"></div></div>
-              </div>`).join('')}
-          </div>
-          <div class="panel-sub">Taste profile</div>
-          <div class="tag-list">${(run.taste_profile||[]).map(t=>`<span class="tag purple">${t}</span>`).join('')}</div>
-        `,
-        ARTISTS: () => `
-          <span class="panel-icon">👤</span>
-          <h2 class="panel-title">Top Artists</h2>
-          <div class="artist-list">
-            ${(run.preferred_artists_detail||[]).map((a,i)=>`
-              <div class="artist-row">
-                ${a.image
-                  ? `<img class="av" src="${a.image}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'av-placeholder',textContent:'${(a.name||'?')[0]}'}));">`
-                  : `<div class="av-placeholder">${(a.name||'?')[0]}</div>`}
-                <span class="artist-name">${a.name}</span>
-                <span class="rank ${i<3?'top':''}">#${i+1}</span>
-              </div>`).join('')}
-          </div>
-        `,
-        DNA: () => `
-          <span class="panel-icon">🧬</span>
-          <h2 class="panel-title">Taste Profile</h2>
-          <div class="dna-list">
-            ${(run.taste_profile||[]).map((t,i)=>`<div class="dna-item" style="font-size:${20-i*2}px;color:${GENRE_COLORS[i%5]}">${t}</div>`).join('')}
-          </div>
-        `,
-        CURATED: () => `
-          <span class="panel-icon">🎧</span>
-          <h2 class="panel-title">Curated Playlist</h2>
-          <p class="panel-meta">${(run.curated_tracks_sample||[]).length} tracks · AI selected from your library</p>
-          <div class="track-list">
-            ${(run.curated_tracks_sample||[]).map(t=>`
-              <div class="track-row">
-                ${t.album_art
-                  ? `<img class="track-art" src="${t.album_art}" alt="">`
-                  : `<div class="track-art-ph">♪</div>`}
-                <div>
-                  <div class="track-name">${t.name}</div>
-                  <div class="track-artist">${t.artist}</div>
-                </div>
-              </div>`).join('')}
-          </div>
-        `,
-      };
-
-      content.innerHTML = (panels[section] || (() => '<p style="color:#444">No data</p>'))();
-      document.getElementById('info-panel').classList.add('open');
-    };
-
-    document.getElementById('panel-close').addEventListener('click', () => {
+    document.getElementById('panel-close').addEventListener('click', function() {
       document.getElementById('info-panel').classList.remove('open');
     });
-  </script>
 
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls }  from 'three/addons/controls/OrbitControls.js';
-    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-
-    /* ── Data ──────────────────────────────────────────────────── */
-    let allData, currentIdx;
-    try {
-      const resp = await fetch('./data/history.json');
-      allData = await resp.json();
-    } catch { allData = []; }
-
-    if (!allData.length) {
-      document.getElementById('loading').innerHTML =
-        '<span style="color:#444;max-width:340px;text-align:center;line-height:1.7">No runs yet.<br>Run <code style="background:#111;padding:2px 7px;border-radius:5px;color:#1ed760">cd backend && python playlist_updater.py</code><br>then commit data/history.json</span>';
-      return;
-    }
-
-    currentIdx = allData.length - 1;
-
-    /* Topbar */
-    const latest = allData[allData.length - 1];
-    document.getElementById('model-pill').textContent     = latest.model || 'ollama';
-    document.getElementById('last-updated').textContent   = 'Last run ' + relTime(latest.timestamp);
-    document.getElementById('loading').style.display      = 'none';
-    document.getElementById('app').style.display          = 'flex';
-
-    function relTime(ts) {
-      if (!ts) return '';
-      const s = (Date.now() - new Date(ts)) / 1000;
-      if (s < 3600)  return `${Math.round(s/60)}m ago`;
-      if (s < 86400) return `${Math.round(s/3600)}h ago`;
-      return `${Math.round(s/86400)}d ago`;
-    }
-
-    /* ── Three.js Setup ────────────────────────────────────────── */
-    // Wait one frame so the browser lays out #app before we read dimensions
-    await new Promise(r => requestAnimationFrame(r));
-
-    const wrap   = document.getElementById('tower-wrap');
-    const canvas = document.getElementById('tower-canvas');
-    let W = wrap.clientWidth  || window.innerWidth;
-    let H = wrap.clientHeight || (window.innerHeight - 52);
-
-    /* Renderer */
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(W, H, false); // false = don't override CSS width/height
-    renderer.setClearColor(0x050505, 1);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
-
-    /* CSS2D labels */
-    const labelRenderer = new CSS2DRenderer();
-    labelRenderer.setSize(W, H);
-    labelRenderer.domElement.style.cssText =
-      'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;';
-    wrap.appendChild(labelRenderer.domElement);
-
-    /* Scene */
-    const scene = new THREE.Scene();
-
-    /* Orthographic camera — true isometric */
-    const VIEW    = 11;
-    const aspect  = W / H;
-    const camera  = new THREE.OrthographicCamera(
-      -VIEW * aspect, VIEW * aspect, VIEW, -VIEW, -100, 100
-    );
-    camera.position.set(18, 18, 18);
-    camera.lookAt(0, 0, 0);
-
-    /* Controls */
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping  = true;
-    controls.dampingFactor  = 0.06;
-    controls.enablePan      = false;
-    controls.enableZoom     = true;
-    controls.minZoom        = 0.4;
-    controls.maxZoom        = 3.0;
-    controls.minPolarAngle  = 0.2;
-    controls.maxPolarAngle  = Math.PI / 2;
-
-    /* Lights */
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const sun = new THREE.DirectionalLight(0xfff8f0, 0.7);
-    sun.position.set(10, 20, 10);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
-    scene.add(sun);
-    const fill = new THREE.DirectionalLight(0x334488, 0.3);
-    fill.position.set(-8, 5, -8);
-    scene.add(fill);
-
-    /* Ground grid */
-    const grid = new THREE.GridHelper(22, 22, 0x181818, 0x101010);
-    grid.position.y = -0.5;
-    scene.add(grid);
-
-    /* ── Voxel building blocks ──────────────────────────────────── */
-    const _iGeo = new THREE.BoxGeometry(0.88, 0.88, 0.88); // inner
-    const _oGeo = new THREE.BoxGeometry(0.98, 0.98, 0.98); // outline hull
-    const _oMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-
-    function vox(x, y, z, hexColor) {
-      const mat   = new THREE.MeshLambertMaterial({ color: hexColor });
-      const inner = new THREE.Mesh(_iGeo, mat);
-      inner.position.set(x, y, z);
-      inner.castShadow    = true;
-      inner.receiveShadow = true;
-
-      const outer = new THREE.Mesh(_oGeo, _oMat);
-      outer.position.set(x, y, z);
-
-      return { inner, outer };
-    }
-
-    function fl2d(text, hexColor) {
-      const div = document.createElement('div');
-      div.className   = 'fl-label';
-      div.style.color = '#' + hexColor.toString(16).padStart(6, '0');
-      const sp = document.createElement('span');
-      sp.className   = 'fl-text';
-      sp.textContent = text;
-      div.appendChild(sp);
-      return new CSS2DObject(div);
-    }
-
-    /* ── Palette ─────────────────────────────────────────────────── */
-    const ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 };
-    const ENERGY_H   = { low: 1, medium: 2, high: 3 };
-    const GENRE_COL  = [0xb967ff, 0xf037a5, 0x477dff, 0xff8c00, 0x59cfcf];
-    const ARTIST_COL = [0xffa42b, 0xffcc44, 0xff8c00, 0xffaa22, 0xe8891a];
-    const DNA_COL    = [0xb967ff, 0x59cfcf, 0xf037a5, 0x477dff, 0xffa42b];
-    const CURATED_C  = [0x1ed760, 0x59cfcf, 0xb967ff, 0xf037a5, 0xffa42b];
-
-    function getMoodColor(mood) {
-      const m = (mood || '').toLowerCase();
-      if (m.includes('nostalgic'))                       return 0x9b7fb6;
-      if (m.includes('happy') || m.includes('joyful'))  return 0xd4a820;
-      if (m.includes('energetic') || m.includes('upbeat')) return 0xff6b35;
-      if (m.includes('melancholic') || m.includes('sad'))  return 0x4a7c9e;
-      if (m.includes('calm') || m.includes('peaceful'))    return 0x5fa8a8;
-      if (m.includes('reflective') || m.includes('introspective')) return 0x7080a0;
-      if (m.includes('dark') || m.includes('moody'))       return 0x6a4090;
-      return 0x8b4a6b;
-    }
-
-    /* ── Tower state ─────────────────────────────────────────────── */
-    let towerGroup = new THREE.Group();
-    scene.add(towerGroup);
-    let bodyMeshes = []; // raycaster targets
-
-    /* ── Build tower for one run ─────────────────────────────────── */
-    function buildTower(run) {
-      while (towerGroup.children.length) towerGroup.remove(towerGroup.children[0]);
-      bodyMeshes = [];
-
-      const eH   = ENERGY_H[run.energy_level] || 2;
-      const eCOL = ENERGY_COL[run.energy_level] || 0x1ed760;
-      const mCOL = getMoodColor(run.mood);
-      let y = 0;
-
-      /* Helper: add a section group of voxels */
-      function section(key, voxList, labelText, labelColor, labelSide) {
-        const g = new THREE.Group();
-        g.userData = { section: key, run };
-        voxList.forEach(([px, py, pz, col]) => {
-          const { inner, outer } = vox(px, py, pz, col);
-          inner.userData = { section: key, run };
-          g.add(inner);
-          g.add(outer);
-          bodyMeshes.push(inner);
-        });
-        if (labelText) {
-          const avgY = voxList.reduce((s,[,py])=>s+py,0) / voxList.length;
-          const lx   = (labelSide || 1) * 4.2;
-          const lbl  = fl2d(labelText, labelColor);
-          lbl.position.set(lx, avgY, 0);
-          g.add(lbl);
-        }
-        towerGroup.add(g);
+    /* ── Main async IIFE ───────────────────────────────────────── */
+    (async function() {
+      /* Load data */
+      var allData = [];
+      try {
+        var resp = await fetch('./data/history.json');
+        allData = await resp.json();
+      } catch(e) {
+        document.getElementById('loading').innerHTML =
+          '<span style="color:#555;text-align:center;max-width:320px;line-height:1.7">'
+          + 'No runs yet.<br>Run <code style="background:#111;padding:2px 6px;border-radius:4px;color:#1ed760">python backend/playlist_updater.py</code>'
+          + ' then push data/history.json</span>';
+        return;
+      }
+      if (!allData.length) {
+        document.getElementById('loading').innerHTML =
+          '<span style="color:#555">No run history found. Run the backend first.</span>';
+        return;
       }
 
-      /* ── 1. FOUNDATION PLATFORM (7×7) ────────────────────────── */
-      const foundVox = [];
-      for (let x=-3; x<=3; x++)
-        for (let z=-3; z<=3; z++)
-          foundVox.push([x, 0, z, 0x1c1c1c]);
-      section('OVERVIEW', foundVox, 'Run  ' + run.date, 0x444444, -1);
-      y = 1;
+      /* Topbar */
+      var latest = allData[allData.length - 1];
+      document.getElementById('model-pill').textContent   = latest.model || 'ollama';
+      document.getElementById('last-updated').textContent = 'Last run ' + relTime(latest.timestamp);
 
-      /* ── 2. BUILDING WALLS body (5×5 hollow, 2 layers) ──────────
-         Window holes: skip middle voxels on upper layer walls      */
-      const wallVox = [];
-      for (let ly=0; ly<2; ly++) {
-        for (let x=-2; x<=2; x++) {
-          for (let z=-2; z<=2; z++) {
-            if (Math.abs(x)!==2 && Math.abs(z)!==2) continue; // skip interior
-            // punch window gaps on upper layer at N/S/E/W midpoints
-            const isWin = ly===1 && (
-              (Math.abs(x)===2 && z===0) ||
-              (Math.abs(z)===2 && x===0)
-            );
-            if (!isWin) wallVox.push([x, y+ly, z, 0x0e1622]);
-          }
-        }
-      }
-      section('OVERVIEW', wallVox, null, 0, 1);
-      y += 2;
+      /* Show app */
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('app').style.display     = 'flex';
 
-      /* ── 3. ENERGY ZONE (5×5 solid, eH layers) ───────────────── */
-      const eVox = [];
-      for (let ly=0; ly<eH; ly++)
-        for (let x=-2; x<=2; x++)
-          for (let z=-2; z<=2; z++)
-            eVox.push([x, y+ly, z, eCOL]);
-      section('ENERGY', eVox, '⚡ ' + run.energy_level, eCOL, 1);
-      y += eH;
+      /* Wait for layout */
+      await new Promise(function(r){ setTimeout(r, 60); });
 
-      /* ── 4. MOOD ZONE (5×5 hollow ring, 2 layers + floor) ───── */
-      const mVox = [];
-      for (let x=-1; x<=1; x++) for (let z=-1; z<=1; z++) mVox.push([x, y, z, 0x111111]);
-      for (let ly=0; ly<2; ly++)
-        for (let x=-2; x<=2; x++)
-          for (let z=-2; z<=2; z++)
-            if (Math.abs(x)===2 || Math.abs(z)===2)
-              mVox.push([x, y+ly, z, mCOL]);
-      section('MOOD', mVox, '💭 ' + run.mood.split(' ').slice(0,2).join(' '), mCOL, -1);
-      y += 2;
+      var currentIdx = allData.length - 1;
 
-      /* ── 5. GENRE PILLARS ─────────────────────────────────────── */
-      const genres = (run.genres || []).slice(0, 5);
-      if (genres.length) {
-        const maxGH  = genres.length + 1;
-        const g5     = new THREE.Group();
-        g5.userData  = { section: 'GENRES', run };
-        const sp     = genres.length > 1 ? 4 / (genres.length - 1) : 0;
+      /* ── THREE.JS ──────────────────────────────────────────────── */
+      var wrap    = document.getElementById('tower-wrap');
+      var canvas  = document.getElementById('tower-canvas');
+      var tooltip = document.getElementById('tower-tooltip');
+      var W = wrap.clientWidth  || window.innerWidth;
+      var H = wrap.clientHeight || (window.innerHeight - 52);
 
-        genres.forEach((genre, gi) => {
-          const ph  = maxGH - gi;
-          const gc  = GENRE_COL[gi % GENRE_COL.length];
-          const px  = genres.length === 1 ? 0 : Math.round(-2 + gi * sp);
+      /* Renderer */
+      var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H, false);
+      renderer.setClearColor(0x050505, 1);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
 
-          for (let ly=0; ly<ph; ly++) {
-            const {inner, outer} = vox(px, y+ly, 0, gc);
-            inner.userData = { section: 'GENRES', run };
-            g5.add(inner); g5.add(outer);
-            bodyMeshes.push(inner);
-          }
-          const lbl = fl2d(genre, gc);
-          lbl.position.set(px, y + ph + 0.7, 0);
-          g5.add(lbl);
-        });
+      /* CSS2D label renderer */
+      var labelRenderer = new THREE.CSS2DRenderer();
+      labelRenderer.setSize(W, H);
+      labelRenderer.domElement.style.cssText =
+        'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;';
+      wrap.appendChild(labelRenderer.domElement);
 
-        const mainLbl = fl2d('🎵 Genres', GENRE_COL[0]);
-        mainLbl.position.set(4.2, y + maxGH/2, 0);
-        g5.add(mainLbl);
-        towerGroup.add(g5);
-        y += maxGH + 2;
-      }
+      /* Scene */
+      var scene = new THREE.Scene();
 
-      /* ── 6. ARTISTS ROW ───────────────────────────────────────── */
-      const artists = (run.preferred_artists_detail || run.preferred_artists || []).slice(0,5);
-      if (artists.length) {
-        const g6   = new THREE.Group();
-        g6.userData = { section: 'ARTISTS', run };
-        const asp  = artists.length > 1 ? 4 / (artists.length-1) : 0;
+      /* Orthographic camera — true isometric */
+      var VIEW   = 13;
+      var aspect = W / H;
+      var camera = new THREE.OrthographicCamera(
+        -VIEW * aspect, VIEW * aspect, VIEW, -VIEW, -100, 100
+      );
+      camera.position.set(18, 18, 18);
+      camera.lookAt(0, 0, 0);
 
-        artists.forEach((a, ai) => {
-          const aC  = ARTIST_COL[ai % ARTIST_COL.length];
-          const ax  = artists.length === 1 ? 0 : Math.round(-2 + ai * asp);
-          const name = typeof a === 'string' ? a : a.name;
-
-          for (let ly=0; ly<2; ly++) {
-            const {inner, outer} = vox(ax, y+ly, 0, aC);
-            inner.userData = { section: 'ARTISTS', run };
-            g6.add(inner); g6.add(outer);
-            bodyMeshes.push(inner);
-          }
-          if (ai < 4) {
-            const lbl = fl2d((name||'?').split(' ')[0], aC);
-            lbl.position.set(ax, y + 2.6, 0);
-            g6.add(lbl);
-          }
-        });
-
-        const aMainLbl = fl2d('👤 Artists', ARTIST_COL[0]);
-        aMainLbl.position.set(-4.2, y + 1, 0);
-        g6.add(aMainLbl);
-        towerGroup.add(g6);
-        y += 3;
-      }
-
-      /* ── 7. TASTE DNA (zigzag) ────────────────────────────────── */
-      const profile = (run.taste_profile || []).slice(0, 5);
-      if (profile.length) {
-        const g7   = new THREE.Group();
-        g7.userData = { section: 'DNA', run };
-
-        profile.forEach((term, ti) => {
-          const dc   = DNA_COL[ti % DNA_COL.length];
-          const side = ti % 2 === 0 ? -1 : 1;
-          const dep  = (ti % 3) - 1;
-
-          for (const [sx, sz] of [[side, dep], [-side, -dep]]) {
-            const {inner, outer} = vox(sx, y+ti, sz, dc);
-            inner.userData = { section: 'DNA', run };
-            g7.add(inner); g7.add(outer);
-            bodyMeshes.push(inner);
-          }
-        });
-
-        const dnaLbl = fl2d('🧬 DNA', 0xb967ff);
-        dnaLbl.position.set(4.2, y + profile.length/2, 0);
-        g7.add(dnaLbl);
-        towerGroup.add(g7);
-        y += profile.length + 1;
-      }
-
-      /* ── 8. CURATED CROWN (5×N grid) ─────────────────────────── */
-      const curated = (run.curated_tracks_sample || []).slice(0, 25);
-      if (curated.length) {
-        const g8   = new THREE.Group();
-        g8.userData = { section: 'CURATED', run };
-
-        curated.forEach((track, ti) => {
-          const cr = Math.floor(ti / 5);
-          const cc = ti % 5;
-          const tc = CURATED_C[ti % CURATED_C.length];
-          const {inner, outer} = vox(cc-2, y+cr, 0, tc);
-          inner.userData = { section: 'CURATED', run };
-          g8.add(inner); g8.add(outer);
-          bodyMeshes.push(inner);
-        });
-
-        const curLbl = fl2d('🎧 Curated', 0x1ed760);
-        curLbl.position.set(-4.2, y, 0);
-        g8.add(curLbl);
-        towerGroup.add(g8);
-        y += Math.ceil(curated.length/5) + 1;
-      }
-
-      /* Center tower vertically so camera looks at its middle */
-      towerGroup.position.y = -y / 2;
+      /* Controls */
+      var controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping  = true;
+      controls.dampingFactor  = 0.06;
+      controls.enablePan      = false;
+      controls.minZoom        = 0.4;
+      controls.maxZoom        = 3.0;
+      controls.minPolarAngle  = 0.15;
+      controls.maxPolarAngle  = Math.PI / 2;
       controls.target.set(0, 0, 0);
       controls.update();
-    }
 
-    /* ── Run navigator ───────────────────────────────────────────── */
-    function updateNav() {
-      const run = allData[currentIdx];
-      document.getElementById('run-mood').textContent = run.mood;
-      document.getElementById('run-meta').textContent =
-        `${run.date} · ${currentIdx + 1} of ${allData.length}`;
-      document.getElementById('run-prev').disabled = currentIdx === 0;
-      document.getElementById('run-next').disabled = currentIdx === allData.length - 1;
-    }
+      /* Lights */
+      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+      var sun  = new THREE.DirectionalLight(0xfff8f0, 0.7);
+      sun.position.set(10, 20, 10);
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(512, 512);
+      scene.add(sun);
+      scene.add(new THREE.DirectionalLight(0x334488, 0.3)).position.set(-8, 5, -8);
 
-    function goTo(idx) {
-      currentIdx = idx;
-      updateNav();
-      buildTower(allData[idx]);
-      document.getElementById('info-panel').classList.remove('open');
-    }
+      /* Ground grid */
+      var grid = new THREE.GridHelper(22, 22, 0x181818, 0x101010);
+      grid.position.y = -0.5;
+      scene.add(grid);
 
-    document.getElementById('run-prev').addEventListener('click', () => {
-      if (currentIdx > 0) goTo(currentIdx - 1);
-    });
-    document.getElementById('run-next').addEventListener('click', () => {
-      if (currentIdx < allData.length - 1) goTo(currentIdx + 1);
-    });
+      /* ── Voxel factory ─────────────────────────────────────────── */
+      var iGeo = new THREE.BoxGeometry(0.88, 0.88, 0.88);
+      var oGeo = new THREE.BoxGeometry(0.98, 0.98, 0.98);
+      var oMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
 
-    goTo(currentIdx);
+      function vox(x, y, z, hexColor) {
+        var mat   = new THREE.MeshLambertMaterial({ color: hexColor, emissive: 0x000000 });
+        var inner = new THREE.Mesh(iGeo, mat);
+        inner.position.set(x, y, z);
+        inner.castShadow    = true;
+        inner.receiveShadow = true;
+        var outer = new THREE.Mesh(oGeo, oMat);
+        outer.position.set(x, y, z);
+        return { inner: inner, outer: outer };
+      }
 
-    /* ── Raycasting ──────────────────────────────────────────────── */
-    const raycaster  = new THREE.Raycaster();
-    const mouse      = new THREE.Vector2();
-    const tooltip    = document.getElementById('tower-tooltip');
-    let hovered      = null;
+      function fl2d(text, hexColor) {
+        var div = document.createElement('div');
+        div.className   = 'fl-label';
+        div.style.color = '#' + hexColor.toString(16).padStart(6, '0');
+        var sp  = document.createElement('span');
+        sp.className   = 'fl-text';
+        sp.textContent = text;
+        div.appendChild(sp);
+        return new THREE.CSS2DObject(div);
+      }
 
-    wrap.addEventListener('mousemove', e => {
-      const r = wrap.getBoundingClientRect();
-      mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1;
-      mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const hits = raycaster.intersectObjects(bodyMeshes);
+      /* ── Palette ───────────────────────────────────────────────── */
+      var ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 };
+      var ENERGY_H   = { low: 1, medium: 2, high: 3 };
+      var GENRE_COL  = [0xb967ff, 0xf037a5, 0x477dff, 0xff8c00, 0x59cfcf];
+      var ARTIST_COL = [0xffa42b, 0xffcc44, 0xff8c00, 0xffaa22, 0xe8891a];
+      var DNA_COL    = [0xb967ff, 0x59cfcf, 0xf037a5, 0x477dff, 0xffa42b];
+      var CURATED_C  = [0x1ed760, 0x59cfcf, 0xb967ff, 0xf037a5, 0xffa42b];
 
-      if (hits.length) {
-        const mesh = hits[0].object;
-        if (hovered !== mesh) {
+      function moodColor(mood) {
+        var m = (mood || '').toLowerCase();
+        if (m.indexOf('nostalgic') >= 0)                            return 0x9b7fb6;
+        if (m.indexOf('happy') >= 0 || m.indexOf('joyful') >= 0)   return 0xd4a820;
+        if (m.indexOf('energetic') >= 0 || m.indexOf('upbeat') >= 0) return 0xff6b35;
+        if (m.indexOf('melancholic') >= 0 || m.indexOf('sad') >= 0)  return 0x4a7c9e;
+        if (m.indexOf('calm') >= 0 || m.indexOf('peaceful') >= 0)    return 0x5fa8a8;
+        if (m.indexOf('reflective') >= 0 || m.indexOf('introspective') >= 0) return 0x7080a0;
+        if (m.indexOf('dark') >= 0 || m.indexOf('moody') >= 0)       return 0x6a4090;
+        return 0x8b4a6b;
+      }
+
+      /* ── Tower state ───────────────────────────────────────────── */
+      var towerGroup = new THREE.Group();
+      scene.add(towerGroup);
+      var bodyMeshes = [];
+
+      /* ── Build tower for one run ─────────────────────────────────  */
+      function buildTower(run) {
+        /* Clear previous geometry */
+        while (towerGroup.children.length) towerGroup.remove(towerGroup.children[0]);
+        bodyMeshes = [];
+
+        var eH   = ENERGY_H[run.energy_level]  || 2;
+        var eCOL = ENERGY_COL[run.energy_level] || 0x1ed760;
+        var mCOL = moodColor(run.mood);
+        var y    = 0;
+
+        function addGroup(key, positions, labelText, labelHex, labelSide) {
+          var g = new THREE.Group();
+          g.userData = { section: key, run: run };
+          var sumY = 0;
+          for (var i = 0; i < positions.length; i++) {
+            var p = positions[i];
+            var v = vox(p[0], p[1], p[2], p[3]);
+            v.inner.userData = { section: key, run: run };
+            g.add(v.inner);
+            g.add(v.outer);
+            bodyMeshes.push(v.inner);
+            sumY += p[1];
+          }
+          if (labelText && positions.length) {
+            var avgY = sumY / positions.length;
+            var lx   = (labelSide || 1) * 4.4;
+            var lbl  = fl2d(labelText, labelHex);
+            lbl.position.set(lx, avgY, 0);
+            g.add(lbl);
+          }
+          towerGroup.add(g);
+        }
+
+        /* 1. FOUNDATION (7×7 platform) */
+        var fp = [];
+        for (var x = -3; x <= 3; x++)
+          for (var z = -3; z <= 3; z++)
+            fp.push([x, 0, z, 0x1c1c1c]);
+        addGroup('OVERVIEW', fp, 'Run ' + run.date, 0x444444, -1);
+        y = 1;
+
+        /* 2. BODY WALLS (5×5 hollow, 2 layers, window holes) */
+        var wp = [];
+        for (var ly = 0; ly < 2; ly++) {
+          for (var x = -2; x <= 2; x++) {
+            for (var z = -2; z <= 2; z++) {
+              if (Math.abs(x) !== 2 && Math.abs(z) !== 2) continue;
+              var isWin = ly === 1 && (
+                (Math.abs(x) === 2 && z === 0) ||
+                (Math.abs(z) === 2 && x === 0)
+              );
+              if (!isWin) wp.push([x, y + ly, z, 0x0e1622]);
+            }
+          }
+        }
+        addGroup('OVERVIEW', wp, null, 0, 1);
+        y += 2;
+
+        /* 3. ENERGY ZONE (5×5 solid, eH layers) */
+        var ep = [];
+        for (var ly = 0; ly < eH; ly++)
+          for (var x = -2; x <= 2; x++)
+            for (var z = -2; z <= 2; z++)
+              ep.push([x, y + ly, z, eCOL]);
+        addGroup('ENERGY', ep, '⚡ ' + run.energy_level, eCOL, 1);
+        y += eH;
+
+        /* 4. MOOD ZONE (5×5 hollow ring, 2 layers + inner floor) */
+        var mp = [];
+        for (var x = -1; x <= 1; x++)
+          for (var z = -1; z <= 1; z++)
+            mp.push([x, y, z, 0x111111]);
+        for (var ly = 0; ly < 2; ly++)
+          for (var x = -2; x <= 2; x++)
+            for (var z = -2; z <= 2; z++)
+              if (Math.abs(x) === 2 || Math.abs(z) === 2)
+                mp.push([x, y + ly, z, mCOL]);
+        addGroup('MOOD', mp, '💭 ' + run.mood.split(' ').slice(0, 2).join(' '), mCOL, -1);
+        y += 2;
+
+        /* 5. GENRE PILLARS */
+        var genres = (run.genres || []).slice(0, 5);
+        if (genres.length) {
+          var maxGH = genres.length + 1;
+          var gg    = new THREE.Group();
+          gg.userData = { section: 'GENRES', run: run };
+          var sp = genres.length > 1 ? 4 / (genres.length - 1) : 0;
+
+          for (var gi = 0; gi < genres.length; gi++) {
+            var ph  = maxGH - gi;
+            var gc  = GENRE_COL[gi % GENRE_COL.length];
+            var px  = genres.length === 1 ? 0 : Math.round(-2 + gi * sp);
+
+            for (var ly = 0; ly < ph; ly++) {
+              var v = vox(px, y + ly, 0, gc);
+              v.inner.userData = { section: 'GENRES', run: run };
+              gg.add(v.inner); gg.add(v.outer);
+              bodyMeshes.push(v.inner);
+            }
+            var gl = fl2d(genres[gi], gc);
+            gl.position.set(px, y + ph + 0.7, 0);
+            gg.add(gl);
+          }
+
+          var gml = fl2d('🎵 Genres', GENRE_COL[0]);
+          gml.position.set(4.4, y + maxGH / 2, 0);
+          gg.add(gml);
+          towerGroup.add(gg);
+          y += maxGH + 2;
+        }
+
+        /* 6. ARTISTS ROW */
+        var artists = (run.preferred_artists_detail || []).slice(0, 5);
+        if (!artists.length && run.preferred_artists)
+          artists = run.preferred_artists.slice(0, 5).map(function(n){ return { name: n }; });
+        if (artists.length) {
+          var ag  = new THREE.Group();
+          ag.userData = { section: 'ARTISTS', run: run };
+          var asp = artists.length > 1 ? 4 / (artists.length - 1) : 0;
+
+          for (var ai = 0; ai < artists.length; ai++) {
+            var aC  = ARTIST_COL[ai % ARTIST_COL.length];
+            var ax  = artists.length === 1 ? 0 : Math.round(-2 + ai * asp);
+            var aname = (artists[ai].name || '?');
+
+            for (var ly = 0; ly < 2; ly++) {
+              var v = vox(ax, y + ly, 0, aC);
+              v.inner.userData = { section: 'ARTISTS', run: run };
+              ag.add(v.inner); ag.add(v.outer);
+              bodyMeshes.push(v.inner);
+            }
+            if (ai < 4) {
+              var al = fl2d(aname.split(' ')[0], aC);
+              al.position.set(ax, y + 2.7, 0);
+              ag.add(al);
+            }
+          }
+
+          var aml = fl2d('👤 Artists', ARTIST_COL[0]);
+          aml.position.set(-4.4, y + 1, 0);
+          ag.add(aml);
+          towerGroup.add(ag);
+          y += 3;
+        }
+
+        /* 7. TASTE DNA (zigzag) */
+        var profile = (run.taste_profile || []).slice(0, 5);
+        if (profile.length) {
+          var dg = new THREE.Group();
+          dg.userData = { section: 'DNA', run: run };
+
+          for (var ti = 0; ti < profile.length; ti++) {
+            var dc   = DNA_COL[ti % DNA_COL.length];
+            var side = ti % 2 === 0 ? -1 : 1;
+            var dep  = (ti % 3) - 1;
+            var pairs = [[side, dep], [-side, -dep]];
+            for (var pi = 0; pi < pairs.length; pi++) {
+              var v = vox(pairs[pi][0], y + ti, pairs[pi][1], dc);
+              v.inner.userData = { section: 'DNA', run: run };
+              dg.add(v.inner); dg.add(v.outer);
+              bodyMeshes.push(v.inner);
+            }
+          }
+
+          var dl = fl2d('🧬 DNA', 0xb967ff);
+          dl.position.set(4.4, y + profile.length / 2, 0);
+          dg.add(dl);
+          towerGroup.add(dg);
+          y += profile.length + 1;
+        }
+
+        /* 8. CURATED CROWN */
+        var curated = (run.curated_tracks_sample || []).slice(0, 25);
+        if (curated.length) {
+          var cg = new THREE.Group();
+          cg.userData = { section: 'CURATED', run: run };
+
+          for (var ti = 0; ti < curated.length; ti++) {
+            var cr = Math.floor(ti / 5);
+            var cc = ti % 5;
+            var tc = CURATED_C[ti % CURATED_C.length];
+            var v  = vox(cc - 2, y + cr, 0, tc);
+            v.inner.userData = { section: 'CURATED', run: run };
+            cg.add(v.inner); cg.add(v.outer);
+            bodyMeshes.push(v.inner);
+          }
+
+          var cl = fl2d('🎧 Curated', 0x1ed760);
+          cl.position.set(-4.4, y, 0);
+          cg.add(cl);
+          towerGroup.add(cg);
+          y += Math.ceil(curated.length / 5) + 1;
+        }
+
+        /* Center tower */
+        towerGroup.position.y = -y / 2;
+        controls.target.set(0, 0, 0);
+        controls.update();
+      }
+
+      /* ── Run navigator ─────────────────────────────────────────── */
+      function updateNav() {
+        var run = allData[currentIdx];
+        document.getElementById('run-mood').textContent = run.mood;
+        document.getElementById('run-meta').textContent =
+          run.date + ' · ' + (currentIdx + 1) + ' of ' + allData.length;
+        document.getElementById('run-prev').disabled = currentIdx === 0;
+        document.getElementById('run-next').disabled = currentIdx === allData.length - 1;
+      }
+
+      function goTo(idx) {
+        currentIdx = idx;
+        updateNav();
+        buildTower(allData[idx]);
+        document.getElementById('info-panel').classList.remove('open');
+      }
+
+      document.getElementById('run-prev').addEventListener('click', function() {
+        if (currentIdx > 0) goTo(currentIdx - 1);
+      });
+      document.getElementById('run-next').addEventListener('click', function() {
+        if (currentIdx < allData.length - 1) goTo(currentIdx + 1);
+      });
+
+      goTo(currentIdx);
+
+      /* ── Raycasting ────────────────────────────────────────────── */
+      var raycaster = new THREE.Raycaster();
+      var mouse     = new THREE.Vector2();
+      var hovered   = null;
+
+      var NAMES = {
+        OVERVIEW: 'Run Overview', ENERGY: 'Energy Level', MOOD: 'Mood',
+        GENRES: 'Genre DNA', ARTISTS: 'Top Artists', DNA: 'Taste DNA', CURATED: 'Curated Playlist'
+      };
+
+      wrap.addEventListener('mousemove', function(e) {
+        var r = wrap.getBoundingClientRect();
+        mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1;
+        mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        var hits = raycaster.intersectObjects(bodyMeshes);
+
+        if (hits.length) {
+          var mesh = hits[0].object;
+          if (hovered !== mesh) {
+            if (hovered) { hovered.material.emissive.setHex(0x000000); hovered.material.emissiveIntensity = 0; }
+            hovered = mesh;
+            hovered.material.emissive.setHex(0xffffff);
+            hovered.material.emissiveIntensity = 0.4;
+            document.body.style.cursor = 'pointer';
+          }
+          var sec = mesh.userData.section;
+          var run = mesh.userData.run;
+          tooltip.innerHTML = '<strong>' + (NAMES[sec] || sec) + '</strong>'
+            + run.mood + ' · ' + run.date
+            + '<em>click to open →</em>';
+          tooltip.style.opacity = '1';
+          var tx = e.clientX - r.left + 16;
+          var ty = e.clientY - r.top  - 12;
+          tooltip.style.left = Math.min(tx, r.width - 210) + 'px';
+          tooltip.style.top  = Math.max(ty, 4) + 'px';
+        } else {
           if (hovered) {
             hovered.material.emissive.setHex(0x000000);
             hovered.material.emissiveIntensity = 0;
+            hovered = null;
+            document.body.style.cursor = '';
           }
-          hovered = mesh;
-          hovered.material.emissive.setHex(0xffffff);
-          hovered.material.emissiveIntensity = 0.35;
-          document.body.style.cursor = 'pointer';
+          tooltip.style.opacity = '0';
         }
-        const { section } = mesh.userData;
-        const sn = window.SECTION_NAMES?.[section] || section;
-        const run = mesh.userData.run;
-        tooltip.innerHTML = `<strong>${sn}</strong>${run.mood} · ${run.date}<br><em>click to open →</em>`;
-        tooltip.style.opacity = '1';
-        tooltip.style.left = Math.min(e.clientX - r.left + 16, r.width - 200) + 'px';
-        tooltip.style.top  = Math.max(e.clientY - r.top  - 12, 4) + 'px';
-      } else {
-        if (hovered) {
-          hovered.material.emissive.setHex(0x000000);
-          hovered.material.emissiveIntensity = 0;
-          hovered = null;
-          document.body.style.cursor = '';
-        }
+      });
+
+      wrap.addEventListener('mouseleave', function() {
+        if (hovered) { hovered.material.emissive.setHex(0x000000); hovered.material.emissiveIntensity = 0; hovered = null; document.body.style.cursor = ''; }
         tooltip.style.opacity = '0';
-      }
-    });
+      });
 
-    wrap.addEventListener('mouseleave', () => {
-      if (hovered) {
-        hovered.material.emissive.setHex(0x000000);
-        hovered.material.emissiveIntensity = 0;
-        hovered = null;
-        document.body.style.cursor = '';
-      }
-      tooltip.style.opacity = '0';
-    });
+      wrap.addEventListener('click', function() {
+        if (!hovered) return;
+        renderPanel(hovered.userData.section, hovered.userData.run);
+      });
 
-    wrap.addEventListener('click', () => {
-      if (!hovered) return;
-      const { section, run } = hovered.userData;
-      if (section && run) window.renderPanel(section, run);
-    });
+      /* ── Resize ────────────────────────────────────────────────── */
+      window.addEventListener('resize', function() {
+        W = wrap.clientWidth  || window.innerWidth;
+        H = wrap.clientHeight || (window.innerHeight - 52);
+        var a = W / H;
+        camera.left   = -VIEW * a; camera.right = VIEW * a;
+        camera.top    =  VIEW;     camera.bottom = -VIEW;
+        camera.updateProjectionMatrix();
+        renderer.setSize(W, H, false);
+        labelRenderer.setSize(W, H);
+      });
 
-    /* ── Resize ──────────────────────────────────────────────────── */
-    window.addEventListener('resize', () => {
-      W = wrap.clientWidth  || window.innerWidth;
-      H = wrap.clientHeight || (window.innerHeight - 52);
-      const a = W / H;
-      camera.left   = -VIEW * a; camera.right = VIEW * a;
-      camera.top    =  VIEW;     camera.bottom = -VIEW;
-      camera.updateProjectionMatrix();
-      renderer.setSize(W, H, false);
-      labelRenderer.setSize(W, H);
-    });
+      /* ── Animate ───────────────────────────────────────────────── */
+      var spinning = true;
+      controls.addEventListener('start', function() { spinning = false; });
+      controls.addEventListener('end',   function() { setTimeout(function(){ spinning = true; }, 4000); });
 
-    /* ── Animate ─────────────────────────────────────────────────── */
-    let spinning = true;
-    controls.addEventListener('start', () => { spinning = false; });
-    controls.addEventListener('end',   () => { setTimeout(() => { spinning = true; }, 4000); });
+      (function animate() {
+        requestAnimationFrame(animate);
+        if (spinning) towerGroup.rotation.y += 0.0025;
+        controls.update();
+        renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
+      })();
 
-    (function animate() {
-      requestAnimationFrame(animate);
-      if (spinning) towerGroup.rotation.y += 0.0025;
-      controls.update();
-      renderer.render(scene, camera);
-      labelRenderer.render(scene, camera);
-    })();
+    })(); /* end async IIFE */
   </script>
 </body>
 </html>
