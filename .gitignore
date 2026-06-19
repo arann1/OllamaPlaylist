@@ -8,3 +8,6 @@ logs/
 .vercel
 dashboard/data/
 scripts/.syncthing.*
+
+.env
+.venv/
