@@ -113,10 +113,12 @@ def get_playlist_tracks(playlist_id, max_tracks=150, market=None):
             track = _playlist_item_track(item)
             if not track:
                 continue
+            images = (track.get("album") or {}).get("images") or []
             tracks.append({
                 "id": track["id"],
                 "name": track["name"],
                 "artist": track["artists"][0]["name"],
+                "album_art": images[0]["url"] if images else None,
             })
             if len(tracks) >= max_tracks:
                 break
@@ -247,24 +249,6 @@ def select_library_tracks(
 
     return final_ids
 
-
-def get_tracks_details(track_ids):
-    """Fetch name, artist, and album art for a list of Spotify track IDs (max 50 per batch)."""
-    sp = get_sp()
-    result = []
-    for i in range(0, len(track_ids), 50):
-        batch = sp.tracks(track_ids[i:i + 50])
-        for track in batch.get("tracks") or []:
-            if not track:
-                continue
-            images = (track.get("album") or {}).get("images") or []
-            result.append({
-                "id": track["id"],
-                "name": track["name"],
-                "artist": track["artists"][0]["name"],
-                "album_art": images[0]["url"] if images else None,
-            })
-    return result
 
 
 def get_or_update_playlist(track_ids, playlist_name):
