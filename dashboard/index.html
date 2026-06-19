@@ -6,457 +6,589 @@
   <title>OllamaPlaylist · Taste Tower</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <!-- Three.js classic scripts — no importmap, works everywhere -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/renderers/CSS2DRenderer.js"></script>
   <style>
     :root {
       --bg: #050505;
-      --border: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.07);
       --text: #ffffff;
-      --muted: #a7a7a7;
-      --dim: #555;
+      --muted: #a0a0a0;
+      --dim: #444;
       --green: #1ed760;
       --purple: #b967ff;
       --cyan: #59cfcf;
       --pink: #f037a5;
       --amber: #ffa42b;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100%; overflow: hidden; }
-
-    .bg-mesh {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 70% 45% at 15% 0%, rgba(30,215,96,0.09), transparent 55%),
-        radial-gradient(ellipse 55% 35% at 85% 5%, rgba(185,103,255,0.07), transparent 50%);
+    html, body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      width: 100%; height: 100%; overflow: hidden;
     }
 
-    /* TOPBAR */
+    /* ── TOPBAR ──────────────────────────────── */
     .topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
       height: 52px; display: flex; align-items: center; justify-content: space-between;
       padding: 0 20px;
-      background: rgba(5,5,5,0.94);
+      background: rgba(5,5,5,0.95);
       border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(16px);
     }
     .topbar-left { display: flex; align-items: center; gap: 10px; }
     .logo { font-size: 15px; font-weight: 800; letter-spacing: -0.03em; }
-    .model-pill { font-size: 10px; padding: 2px 9px; background: rgba(30,215,96,0.08); color: var(--green); border: 1px solid rgba(30,215,96,0.18); border-radius: 20px; font-weight: 700; }
+    .model-pill {
+      font-size: 10px; padding: 2px 9px;
+      background: rgba(30,215,96,0.08); color: var(--green);
+      border: 1px solid rgba(30,215,96,0.2); border-radius: 20px; font-weight: 700;
+    }
     #last-updated { font-size: 11px; color: var(--dim); }
 
-    /* LOADING */
+    /* ── LOADING ─────────────────────────────── */
     #loading {
-      position: fixed; inset: 0; z-index: 100;
+      position: fixed; inset: 0; z-index: 200;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; color: var(--muted); font-size: 13px;
+      gap: 16px; background: var(--bg);
     }
-    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    .spinner {
+      width: 30px; height: 30px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { font-size: 13px; color: var(--dim); }
 
-    /* APP */
-    #app { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; display: flex; z-index: 1; }
+    /* ── APP SHELL ───────────────────────────── */
+    #app {
+      display: none;
+      position: fixed;
+      top: 52px; left: 0; right: 0; bottom: 0;
+      flex-direction: row;
+    }
 
-    /* TOWER */
-    #tower-wrap { position: relative; flex: 1; min-width: 0; height: 100%; overflow: hidden; }
-    #tower-canvas { display: block; position: absolute; inset: 0; }
+    /* ── CANVAS AREA ─────────────────────────── */
+    #tower-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    #tower-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
+    }
 
-    /* FLOOR LABELS */
-    .fl-label { pointer-events: none; white-space: nowrap; padding-left: 7px; border-left: 2px solid currentColor; }
-    .fl-text { display: block; font-size: 10px; font-weight: 800; color: currentColor; text-transform: uppercase; letter-spacing: 0.06em; text-shadow: 0 0 8px currentColor; font-family: 'Inter', sans-serif; }
+    /* ── CSS2D FLOOR LABELS ──────────────────── */
+    .fl-label {
+      pointer-events: none;
+      padding-left: 8px;
+      border-left: 2px solid currentColor;
+      white-space: nowrap;
+    }
+    .fl-text {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: currentColor;
+      text-shadow: 0 0 12px currentColor, 0 0 4px currentColor;
+    }
 
-    /* TOOLTIP */
+    /* ── TOOLTIP ─────────────────────────────── */
     #tower-tooltip {
-      position: absolute; background: rgba(6,6,6,0.95); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 10px; padding: 9px 13px; font-size: 12px; pointer-events: none;
-      opacity: 0; transition: opacity 0.08s; z-index: 30; max-width: 200px; line-height: 1.55;
+      position: absolute;
+      background: rgba(8,8,8,0.96);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 50;
+      max-width: 200px;
     }
-    #tower-tooltip strong { display: block; font-size: 13px; margin-bottom: 3px; color: #fff; }
-    #tower-tooltip em { font-style: normal; color: var(--green); font-size: 10px; display: block; margin-top: 4px; }
+    #tower-tooltip .tt-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    #tower-tooltip .tt-sub { color: var(--dim); font-size: 10px; }
+    #tower-tooltip .tt-cta { color: var(--green); font-size: 10px; margin-top: 4px; }
 
-    /* RUN NAV */
+    /* ── HINT ────────────────────────────────── */
+    #hint {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; color: #2a2a2a;
+      pointer-events: none; white-space: nowrap;
+      transition: opacity 0.4s;
+    }
+
+    /* ── RUN NAVIGATOR ───────────────────────── */
     #run-nav {
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      display: flex; align-items: center; gap: 14px;
-      background: rgba(6,6,6,0.88); border: 1px solid var(--border); border-radius: 28px;
-      padding: 7px 18px; backdrop-filter: blur(12px); white-space: nowrap; z-index: 10;
+      position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 16px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid var(--border); border-radius: 30px;
+      padding: 8px 20px;
+      backdrop-filter: blur(14px);
+      white-space: nowrap; z-index: 20;
     }
-    .nav-btn { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; transition: color 0.12s; }
+    .nav-btn {
+      background: none; border: none;
+      color: var(--muted); font-size: 22px;
+      cursor: pointer; padding: 0; line-height: 1;
+      transition: color 0.12s;
+    }
     .nav-btn:hover:not([disabled]) { color: #fff; }
-    .nav-btn[disabled] { color: #222; cursor: default; }
-    #run-info { display: flex; flex-direction: column; align-items: center; gap: 1px; }
-    #run-mood { font-size: 12px; font-weight: 700; color: var(--text); text-transform: capitalize; }
-    #run-meta { font-size: 10px; color: var(--dim); }
+    .nav-btn[disabled] { color: #1e1e1e; cursor: default; }
+    #nav-info { text-align: center; }
+    #nav-mood { font-size: 13px; font-weight: 700; color: var(--text); text-transform: capitalize; }
+    #nav-meta { font-size: 10px; color: var(--dim); }
 
-    /* HINT */
-    #tower-hint { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #2a2a2a; pointer-events: none; white-space: nowrap; }
-
-    /* INFO PANEL */
+    /* ── INFO PANEL ──────────────────────────── */
     #info-panel {
-      width: 360px; min-width: 300px; max-width: 42vw; height: 100%;
-      background: rgba(8,8,8,0.99); border-left: 1px solid var(--border);
-      transform: translateX(100%); transition: transform 0.26s cubic-bezier(0.4,0,0.2,1);
-      overflow-y: auto; overflow-x: hidden; padding: 26px 22px 40px;
-      position: relative; scrollbar-width: thin; scrollbar-color: #1a1a1a transparent;
+      width: 360px;
+      height: 100%;
+      background: rgba(6,6,6,0.99);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto; overflow-x: hidden;
+      padding: 28px 22px 48px;
+      position: relative;
+      flex-shrink: 0;
+      scrollbar-width: thin; scrollbar-color: #1a1a1a transparent;
     }
     #info-panel.open { transform: translateX(0); }
     #panel-close {
-      position: absolute; top: 14px; right: 14px; background: none; border: 1px solid var(--border);
-      color: var(--dim); width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-      font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.12s;
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: 1px solid var(--border);
+      color: var(--dim); width: 26px; height: 26px;
+      border-radius: 50%; cursor: pointer;
+      font-size: 15px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.12s;
     }
-    #panel-close:hover { color: #fff; border-color: rgba(255,255,255,0.18); }
+    #panel-close:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
 
-    .panel-icon { font-size: 26px; display: block; margin-bottom: 8px; }
-    .panel-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
-    .panel-sub { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--dim); margin: 20px 0 10px; }
-    .panel-meta { font-size: 11px; color: var(--dim); margin-bottom: 12px; }
-    .panel-summary { font-size: 13px; color: var(--muted); line-height: 1.75; margin-top: 10px; }
-    .panel-placeholder { color: var(--dim); font-size: 13px; margin-top: 16px; line-height: 1.6; }
+    /* Panel inner styles */
+    .p-icon { font-size: 28px; display: block; margin-bottom: 10px; }
+    .p-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+    .p-sub {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--dim); margin: 22px 0 10px;
+    }
+    .p-body { font-size: 13px; color: var(--muted); line-height: 1.75; }
 
-    .energy-badge { font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 22px; display: block; }
-
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
-    .stat-item { background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-item {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px;
+    }
     .stat-item span { display: block; font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
     .stat-item strong { font-size: 13px; font-weight: 700; }
 
-    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag { font-size: 11px; padding: 4px 9px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; color: var(--muted); }
-    .tag.purple { background: rgba(185,103,255,0.08); border-color: rgba(185,103,255,0.2); color: var(--purple); }
+    .energy-badge { font-size: 36px; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 20px; }
 
-    .mood-display { font-size: 22px; font-weight: 800; text-transform: capitalize; margin-bottom: 12px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; color: var(--muted); }
+    .tag.hl { background: rgba(185,103,255,0.08); border-color: rgba(185,103,255,0.25); color: var(--purple); }
 
-    .genre-bars { display: flex; flex-direction: column; gap: 9px; }
+    .mood-big { font-size: 26px; font-weight: 800; text-transform: capitalize; margin-bottom: 14px; }
+
+    .genre-list { display: flex; flex-direction: column; gap: 10px; }
     .genre-row { display: flex; align-items: center; gap: 10px; }
-    .genre-row > span { font-size: 12px; width: 100px; text-transform: capitalize; color: var(--muted); }
-    .bar-track { flex: 1; height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 3px; }
+    .genre-row span { font-size: 12px; width: 110px; color: var(--muted); text-transform: capitalize; }
+    .bar-bg { flex: 1; height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .bar-fg { height: 100%; border-radius: 3px; }
 
-    .artist-list { display: flex; flex-direction: column; gap: 9px; }
-    .artist-row { display: flex; align-items: center; gap: 11px; }
-    .av { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .av-ph { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-    .artist-name { font-size: 13px; font-weight: 600; flex: 1; }
-    .rank { font-size: 10px; color: var(--dim); font-weight: 600; }
-    .rank.top { color: var(--green); }
+    .artist-list { display: flex; flex-direction: column; gap: 10px; }
+    .artist-row { display: flex; align-items: center; gap: 12px; }
+    .av { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: rgba(255,255,255,0.06); }
+    .av-ph { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+    .a-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .a-rank { font-size: 10px; color: var(--dim); font-weight: 600; }
+    .a-rank.top { color: var(--green); }
 
-    .dna-list { display: flex; flex-direction: column; gap: 6px; }
-    .dna-item { font-size: 16px; font-weight: 800; text-transform: capitalize; letter-spacing: 0.01em; }
+    .dna-list { display: flex; flex-direction: column; gap: 8px; }
+    .dna-word { font-weight: 800; text-transform: capitalize; }
 
-    .track-list { display: flex; flex-direction: column; gap: 9px; }
-    .track-row { display: flex; align-items: center; gap: 11px; }
-    .track-art { width: 38px; height: 38px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
-    .track-art-ph { width: 38px; height: 38px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; color: var(--dim); }
-    .track-name { font-size: 12px; font-weight: 600; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
-    .track-artist { font-size: 10px; color: var(--dim); }
+    .track-list { display: flex; flex-direction: column; gap: 10px; }
+    .track-row { display: flex; align-items: center; gap: 12px; }
+    .t-art { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: rgba(255,255,255,0.05); }
+    .t-art-ph { width: 40px; height: 40px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--dim); flex-shrink: 0; }
+    .t-name { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 230px; }
+    .t-artist { font-size: 10px; color: var(--dim); }
 
     @media (max-width: 680px) {
-      #info-panel { position: fixed; width: 100%; max-width: 100%; height: 58%; bottom: 0; left: 0; right: 0; top: auto; border-left: none; border-top: 1px solid var(--border); transform: translateY(100%); }
+      #info-panel {
+        position: fixed; width: 100%; height: 55%;
+        bottom: 0; left: 0; right: 0; top: auto;
+        border-left: none; border-top: 1px solid var(--border);
+        transform: translateY(100%);
+      }
       #info-panel.open { transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="bg-mesh"></div>
 
   <header class="topbar">
     <div class="topbar-left">
       <span class="logo">OllamaPlaylist</span>
-      <span id="model-pill" class="model-pill"></span>
+      <span id="model-pill" class="model-pill">—</span>
     </div>
     <span id="last-updated"></span>
   </header>
 
   <div id="loading">
     <div class="spinner"></div>
-    <span>Loading taste data…</span>
+    <p>Loading your taste data…</p>
   </div>
 
-  <div id="app" style="display:none">
+  <div id="app">
     <div id="tower-wrap">
       <canvas id="tower-canvas"></canvas>
-      <div id="tower-tooltip"></div>
-      <div id="tower-hint">drag to orbit · click a floor to explore</div>
+      <!-- CSS2DRenderer mounts here via JS -->
+      <div id="tower-tooltip">
+        <div class="tt-title" id="tt-title"></div>
+        <div class="tt-sub"  id="tt-sub"></div>
+        <div class="tt-cta">click to explore →</div>
+      </div>
+      <div id="hint">drag to orbit · click a floor to explore</div>
       <div id="run-nav">
-        <button class="nav-btn" id="run-prev">‹</button>
-        <div id="run-info">
-          <span id="run-mood"></span>
-          <span id="run-meta"></span>
+        <button class="nav-btn" id="btn-prev">‹</button>
+        <div id="nav-info">
+          <div id="nav-mood"></div>
+          <div id="nav-meta"></div>
         </div>
-        <button class="nav-btn" id="run-next">›</button>
+        <button class="nav-btn" id="btn-next">›</button>
       </div>
     </div>
     <aside id="info-panel">
       <button id="panel-close">×</button>
-      <div id="panel-content">
-        <p class="panel-placeholder">Click any floor of the tower to explore your music data.</p>
+      <div id="panel-body">
+        <p style="color:var(--dim);font-size:13px;margin-top:40px">Click any floor to explore your music data.</p>
       </div>
     </aside>
   </div>
 
+  <!-- ── Panel renderer (plain script, no module scope issues) ─── -->
   <script>
-    /* ── Utilities ─────────────────────────────────────────────── */
-    function fmtTime(sec) {
-      if (!sec) return '—';
-      if (sec < 60) return Math.round(sec) + 's';
-      return Math.floor(sec / 60) + 'm ' + Math.round(sec % 60) + 's';
+    var GC = ['#b967ff','#f037a5','#477dff','#ff8c00','#59cfcf'];
+    var EC = { low: '#59cfcf', medium: '#ffa42b', high: '#1ed760' };
+
+    function fmtSec(s) {
+      if (!s) return '—';
+      return Math.floor(s/60) + 'm ' + Math.round(s%60) + 's';
     }
-    function relTime(ts) {
-      if (!ts) return '';
-      var s = (Date.now() - new Date(ts)) / 1000;
-      if (s < 3600)  return Math.round(s / 60)  + 'm ago';
-      if (s < 86400) return Math.round(s / 3600) + 'h ago';
-      return Math.round(s / 86400) + 'd ago';
-    }
-    var EC  = { low: '#59cfcf', medium: '#ffa42b', high: '#1ed760' };
-    var GC  = ['#b967ff','#f037a5','#477dff','#ff8c00','#59cfcf'];
 
     function renderPanel(section, run) {
-      var c = document.getElementById('panel-content');
-      var html = '';
+      var b = document.getElementById('panel-body');
+      var h = '';
+
       if (section === 'OVERVIEW' || section === 'BODY') {
-        html = '<span class="panel-icon">📊</span><h2 class="panel-title">Run Overview</h2>'
+        h = '<span class="p-icon">📊</span>'
+          + '<h2 class="p-title">Run Overview</h2>'
           + '<div class="stat-grid">'
-          + '<div class="stat-item"><span>Date</span><strong>' + run.date + '</strong></div>'
-          + '<div class="stat-item"><span>Time</span><strong>' + run.time + '</strong></div>'
-          + '<div class="stat-item"><span>Tracks</span><strong>' + run.tracks_added + '</strong></div>'
-          + '<div class="stat-item"><span>Runtime</span><strong>' + fmtTime(run.runtime_seconds) + '</strong></div>'
-          + '<div class="stat-item"><span>Model</span><strong>' + (run.model || '—') + '</strong></div>'
-          + '<div class="stat-item"><span>Library</span><strong>' + (run.library_artist_count || '—') + ' artists</strong></div>'
+          + si('Date', run.date) + si('Time', run.time)
+          + si('Tracks', run.tracks_added) + si('Runtime', fmtSec(run.runtime_seconds))
+          + si('Model', run.model || '—') + si('Library', (run.library_artist_count || '—') + ' artists')
           + '</div>'
-          + '<div class="panel-sub">Source playlists</div>'
-          + '<div class="tag-list">' + (run.source_playlists || []).map(function(p){ return '<span class="tag">' + p + '</span>'; }).join('') + '</div>';
+          + '<div class="p-sub">Source playlists</div>'
+          + '<div class="tag-row">' + (run.source_playlists||[]).map(function(p){ return '<span class="tag">'+p+'</span>'; }).join('') + '</div>';
+
       } else if (section === 'ENERGY') {
-        html = '<span class="panel-icon">⚡</span><h2 class="panel-title">Energy Level</h2>'
-          + '<span class="energy-badge" style="color:' + (EC[run.energy_level] || '#1ed760') + '">' + run.energy_level + '</span>'
+        h = '<span class="p-icon">⚡</span>'
+          + '<h2 class="p-title">Energy Level</h2>'
+          + '<span class="energy-badge" style="color:'+(EC[run.energy_level]||'#1ed760')+'">'+(run.energy_level||'—')+'</span>'
           + '<div class="stat-grid">'
-          + '<div class="stat-item"><span>Tracks added</span><strong>' + run.tracks_added + '</strong></div>'
-          + '<div class="stat-item"><span>Runtime</span><strong>' + fmtTime(run.runtime_seconds) + '</strong></div>'
+          + si('Tracks', run.tracks_added) + si('Runtime', fmtSec(run.runtime_seconds))
           + '</div>';
+
       } else if (section === 'MOOD') {
-        html = '<span class="panel-icon">💭</span><h2 class="panel-title">Mood</h2>'
-          + '<div class="mood-display">' + run.mood + '</div>'
-          + '<p class="panel-summary">' + (run.summary || '') + '</p>';
+        h = '<span class="p-icon">💭</span>'
+          + '<h2 class="p-title">Mood</h2>'
+          + '<div class="mood-big">' + (run.mood||'—') + '</div>'
+          + '<p class="p-body">' + (run.summary||'') + '</p>';
+
       } else if (section === 'GENRES') {
-        html = '<span class="panel-icon">🎵</span><h2 class="panel-title">Genre DNA</h2>'
-          + '<div class="genre-bars">'
-          + (run.genres || []).map(function(g, i) {
-              return '<div class="genre-row"><span>' + g + '</span>'
-                + '<div class="bar-track"><div class="bar-fill" style="width:' + (100 - i * 16) + '%;background:' + GC[i % 5] + '"></div></div></div>';
+        h = '<span class="p-icon">🎵</span>'
+          + '<h2 class="p-title">Genre DNA</h2>'
+          + '<div class="genre-list">'
+          + (run.genres||[]).map(function(g,i){
+              return '<div class="genre-row"><span>'+g+'</span>'
+                +'<div class="bar-bg"><div class="bar-fg" style="width:'+(100-i*18)+'%;background:'+GC[i%5]+'"></div></div></div>';
             }).join('')
           + '</div>'
-          + '<div class="panel-sub">Taste profile</div>'
-          + '<div class="tag-list">' + (run.taste_profile || []).map(function(t){ return '<span class="tag purple">' + t + '</span>'; }).join('') + '</div>';
+          + '<div class="p-sub">Taste profile</div>'
+          + '<div class="tag-row">'+(run.taste_profile||[]).map(function(t){ return '<span class="tag hl">'+t+'</span>'; }).join('')+'</div>';
+
       } else if (section === 'ARTISTS') {
-        html = '<span class="panel-icon">👤</span><h2 class="panel-title">Top Artists</h2>'
+        h = '<span class="p-icon">👤</span>'
+          + '<h2 class="p-title">Top Artists</h2>'
           + '<div class="artist-list">'
-          + (run.preferred_artists_detail || []).map(function(a, i) {
-              var name = a.name || '?';
+          + (run.preferred_artists_detail||[]).map(function(a,i){
+              var n = a.name||'?';
               var av = a.image
-                ? '<img class="av" src="' + a.image + '" alt="" onerror="this.style.display=\'none\'">'
-                : '<div class="av-ph">' + name[0] + '</div>';
-              return '<div class="artist-row">' + av
-                + '<span class="artist-name">' + name + '</span>'
-                + '<span class="rank' + (i < 3 ? ' top' : '') + '">#' + (i + 1) + '</span></div>';
+                ? '<img class="av" src="'+a.image+'" alt="" onerror="this.style.display=\'none\'">'
+                : '<div class="av-ph">'+n[0]+'</div>';
+              return '<div class="artist-row">'+av+'<span class="a-name">'+n+'</span>'
+                +'<span class="a-rank'+(i<3?' top':'')+'">'+rankLabel(i)+'</span></div>';
             }).join('')
           + '</div>';
+
       } else if (section === 'DNA') {
-        html = '<span class="panel-icon">🧬</span><h2 class="panel-title">Taste Profile</h2>'
+        h = '<span class="p-icon">🧬</span>'
+          + '<h2 class="p-title">Taste Profile</h2>'
           + '<div class="dna-list">'
-          + (run.taste_profile || []).map(function(t, i) {
-              return '<div class="dna-item" style="font-size:' + (20 - i * 2) + 'px;color:' + GC[i % 5] + '">' + t + '</div>';
+          + (run.taste_profile||[]).map(function(t,i){
+              return '<div class="dna-word" style="font-size:'+(22-i*2)+'px;color:'+GC[i%5]+'">'+t+'</div>';
             }).join('')
           + '</div>';
+
       } else if (section === 'CURATED') {
-        html = '<span class="panel-icon">🎧</span><h2 class="panel-title">Curated Playlist</h2>'
-          + '<p class="panel-meta">' + (run.curated_tracks_sample || []).length + ' tracks · AI selected from your library</p>'
+        h = '<span class="p-icon">🎧</span>'
+          + '<h2 class="p-title">Curated Playlist</h2>'
+          + '<p class="p-body" style="margin-bottom:16px">'+(run.curated_tracks_sample||[]).length+' tracks · AI-selected from your library</p>'
           + '<div class="track-list">'
-          + (run.curated_tracks_sample || []).map(function(t) {
+          + (run.curated_tracks_sample||[]).map(function(t){
               var art = t.album_art
-                ? '<img class="track-art" src="' + t.album_art + '" alt="">'
-                : '<div class="track-art-ph">♪</div>';
-              return '<div class="track-row">' + art
-                + '<div><div class="track-name">' + t.name + '</div><div class="track-artist">' + t.artist + '</div></div></div>';
+                ? '<img class="t-art" src="'+t.album_art+'" alt="">'
+                : '<div class="t-art-ph">♪</div>';
+              return '<div class="track-row">'+art
+                +'<div><div class="t-name">'+t.name+'</div><div class="t-artist">'+t.artist+'</div></div></div>';
             }).join('')
           + '</div>';
       }
-      c.innerHTML = html;
+
+      b.innerHTML = h;
       document.getElementById('info-panel').classList.add('open');
+    }
+
+    function si(label, val) {
+      return '<div class="stat-item"><span>'+label+'</span><strong>'+val+'</strong></div>';
+    }
+    function rankLabel(i) {
+      return ['🥇','🥈','🥉','#4','#5'][i] || '#'+(i+1);
     }
 
     document.getElementById('panel-close').addEventListener('click', function() {
       document.getElementById('info-panel').classList.remove('open');
     });
+  </script>
 
-    /* ── Main async IIFE ───────────────────────────────────────── */
-    (async function() {
-      /* Load data */
-      var allData = [];
-      try {
-        var resp = await fetch('./data/history.json');
-        allData = await resp.json();
-      } catch(e) {
-        document.getElementById('loading').innerHTML =
-          '<span style="color:#555;text-align:center;max-width:320px;line-height:1.7">'
-          + 'No runs yet.<br>Run <code style="background:#111;padding:2px 6px;border-radius:4px;color:#1ed760">python backend/playlist_updater.py</code>'
-          + ' then push data/history.json</span>';
-        return;
+  <!-- ── Three.js tower ──────────────────────────────────────────── -->
+  <script>
+    (function() {
+      'use strict';
+
+      /* ── helpers ─────────────────────────────────────── */
+      function relTime(ts) {
+        if (!ts) return '';
+        var s = (Date.now() - new Date(ts)) / 1000;
+        if (s < 3600)  return Math.round(s/60)  + 'm ago';
+        if (s < 86400) return Math.round(s/3600) + 'h ago';
+        return Math.round(s/86400) + 'd ago';
       }
-      if (!allData.length) {
-        document.getElementById('loading').innerHTML =
-          '<span style="color:#555">No run history found. Run the backend first.</span>';
-        return;
-      }
-
-      /* Topbar */
-      var latest = allData[allData.length - 1];
-      document.getElementById('model-pill').textContent   = latest.model || 'ollama';
-      document.getElementById('last-updated').textContent = 'Last run ' + relTime(latest.timestamp);
-
-      /* Show app */
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('app').style.display     = 'flex';
-
-      /* Wait for layout */
-      await new Promise(function(r){ setTimeout(r, 60); });
-
-      var currentIdx = allData.length - 1;
-
-      /* ── THREE.JS ──────────────────────────────────────────────── */
-      var wrap    = document.getElementById('tower-wrap');
-      var canvas  = document.getElementById('tower-canvas');
-      var tooltip = document.getElementById('tower-tooltip');
-      var W = wrap.clientWidth  || window.innerWidth;
-      var H = wrap.clientHeight || (window.innerHeight - 52);
-
-      /* Renderer */
-      var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(W, H, false);
-      renderer.setClearColor(0x050505, 1);
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
-
-      /* CSS2D label renderer */
-      var labelRenderer = new THREE.CSS2DRenderer();
-      labelRenderer.setSize(W, H);
-      labelRenderer.domElement.style.cssText =
-        'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;';
-      wrap.appendChild(labelRenderer.domElement);
-
-      /* Scene */
-      var scene = new THREE.Scene();
-
-      /* Orthographic camera — true isometric */
-      var VIEW   = 13;
-      var aspect = W / H;
-      var camera = new THREE.OrthographicCamera(
-        -VIEW * aspect, VIEW * aspect, VIEW, -VIEW, -100, 100
-      );
-      camera.position.set(18, 18, 18);
-      camera.lookAt(0, 0, 0);
-
-      /* Controls */
-      var controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping  = true;
-      controls.dampingFactor  = 0.06;
-      controls.enablePan      = false;
-      controls.minZoom        = 0.4;
-      controls.maxZoom        = 3.0;
-      controls.minPolarAngle  = 0.15;
-      controls.maxPolarAngle  = Math.PI / 2;
-      controls.target.set(0, 0, 0);
-      controls.update();
-
-      /* Lights */
-      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-      var sun  = new THREE.DirectionalLight(0xfff8f0, 0.7);
-      sun.position.set(10, 20, 10);
-      sun.castShadow = true;
-      sun.shadow.mapSize.set(512, 512);
-      scene.add(sun);
-      scene.add(new THREE.DirectionalLight(0x334488, 0.3)).position.set(-8, 5, -8);
-
-      /* Ground grid */
-      var grid = new THREE.GridHelper(22, 22, 0x181818, 0x101010);
-      grid.position.y = -0.5;
-      scene.add(grid);
-
-      /* ── Voxel factory ─────────────────────────────────────────── */
-      var iGeo = new THREE.BoxGeometry(0.88, 0.88, 0.88);
-      var oGeo = new THREE.BoxGeometry(0.98, 0.98, 0.98);
-      var oMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-
-      function vox(x, y, z, hexColor) {
-        var mat   = new THREE.MeshLambertMaterial({ color: hexColor, emissive: 0x000000 });
-        var inner = new THREE.Mesh(iGeo, mat);
-        inner.position.set(x, y, z);
-        inner.castShadow    = true;
-        inner.receiveShadow = true;
-        var outer = new THREE.Mesh(oGeo, oMat);
-        outer.position.set(x, y, z);
-        return { inner: inner, outer: outer };
-      }
-
-      function fl2d(text, hexColor) {
-        var div = document.createElement('div');
-        div.className   = 'fl-label';
-        div.style.color = '#' + hexColor.toString(16).padStart(6, '0');
-        var sp  = document.createElement('span');
-        sp.className   = 'fl-text';
-        sp.textContent = text;
-        div.appendChild(sp);
-        return new THREE.CSS2DObject(div);
-      }
-
-      /* ── Palette ───────────────────────────────────────────────── */
-      var ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 };
-      var ENERGY_H   = { low: 1, medium: 2, high: 3 };
-      var GENRE_COL  = [0xb967ff, 0xf037a5, 0x477dff, 0xff8c00, 0x59cfcf];
-      var ARTIST_COL = [0xffa42b, 0xffcc44, 0xff8c00, 0xffaa22, 0xe8891a];
-      var DNA_COL    = [0xb967ff, 0x59cfcf, 0xf037a5, 0x477dff, 0xffa42b];
-      var CURATED_C  = [0x1ed760, 0x59cfcf, 0xb967ff, 0xf037a5, 0xffa42b];
 
       function moodColor(mood) {
-        var m = (mood || '').toLowerCase();
-        if (m.indexOf('nostalgic') >= 0)                            return 0x9b7fb6;
-        if (m.indexOf('happy') >= 0 || m.indexOf('joyful') >= 0)   return 0xd4a820;
-        if (m.indexOf('energetic') >= 0 || m.indexOf('upbeat') >= 0) return 0xff6b35;
-        if (m.indexOf('melancholic') >= 0 || m.indexOf('sad') >= 0)  return 0x4a7c9e;
-        if (m.indexOf('calm') >= 0 || m.indexOf('peaceful') >= 0)    return 0x5fa8a8;
-        if (m.indexOf('reflective') >= 0 || m.indexOf('introspective') >= 0) return 0x7080a0;
-        if (m.indexOf('dark') >= 0 || m.indexOf('moody') >= 0)       return 0x6a4090;
+        var m = (mood||'').toLowerCase();
+        if (m.indexOf('nostalgic')    >= 0) return 0x9b7fb6;
+        if (m.indexOf('happy')        >= 0 || m.indexOf('joyful')   >= 0) return 0xd4a820;
+        if (m.indexOf('energetic')    >= 0 || m.indexOf('upbeat')   >= 0) return 0xff6b35;
+        if (m.indexOf('melancholic')  >= 0 || m.indexOf('sad')      >= 0) return 0x4a7c9e;
+        if (m.indexOf('calm')         >= 0 || m.indexOf('peaceful') >= 0) return 0x5fa8a8;
+        if (m.indexOf('reflective')   >= 0 || m.indexOf('introspective') >= 0) return 0x6b84a0;
+        if (m.indexOf('dark')         >= 0 || m.indexOf('moody')   >= 0) return 0x6a4090;
+        if (m.indexOf('relaxed')      >= 0 || m.indexOf('chill')   >= 0) return 0x3a8a7a;
+        if (m.indexOf('romantic')     >= 0) return 0xc0508a;
         return 0x8b4a6b;
       }
 
-      /* ── Tower state ───────────────────────────────────────────── */
-      var towerGroup = new THREE.Group();
-      scene.add(towerGroup);
-      var bodyMeshes = [];
+      /* ── PALETTE ─────────────────────────────────────── */
+      var ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 };
+      var ENERGY_H   = { low: 1, medium: 2, high: 3 };
+      var GENRE_COL  = [0xb967ff, 0xf037a5, 0x477dff, 0xff8c00, 0x59cfcf];
+      var ARTIST_COL = [0xffa42b, 0xffcc44, 0xff8c00, 0xffaa22, 0xe89020];
+      var DNA_COL    = [0xb967ff, 0x59cfcf, 0xf037a5, 0x477dff, 0xffa42b];
+      var CURATED_C  = [0x1ed760, 0x59cfcf, 0xb967ff, 0xf037a5, 0xffa42b];
 
-      /* ── Build tower for one run ─────────────────────────────────  */
-      function buildTower(run) {
-        /* Clear previous geometry */
-        while (towerGroup.children.length) towerGroup.remove(towerGroup.children[0]);
-        bodyMeshes = [];
+      /* ── DATA LOAD ───────────────────────────────────── */
+      fetch('./data/history.json')
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(allData) {
+          if (!allData || !allData.length) {
+            showError('No run history yet. Run the backend first.');
+            return;
+          }
+          init(allData);
+        })
+        .catch(function(err) {
+          showError('Could not load history.json — ' + err.message);
+        });
 
-        var eH   = ENERGY_H[run.energy_level]  || 2;
-        var eCOL = ENERGY_COL[run.energy_level] || 0x1ed760;
-        var mCOL = moodColor(run.mood);
-        var y    = 0;
+      function showError(msg) {
+        document.getElementById('loading').innerHTML =
+          '<p style="color:#444;max-width:320px;text-align:center;line-height:1.8">'+msg+'</p>';
+      }
 
-        function addGroup(key, positions, labelText, labelHex, labelSide) {
-          var g = new THREE.Group();
-          g.userData = { section: key, run: run };
+      /* ── INIT ────────────────────────────────────────── */
+      function init(allData) {
+        /* topbar */
+        var latest = allData[allData.length - 1];
+        document.getElementById('model-pill').textContent   = latest.model || 'ollama';
+        document.getElementById('last-updated').textContent = 'Last run ' + relTime(latest.timestamp);
+
+        /* show app */
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app').style.display     = 'flex';
+
+        /* wait one frame for layout to settle */
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            startThree(allData);
+          });
+        });
+      }
+
+      function startThree(allData) {
+        var wrap   = document.getElementById('tower-wrap');
+        var canvas = document.getElementById('tower-canvas');
+        var W = wrap.clientWidth;
+        var H = wrap.clientHeight;
+
+        /* ── RENDERER ────────────────────────────── */
+        var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(W, H);
+        renderer.setClearColor(0x050505);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+        renderer.outputEncoding    = THREE.sRGBEncoding;
+
+        /* ── SCENE ───────────────────────────────── */
+        var scene = new THREE.Scene();
+
+        /* ── CAMERA (orthographic isometric) ─────── */
+        var VIEW   = 9;
+        var aspect = W / H;
+        var camera = new THREE.OrthographicCamera(
+          -VIEW * aspect, VIEW * aspect,
+           VIEW,          -VIEW,
+          -100,            100
+        );
+        camera.position.set(16, 16, 16);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        /* ── LIGHTS — store in vars, NEVER chain .position ─── */
+        var ambLight = new THREE.AmbientLight(0xffffff, 0.85);
+        scene.add(ambLight);
+
+        var sunLight = new THREE.DirectionalLight(0xfff4e0, 0.65);
+        sunLight.position.set(10, 20, 8);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width  = 512;
+        sunLight.shadow.mapSize.height = 512;
+        scene.add(sunLight);
+
+        var fillLight = new THREE.DirectionalLight(0x2233aa, 0.28);
+        fillLight.position.set(-10, 8, -10);
+        scene.add(fillLight);
+
+        /* ── GROUND GRID ─────────────────────────── */
+        var grid = new THREE.GridHelper(24, 24, 0x161616, 0x111111);
+        grid.position.y = -0.52;
+        scene.add(grid);
+
+        /* ── CSS2D LABEL RENDERER ────────────────── */
+        var labelRenderer = new THREE.CSS2DRenderer();
+        labelRenderer.setSize(W, H);
+        labelRenderer.domElement.style.cssText =
+          'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;';
+        wrap.appendChild(labelRenderer.domElement);
+
+        /* ── ORBIT CONTROLS ──────────────────────── */
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping  = true;
+        controls.dampingFactor  = 0.07;
+        controls.enablePan      = false;
+        controls.minZoom        = 0.35;
+        controls.maxZoom        = 3.5;
+        controls.minPolarAngle  = 0.1;
+        controls.maxPolarAngle  = Math.PI * 0.48;
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        /* ── SHARED GEOMETRY (never disposed) ─────── */
+        var VOX_GEO  = new THREE.BoxGeometry(0.92, 0.92, 0.92);
+        var VOX_HULL = new THREE.BoxGeometry(1.02, 1.02, 1.02);
+        var HULL_MAT = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+
+        /* ── TOWER STATE ─────────────────────────── */
+        var towerGroup  = new THREE.Group();
+        scene.add(towerGroup);
+        var bodyMeshes  = [];
+        var sectionMats = {};   /* key → MeshStandardMaterial */
+
+        /* ── SECTION MATERIAL FACTORY ────────────── */
+        function getSectionMat(key, colorHex) {
+          if (!sectionMats[key]) {
+            sectionMats[key] = new THREE.MeshStandardMaterial({
+              color:             colorHex,
+              emissive:          new THREE.Color(colorHex),
+              emissiveIntensity: 0,
+              roughness:         0.82,
+              metalness:         0
+            });
+          }
+          return sectionMats[key];
+        }
+
+        /* ── VOXEL FACTORY ───────────────────────── */
+        function vox(x, y, z, sectionKey, colorHex) {
+          var mat   = getSectionMat(sectionKey, colorHex);
+          var inner = new THREE.Mesh(VOX_GEO, mat);
+          inner.position.set(x, y, z);
+          inner.castShadow    = true;
+          inner.receiveShadow = true;
+          inner.userData      = { section: sectionKey };
+
+          var outer = new THREE.Mesh(VOX_HULL, HULL_MAT);
+          outer.position.set(x, y, z);
+
+          return { inner: inner, outer: outer };
+        }
+
+        /* ── CSS2D LABEL FACTORY ─────────────────── */
+        function makeLabel(text, colorHex) {
+          var div  = document.createElement('div');
+          div.className   = 'fl-label';
+          div.style.color = '#' + colorHex.toString(16).padStart(6,'0');
+          var sp   = document.createElement('span');
+          sp.className   = 'fl-text';
+          sp.textContent = text;
+          div.appendChild(sp);
+          return new THREE.CSS2DObject(div);
+        }
+
+        /* ── ADD VOXEL SECTION ───────────────────── */
+        function addSection(key, positions, colorHex, labelText, labelSide) {
+          var g    = new THREE.Group();
           var sumY = 0;
           for (var i = 0; i < positions.length; i++) {
             var p = positions[i];
-            var v = vox(p[0], p[1], p[2], p[3]);
-            v.inner.userData = { section: key, run: run };
+            var v = vox(p[0], p[1], p[2], key, colorHex);
             g.add(v.inner);
             g.add(v.outer);
             bodyMeshes.push(v.inner);
@@ -464,290 +596,301 @@
           }
           if (labelText && positions.length) {
             var avgY = sumY / positions.length;
-            var lx   = (labelSide || 1) * 4.4;
-            var lbl  = fl2d(labelText, labelHex);
+            var lx   = (labelSide < 0 ? -1 : 1) * 4.6;
+            var lbl  = makeLabel(labelText, colorHex);
             lbl.position.set(lx, avgY, 0);
             g.add(lbl);
           }
           towerGroup.add(g);
         }
 
-        /* 1. FOUNDATION (7×7 platform) */
-        var fp = [];
-        for (var x = -3; x <= 3; x++)
-          for (var z = -3; z <= 3; z++)
-            fp.push([x, 0, z, 0x1c1c1c]);
-        addGroup('OVERVIEW', fp, 'Run ' + run.date, 0x444444, -1);
-        y = 1;
-
-        /* 2. BODY WALLS (5×5 hollow, 2 layers, window holes) */
-        var wp = [];
-        for (var ly = 0; ly < 2; ly++) {
-          for (var x = -2; x <= 2; x++) {
-            for (var z = -2; z <= 2; z++) {
-              if (Math.abs(x) !== 2 && Math.abs(z) !== 2) continue;
-              var isWin = ly === 1 && (
-                (Math.abs(x) === 2 && z === 0) ||
-                (Math.abs(z) === 2 && x === 0)
-              );
-              if (!isWin) wp.push([x, y + ly, z, 0x0e1622]);
-            }
+        /* ── CLEAR TOWER ─────────────────────────── */
+        function clearTower() {
+          /* Dispose per-run section materials */
+          Object.keys(sectionMats).forEach(function(k) {
+            sectionMats[k].dispose();
+          });
+          sectionMats = {};
+          bodyMeshes  = [];
+          /* Remove groups (shared geo/hull/mat are NOT disposed) */
+          while (towerGroup.children.length) {
+            towerGroup.remove(towerGroup.children[0]);
           }
         }
-        addGroup('OVERVIEW', wp, null, 0, 1);
-        y += 2;
 
-        /* 3. ENERGY ZONE (5×5 solid, eH layers) */
-        var ep = [];
-        for (var ly = 0; ly < eH; ly++)
-          for (var x = -2; x <= 2; x++)
-            for (var z = -2; z <= 2; z++)
-              ep.push([x, y + ly, z, eCOL]);
-        addGroup('ENERGY', ep, '⚡ ' + run.energy_level, eCOL, 1);
-        y += eH;
+        /* ── BUILD TOWER ─────────────────────────── */
+        function buildTower(run) {
+          clearTower();
 
-        /* 4. MOOD ZONE (5×5 hollow ring, 2 layers + inner floor) */
-        var mp = [];
-        for (var x = -1; x <= 1; x++)
-          for (var z = -1; z <= 1; z++)
-            mp.push([x, y, z, 0x111111]);
-        for (var ly = 0; ly < 2; ly++)
-          for (var x = -2; x <= 2; x++)
-            for (var z = -2; z <= 2; z++)
-              if (Math.abs(x) === 2 || Math.abs(z) === 2)
-                mp.push([x, y + ly, z, mCOL]);
-        addGroup('MOOD', mp, '💭 ' + run.mood.split(' ').slice(0, 2).join(' '), mCOL, -1);
-        y += 2;
+          var eH   = ENERGY_H[run.energy_level]  || 2;
+          var eCOL = ENERGY_COL[run.energy_level] || 0x1ed760;
+          var mCOL = moodColor(run.mood);
+          var y    = 0;
 
-        /* 5. GENRE PILLARS */
-        var genres = (run.genres || []).slice(0, 5);
-        if (genres.length) {
-          var maxGH = genres.length + 1;
-          var gg    = new THREE.Group();
-          gg.userData = { section: 'GENRES', run: run };
-          var sp = genres.length > 1 ? 4 / (genres.length - 1) : 0;
+          /* 1. FOUNDATION (7×7 platform) */
+          var fp = [];
+          for (var x = -3; x <= 3; x++)
+            for (var z = -3; z <= 3; z++)
+              fp.push([x, 0, z]);
+          addSection('OVERVIEW', fp, 0x1a1a1a, 'Run ' + run.date, -1);
+          y = 1;
 
-          for (var gi = 0; gi < genres.length; gi++) {
-            var ph  = maxGH - gi;
-            var gc  = GENRE_COL[gi % GENRE_COL.length];
-            var px  = genres.length === 1 ? 0 : Math.round(-2 + gi * sp);
-
-            for (var ly = 0; ly < ph; ly++) {
-              var v = vox(px, y + ly, 0, gc);
-              v.inner.userData = { section: 'GENRES', run: run };
-              gg.add(v.inner); gg.add(v.outer);
-              bodyMeshes.push(v.inner);
-            }
-            var gl = fl2d(genres[gi], gc);
-            gl.position.set(px, y + ph + 0.7, 0);
-            gg.add(gl);
-          }
-
-          var gml = fl2d('🎵 Genres', GENRE_COL[0]);
-          gml.position.set(4.4, y + maxGH / 2, 0);
-          gg.add(gml);
-          towerGroup.add(gg);
-          y += maxGH + 2;
-        }
-
-        /* 6. ARTISTS ROW */
-        var artists = (run.preferred_artists_detail || []).slice(0, 5);
-        if (!artists.length && run.preferred_artists)
-          artists = run.preferred_artists.slice(0, 5).map(function(n){ return { name: n }; });
-        if (artists.length) {
-          var ag  = new THREE.Group();
-          ag.userData = { section: 'ARTISTS', run: run };
-          var asp = artists.length > 1 ? 4 / (artists.length - 1) : 0;
-
-          for (var ai = 0; ai < artists.length; ai++) {
-            var aC  = ARTIST_COL[ai % ARTIST_COL.length];
-            var ax  = artists.length === 1 ? 0 : Math.round(-2 + ai * asp);
-            var aname = (artists[ai].name || '?');
-
-            for (var ly = 0; ly < 2; ly++) {
-              var v = vox(ax, y + ly, 0, aC);
-              v.inner.userData = { section: 'ARTISTS', run: run };
-              ag.add(v.inner); ag.add(v.outer);
-              bodyMeshes.push(v.inner);
-            }
-            if (ai < 4) {
-              var al = fl2d(aname.split(' ')[0], aC);
-              al.position.set(ax, y + 2.7, 0);
-              ag.add(al);
+          /* 2. BODY WALLS (5×5 hollow, 2 layers, window gaps) */
+          var wp = [];
+          for (var ly = 0; ly < 2; ly++) {
+            for (var x = -2; x <= 2; x++) {
+              for (var z = -2; z <= 2; z++) {
+                if (Math.abs(x) !== 2 && Math.abs(z) !== 2) continue;
+                /* punch window gaps on upper ring layer at cardinal midpoints */
+                var isGap = ly === 1 && (
+                  (Math.abs(x) === 2 && z === 0) ||
+                  (Math.abs(z) === 2 && x === 0)
+                );
+                if (!isGap) wp.push([x, y + ly, z]);
+              }
             }
           }
+          addSection('BODY', wp, 0x0d1520, null, 1);
+          y += 2;
 
-          var aml = fl2d('👤 Artists', ARTIST_COL[0]);
-          aml.position.set(-4.4, y + 1, 0);
-          ag.add(aml);
-          towerGroup.add(ag);
-          y += 3;
-        }
+          /* 3. ENERGY ZONE (5×5 solid, eH layers) */
+          var ep = [];
+          for (var ly = 0; ly < eH; ly++)
+            for (var x = -2; x <= 2; x++)
+              for (var z = -2; z <= 2; z++)
+                ep.push([x, y + ly, z]);
+          addSection('ENERGY', ep, eCOL, '⚡ ' + (run.energy_level||''), 1);
+          y += eH;
 
-        /* 7. TASTE DNA (zigzag) */
-        var profile = (run.taste_profile || []).slice(0, 5);
-        if (profile.length) {
-          var dg = new THREE.Group();
-          dg.userData = { section: 'DNA', run: run };
+          /* 4. MOOD ZONE (5×5 hollow ring, 2 layers + inner floor) */
+          var mp = [];
+          for (var x = -1; x <= 1; x++)
+            for (var z = -1; z <= 1; z++)
+              mp.push([x, y, z]);
+          for (var ly = 0; ly < 2; ly++)
+            for (var x = -2; x <= 2; x++)
+              for (var z = -2; z <= 2; z++)
+                if (Math.abs(x) === 2 || Math.abs(z) === 2)
+                  mp.push([x, y + ly, z]);
+          var moodLabel = (run.mood||'').split(/[\s,]+/).slice(0,2).join(' ');
+          addSection('MOOD', mp, mCOL, '💭 ' + moodLabel, -1);
+          y += 2;
 
-          for (var ti = 0; ti < profile.length; ti++) {
-            var dc   = DNA_COL[ti % DNA_COL.length];
-            var side = ti % 2 === 0 ? -1 : 1;
-            var dep  = (ti % 3) - 1;
-            var pairs = [[side, dep], [-side, -dep]];
-            for (var pi = 0; pi < pairs.length; pi++) {
-              var v = vox(pairs[pi][0], y + ti, pairs[pi][1], dc);
-              v.inner.userData = { section: 'DNA', run: run };
-              dg.add(v.inner); dg.add(v.outer);
-              bodyMeshes.push(v.inner);
+          /* 5. GENRE PILLARS */
+          var genres = (run.genres||[]).slice(0, 5);
+          if (genres.length) {
+            var maxH = genres.length + 1;
+            var sp   = genres.length > 1 ? 4 / (genres.length - 1) : 0;
+            for (var gi = 0; gi < genres.length; gi++) {
+              var gc  = GENRE_COL[gi % GENRE_COL.length];
+              var ph  = maxH - gi;
+              var px  = genres.length === 1 ? 0 : Math.round(-2 + gi * sp);
+              var gp  = [];
+              for (var ly = 0; ly < ph; ly++) gp.push([px, y + ly, 0]);
+              var gkey = 'GENRES_' + gi;
+              addSection(gkey, gp, gc, gi === 0 ? '🎵 ' + genres[gi] : genres[gi], gi % 2 === 0 ? 1 : -1);
+              /* all genre sections share the GENRES raycaster key */
+              for (var mi = bodyMeshes.length - gp.length; mi < bodyMeshes.length; mi++) {
+                bodyMeshes[mi].userData.section = 'GENRES';
+              }
+              /* alias sectionMat so hover works uniformly */
+              if (!sectionMats['GENRES']) sectionMats['GENRES'] = sectionMats[gkey];
             }
+            y += maxH + 2;
           }
 
-          var dl = fl2d('🧬 DNA', 0xb967ff);
-          dl.position.set(4.4, y + profile.length / 2, 0);
-          dg.add(dl);
-          towerGroup.add(dg);
-          y += profile.length + 1;
-        }
-
-        /* 8. CURATED CROWN */
-        var curated = (run.curated_tracks_sample || []).slice(0, 25);
-        if (curated.length) {
-          var cg = new THREE.Group();
-          cg.userData = { section: 'CURATED', run: run };
-
-          for (var ti = 0; ti < curated.length; ti++) {
-            var cr = Math.floor(ti / 5);
-            var cc = ti % 5;
-            var tc = CURATED_C[ti % CURATED_C.length];
-            var v  = vox(cc - 2, y + cr, 0, tc);
-            v.inner.userData = { section: 'CURATED', run: run };
-            cg.add(v.inner); cg.add(v.outer);
-            bodyMeshes.push(v.inner);
+          /* 6. ARTISTS ROW */
+          var artists = run.preferred_artists_detail || [];
+          if (!artists.length && run.preferred_artists) {
+            artists = run.preferred_artists.slice(0,5).map(function(n){ return {name:n}; });
+          }
+          artists = artists.slice(0, 5);
+          if (artists.length) {
+            var asp = artists.length > 1 ? 4 / (artists.length - 1) : 0;
+            for (var ai = 0; ai < artists.length; ai++) {
+              var aC   = ARTIST_COL[ai % ARTIST_COL.length];
+              var ax   = artists.length === 1 ? 0 : Math.round(-2 + ai * asp);
+              var ap2  = [[ax, y, 0], [ax, y+1, 0]];
+              var akey = 'ARTISTS_' + ai;
+              addSection(akey, ap2, aC, ai === 0 ? '👤 ' + (artists[ai].name||'').split(' ')[0] : null, ai % 2 === 0 ? 1 : -1);
+              for (var mi = bodyMeshes.length - ap2.length; mi < bodyMeshes.length; mi++) {
+                bodyMeshes[mi].userData.section = 'ARTISTS';
+              }
+              if (!sectionMats['ARTISTS']) sectionMats['ARTISTS'] = sectionMats[akey];
+            }
+            y += 3;
           }
 
-          var cl = fl2d('🎧 Curated', 0x1ed760);
-          cl.position.set(-4.4, y, 0);
-          cg.add(cl);
-          towerGroup.add(cg);
-          y += Math.ceil(curated.length / 5) + 1;
+          /* 7. TASTE DNA (zigzag) */
+          var profile = (run.taste_profile||[]).slice(0, 5);
+          if (profile.length) {
+            var dp = [];
+            for (var ti = 0; ti < profile.length; ti++) {
+              var dc   = DNA_COL[ti % DNA_COL.length];
+              var side = ti % 2 === 0 ? -1 : 1;
+              var dep  = (ti % 3) - 1;
+              dp.push([side, y + ti, dep]);
+              dp.push([-side, y + ti, -dep]);
+            }
+            /* Each DNA voxel gets its own position with the DNA key */
+            var dnaP = [];
+            for (var ti = 0; ti < profile.length; ti++) {
+              var dc   = DNA_COL[ti % DNA_COL.length];
+              var side = ti % 2 === 0 ? -1 : 1;
+              var dep  = (ti % 3) - 1;
+              dnaP.push([side, y + ti, dep]);
+              dnaP.push([-side, y + ti, -dep]);
+            }
+            addSection('DNA', dnaP, 0xb967ff, '🧬 DNA', 1);
+            y += profile.length + 1;
+          }
+
+          /* 8. CURATED CROWN */
+          var curated = (run.curated_tracks_sample||[]).slice(0, 25);
+          if (curated.length) {
+            var cp = [];
+            for (var ti = 0; ti < curated.length; ti++) {
+              cp.push([ti % 5 - 2, y + Math.floor(ti / 5), 0]);
+            }
+            addSection('CURATED', cp, 0x1ed760, '🎧 Curated', -1);
+            y += Math.ceil(curated.length / 5) + 1;
+          }
+
+          /* Centre tower vertically so camera looks at its middle */
+          towerGroup.position.y = -(y / 2);
+          controls.target.set(0, 0, 0);
+          controls.update();
         }
 
-        /* Center tower */
-        towerGroup.position.y = -y / 2;
-        controls.target.set(0, 0, 0);
-        controls.update();
-      }
+        /* ── RUN NAVIGATOR ───────────────────────── */
+        var currentIdx = allData.length - 1;
 
-      /* ── Run navigator ─────────────────────────────────────────── */
-      function updateNav() {
-        var run = allData[currentIdx];
-        document.getElementById('run-mood').textContent = run.mood;
-        document.getElementById('run-meta').textContent =
-          run.date + ' · ' + (currentIdx + 1) + ' of ' + allData.length;
-        document.getElementById('run-prev').disabled = currentIdx === 0;
-        document.getElementById('run-next').disabled = currentIdx === allData.length - 1;
-      }
+        function updateNav() {
+          var run = allData[currentIdx];
+          document.getElementById('nav-mood').textContent = run.mood || '—';
+          document.getElementById('nav-meta').textContent =
+            run.date + ' · ' + (currentIdx + 1) + ' / ' + allData.length;
+          document.getElementById('btn-prev').disabled = currentIdx === 0;
+          document.getElementById('btn-next').disabled = currentIdx === allData.length - 1;
+        }
 
-      function goTo(idx) {
-        currentIdx = idx;
-        updateNav();
-        buildTower(allData[idx]);
-        document.getElementById('info-panel').classList.remove('open');
-      }
+        function goTo(idx) {
+          currentIdx = idx;
+          updateNav();
+          buildTower(allData[idx]);
+          document.getElementById('info-panel').classList.remove('open');
+          hoveredKey = null;
+        }
 
-      document.getElementById('run-prev').addEventListener('click', function() {
-        if (currentIdx > 0) goTo(currentIdx - 1);
-      });
-      document.getElementById('run-next').addEventListener('click', function() {
-        if (currentIdx < allData.length - 1) goTo(currentIdx + 1);
-      });
+        document.getElementById('btn-prev').addEventListener('click', function() {
+          if (currentIdx > 0) goTo(currentIdx - 1);
+        });
+        document.getElementById('btn-next').addEventListener('click', function() {
+          if (currentIdx < allData.length - 1) goTo(currentIdx + 1);
+        });
 
-      goTo(currentIdx);
+        /* ── RAYCASTING / HOVER ──────────────────── */
+        var raycaster  = new THREE.Raycaster();
+        var mouse      = new THREE.Vector2();
+        var hoveredKey = null;
+        var tooltip    = document.getElementById('tower-tooltip');
+        var ttTitle    = document.getElementById('tt-title');
+        var ttSub      = document.getElementById('tt-sub');
 
-      /* ── Raycasting ────────────────────────────────────────────── */
-      var raycaster = new THREE.Raycaster();
-      var mouse     = new THREE.Vector2();
-      var hovered   = null;
+        var SECTION_NAMES = {
+          OVERVIEW: 'Run Overview', BODY: 'Run Overview',
+          ENERGY: 'Energy Level', MOOD: 'Mood',
+          GENRES: 'Genre DNA', ARTISTS: 'Top Artists',
+          DNA: 'Taste Profile', CURATED: 'Curated Playlist'
+        };
 
-      var NAMES = {
-        OVERVIEW: 'Run Overview', ENERGY: 'Energy Level', MOOD: 'Mood',
-        GENRES: 'Genre DNA', ARTISTS: 'Top Artists', DNA: 'Taste DNA', CURATED: 'Curated Playlist'
-      };
+        function setHover(key) {
+          if (key === hoveredKey) return;
+          if (hoveredKey && sectionMats[hoveredKey]) {
+            sectionMats[hoveredKey].emissiveIntensity = 0;
+          }
+          hoveredKey = key;
+          if (hoveredKey && sectionMats[hoveredKey]) {
+            sectionMats[hoveredKey].emissiveIntensity = 0.32;
+          }
+        }
 
-      wrap.addEventListener('mousemove', function(e) {
-        var r = wrap.getBoundingClientRect();
-        mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1;
-        mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-        var hits = raycaster.intersectObjects(bodyMeshes);
+        wrap.addEventListener('mousemove', function(e) {
+          var r = wrap.getBoundingClientRect();
+          mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1;
+          mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+          var hits = raycaster.intersectObjects(bodyMeshes, false);
 
-        if (hits.length) {
-          var mesh = hits[0].object;
-          if (hovered !== mesh) {
-            if (hovered) { hovered.material.emissive.setHex(0x000000); hovered.material.emissiveIntensity = 0; }
-            hovered = mesh;
-            hovered.material.emissive.setHex(0xffffff);
-            hovered.material.emissiveIntensity = 0.4;
+          if (hits.length) {
+            var sec = hits[0].object.userData.section;
+            setHover(sec);
             document.body.style.cursor = 'pointer';
-          }
-          var sec = mesh.userData.section;
-          var run = mesh.userData.run;
-          tooltip.innerHTML = '<strong>' + (NAMES[sec] || sec) + '</strong>'
-            + run.mood + ' · ' + run.date
-            + '<em>click to open →</em>';
-          tooltip.style.opacity = '1';
-          var tx = e.clientX - r.left + 16;
-          var ty = e.clientY - r.top  - 12;
-          tooltip.style.left = Math.min(tx, r.width - 210) + 'px';
-          tooltip.style.top  = Math.max(ty, 4) + 'px';
-        } else {
-          if (hovered) {
-            hovered.material.emissive.setHex(0x000000);
-            hovered.material.emissiveIntensity = 0;
-            hovered = null;
+            ttTitle.textContent = SECTION_NAMES[sec] || sec;
+            ttSub.textContent   = allData[currentIdx].mood + ' · ' + allData[currentIdx].date;
+            tooltip.style.opacity = '1';
+            var tx = e.clientX - r.left + 16;
+            var ty = e.clientY - r.top  - 14;
+            tooltip.style.left = Math.min(tx, r.width - 215) + 'px';
+            tooltip.style.top  = Math.max(ty, 4) + 'px';
+          } else {
+            setHover(null);
             document.body.style.cursor = '';
+            tooltip.style.opacity = '0';
           }
+        });
+
+        wrap.addEventListener('mouseleave', function() {
+          setHover(null);
+          document.body.style.cursor = '';
           tooltip.style.opacity = '0';
+        });
+
+        wrap.addEventListener('click', function() {
+          if (!hoveredKey) return;
+          renderPanel(hoveredKey, allData[currentIdx]);
+        });
+
+        /* ── RESIZE ──────────────────────────────── */
+        window.addEventListener('resize', function() {
+          W = wrap.clientWidth;
+          H = wrap.clientHeight;
+          aspect = W / H;
+          camera.left   = -VIEW * aspect;
+          camera.right  =  VIEW * aspect;
+          camera.top    =  VIEW;
+          camera.bottom = -VIEW;
+          camera.updateProjectionMatrix();
+          renderer.setSize(W, H);
+          labelRenderer.setSize(W, H);
+        });
+
+        /* ── ANIMATION LOOP ──────────────────────── */
+        var spinning = true;
+        var hintEl   = document.getElementById('hint');
+
+        controls.addEventListener('start', function() {
+          spinning = false;
+          hintEl.style.opacity = '0';
+        });
+        controls.addEventListener('end', function() {
+          setTimeout(function() { spinning = true; }, 4500);
+        });
+
+        function animate() {
+          requestAnimationFrame(animate);
+          if (spinning) towerGroup.rotation.y += 0.0022;
+          controls.update();
+          renderer.render(scene, camera);
+          labelRenderer.render(scene, camera);
         }
-      });
 
-      wrap.addEventListener('mouseleave', function() {
-        if (hovered) { hovered.material.emissive.setHex(0x000000); hovered.material.emissiveIntensity = 0; hovered = null; document.body.style.cursor = ''; }
-        tooltip.style.opacity = '0';
-      });
+        /* ── START ───────────────────────────────── */
+        goTo(currentIdx);
+        animate();
+      }
 
-      wrap.addEventListener('click', function() {
-        if (!hovered) return;
-        renderPanel(hovered.userData.section, hovered.userData.run);
-      });
-
-      /* ── Resize ────────────────────────────────────────────────── */
-      window.addEventListener('resize', function() {
-        W = wrap.clientWidth  || window.innerWidth;
-        H = wrap.clientHeight || (window.innerHeight - 52);
-        var a = W / H;
-        camera.left   = -VIEW * a; camera.right = VIEW * a;
-        camera.top    =  VIEW;     camera.bottom = -VIEW;
-        camera.updateProjectionMatrix();
-        renderer.setSize(W, H, false);
-        labelRenderer.setSize(W, H);
-      });
-
-      /* ── Animate ───────────────────────────────────────────────── */
-      var spinning = true;
-      controls.addEventListener('start', function() { spinning = false; });
-      controls.addEventListener('end',   function() { setTimeout(function(){ spinning = true; }, 4000); });
-
-      (function animate() {
-        requestAnimationFrame(animate);
-        if (spinning) towerGroup.rotation.y += 0.0025;
-        controls.update();
-        renderer.render(scene, camera);
-        labelRenderer.render(scene, camera);
-      })();
-
-    })(); /* end async IIFE */
+    })();
   </script>
 </body>
 </html>
