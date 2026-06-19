@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
   <style>
     :root {
       --bg: #050505;
@@ -686,6 +688,46 @@
       background: linear-gradient(135deg, rgba(30,215,96,0.2), rgba(185,103,255,0.2));
     }
 
+    #tower-section {
+      margin-bottom: 20px;
+      animation: fadeUp 0.55s ease 0.03s both;
+    }
+
+    #tower-canvas-wrap {
+      position: relative;
+      height: 420px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #tower-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #tower-tooltip {
+      position: absolute;
+      background: rgba(10, 10, 10, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      max-width: 220px;
+      line-height: 1.6;
+    }
+
+    .timeline-item { transition: background 0.3s; }
+
+    @media (max-width: 640px) {
+      #tower-canvas-wrap { height: 260px; }
+    }
+
     @media (max-width: 1100px) {
       .hero, .charts-grid, .bottom-grid, .dna-grid, .stats-row {
         grid-template-columns: 1fr;
@@ -725,6 +767,17 @@
         <span id="last-updated">—</span>
       </div>
     </header>
+
+    <section id="tower-section" class="card chart-card">
+      <div class="section-head">
+        <h2>Taste Tower</h2>
+        <span>drag to orbit · click a floor to jump to run</span>
+      </div>
+      <div id="tower-canvas-wrap">
+        <canvas id="tower-canvas"></canvas>
+        <div id="tower-tooltip"></div>
+      </div>
+    </section>
 
     <section class="hero">
       <div class="hero-main">
@@ -987,6 +1040,157 @@
         `
         el.appendChild(row)
       })
+    }
+
+    function buildTower(data) {
+      if (typeof THREE === 'undefined') return
+
+      const wrap = document.getElementById('tower-canvas-wrap')
+      const canvas = document.getElementById('tower-canvas')
+      const tooltip = document.getElementById('tower-tooltip')
+      const W = wrap.clientWidth
+      const H = wrap.clientHeight
+
+      const scene = new THREE.Scene()
+      const camera = new THREE.PerspectiveCamera(28, W / H, 0.1, 100)
+      camera.position.set(8, 5, 8)
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setSize(W, H)
+      renderer.setClearColor(0x000000, 0)
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+      const sun = new THREE.DirectionalLight(0xffffff, 0.9)
+      sun.position.set(6, 12, 6)
+      scene.add(sun)
+      const fill = new THREE.DirectionalLight(0x8899ff, 0.2)
+      fill.position.set(-4, 2, -4)
+      scene.add(fill)
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement)
+      controls.enableDamping = true
+      controls.dampingFactor = 0.06
+      controls.enablePan = false
+      controls.minDistance = 5
+      controls.maxDistance = 22
+
+      const ENERGY_H  = { low: 0.32, medium: 0.52, high: 0.78 }
+      const ENERGY_COL = { low: 0x59cfcf, medium: 0xffa42b, high: 0x1ed760 }
+      const GENRE_COLS = [0xb967ff, 0xf037a5, 0x477dff]
+      const CUBE_XZ   = [[-0.85, -0.75], [0.1, 0.82], [0.85, -0.2]]
+
+      const tower = new THREE.Group()
+      scene.add(tower)
+
+      const floorMeshes = []
+      let yOffset = 0
+
+      data.forEach((run, i) => {
+        const h   = ENERGY_H[run.energy_level]  || 0.52
+        const col = ENERGY_COL[run.energy_level] || 0x1ed760
+
+        const geo = new THREE.BoxGeometry(3, h, 3)
+        const mat = new THREE.MeshLambertMaterial({ color: col, emissive: col, emissiveIntensity: 0.1 })
+        const mesh = new THREE.Mesh(geo, mat)
+        mesh.position.y = yOffset + h / 2
+        mesh.userData = { run, index: i, baseEmissive: 0.1 }
+        tower.add(mesh)
+        floorMeshes.push(mesh)
+
+        // crisp edge outline
+        const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.13 })
+        const lines = new THREE.LineSegments(new THREE.EdgesGeometry(geo), lineMat)
+        lines.position.copy(mesh.position)
+        tower.add(lines)
+
+        // genre cubes on top
+        ;(run.genres || []).slice(0, 3).forEach((_, gi) => {
+          const cm = new THREE.MeshLambertMaterial({ color: GENRE_COLS[gi], emissive: GENRE_COLS[gi], emissiveIntensity: 0.4 })
+          const cube = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), cm)
+          cube.position.set(CUBE_XZ[gi][0], yOffset + h + 0.14, CUBE_XZ[gi][1])
+          tower.add(cube)
+        })
+
+        yOffset += h + 0.1
+      })
+
+      tower.position.y = -yOffset / 2
+      camera.lookAt(0, 0, 0)
+      controls.target.set(0, 0, 0)
+      controls.update()
+
+      let spinning = true
+      controls.addEventListener('start', () => { spinning = false })
+      controls.addEventListener('end',   () => { setTimeout(() => { spinning = true }, 2500) })
+
+      const raycaster = new THREE.Raycaster()
+      const mouse = new THREE.Vector2()
+      let hovered = null
+
+      wrap.addEventListener('mousemove', e => {
+        const r = wrap.getBoundingClientRect()
+        mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1
+        mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1
+        raycaster.setFromCamera(mouse, camera)
+        const hits = raycaster.intersectObjects(floorMeshes)
+
+        if (hits.length) {
+          const mesh = hits[0].object
+          if (hovered !== mesh) {
+            if (hovered) hovered.material.emissiveIntensity = hovered.userData.baseEmissive
+            hovered = mesh
+            mesh.material.emissiveIntensity = 0.6
+            document.body.style.cursor = 'pointer'
+          }
+          const run = mesh.userData.run
+          tooltip.innerHTML = `
+            <div style="font-weight:700;font-size:13px;text-transform:capitalize;margin-bottom:5px;color:#fff">${run.mood}</div>
+            <div style="color:#6a6a6a;font-size:11px;margin-bottom:5px">${run.date} · ${run.time}</div>
+            <div style="color:#a7a7a7;font-size:11px;margin-bottom:3px">${(run.genres||[]).join(' · ')}</div>
+            <div style="color:#6a6a6a;font-size:11px">${run.energy_level} energy &nbsp;·&nbsp; ${run.tracks_added} tracks</div>
+          `
+          tooltip.style.opacity = '1'
+          const tx = e.clientX - r.left + 16
+          const ty = e.clientY - r.top - 10
+          tooltip.style.left = Math.min(tx, r.width - 240) + 'px'
+          tooltip.style.top  = Math.max(ty, 4) + 'px'
+        } else {
+          if (hovered) { hovered.material.emissiveIntensity = hovered.userData.baseEmissive; hovered = null; document.body.style.cursor = '' }
+          tooltip.style.opacity = '0'
+        }
+      })
+
+      wrap.addEventListener('mouseleave', () => {
+        if (hovered) { hovered.material.emissiveIntensity = hovered.userData.baseEmissive; hovered = null; document.body.style.cursor = '' }
+        tooltip.style.opacity = '0'
+      })
+
+      wrap.addEventListener('click', () => {
+        if (!hovered) return
+        const idx = hovered.userData.index
+        const items = document.querySelectorAll('#run-timeline .timeline-item')
+        const target = items[items.length - 1 - idx]
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          target.style.background = 'rgba(30,215,96,0.1)'
+          setTimeout(() => { target.style.background = '' }, 2000)
+        }
+      })
+
+      window.addEventListener('resize', () => {
+        const W2 = wrap.clientWidth, H2 = wrap.clientHeight
+        camera.aspect = W2 / H2
+        camera.updateProjectionMatrix()
+        renderer.setSize(W2, H2)
+      })
+
+      ;(function animate() {
+        requestAnimationFrame(animate)
+        if (spinning) tower.rotation.y += 0.004
+        controls.update()
+        renderer.render(scene, camera)
+      })()
     }
 
     async function init() {
@@ -1303,6 +1507,8 @@
         `
         timelineEl.appendChild(item)
       })
+
+      buildTower(data)
     }
 
     init()
