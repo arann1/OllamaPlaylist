@@ -1,7 +1,7 @@
 {
   "name": "ollama-playlist-dashboard",
   "version": "1.0.0",
-  "description": "AI-powered music taste analytics dashboard",
+  "description": "Music taste analytics dashboard",
   "private": true,
   "scripts": {
     "build": "mkdir -p dashboard/data && cp data/history.json dashboard/data/history.json 2>/dev/null || echo '[]' > dashboard/data/history.json",

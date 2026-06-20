@@ -1,9 +1,7 @@
 import { fmtSec, relTime } from './utils.js';
 
-const ENERGY_FILLS  = { low: 3, medium: 6, high: 10 };
-const GENRE_COLORS  = ['#1ed760', '#59cfcf', '#b967ff', '#ffa42b', '#f037a5'];
-const LOG_URL       = 'http://192.168.1.77:8765/';
-const LOG_POLL_MS   = 3000;
+const ENERGY_FILLS = { low: 3, medium: 6, high: 10 };
+const GENRE_COLORS = ['#1ed760', '#59cfcf', '#b967ff', '#ffa42b', '#f037a5'];
 
 const $ = id => document.getElementById(id);
 
@@ -11,7 +9,6 @@ function block(n, total = 10) {
   return '█'.repeat(n) + '░'.repeat(total - n);
 }
 
-/* ── Render a run ─────────────────────────────────── */
 function render(run) {
   $('h-model').textContent   = run.model || '—';
   $('h-time').textContent    = relTime(run.timestamp);
@@ -30,12 +27,10 @@ function render(run) {
   $('h-energy').innerHTML =
     `<span class="energy-bar energy-${eLvl}">[${block(eFill)}] ${eLvl.toUpperCase()}</span>`;
 
-  /* Taste tags */
   $('taste-tags').innerHTML = (run.taste_profile || [])
     .map(t => `<span class="taste-tag">${t.toUpperCase()}</span>`)
     .join('');
 
-  /* Genre bars */
   const genres = (run.genres || []).slice(0, 6);
   $('genre-bars').innerHTML = genres.map((g, i) => {
     const fill = Math.round(10 - (i / genres.length) * 7);
@@ -45,7 +40,6 @@ function render(run) {
     </div>`;
   }).join('');
 
-  /* Artists */
   $('artists-grid').innerHTML = (run.preferred_artists_detail || []).map(a => `
     <div class="artist-card">
       <div class="artist-img-wrap">
@@ -57,7 +51,6 @@ function render(run) {
     </div>
   `).join('');
 
-  /* Curated tracks */
   $('tracks-grid').innerHTML = (run.curated_tracks_sample || []).map(t => `
     <div class="track-card">
       <div class="track-art-wrap">
@@ -76,7 +69,6 @@ function render(run) {
     </div>
   `).join('');
 
-  /* Recent tracks */
   $('recent-list').innerHTML = (run.recent_tracks_sample || []).map((t, i) => `
     <div class="recent-row">
       <span class="recent-num">${String(i + 1).padStart(2, '0')}</span>
@@ -88,35 +80,6 @@ function render(run) {
   `).join('');
 }
 
-/* ── Live log polling ─────────────────────────────── */
-const logEl    = $('log-output');
-const statusEl = $('log-status');
-let   prevLog  = '';
-
-async function pollLogs() {
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 2800);
-    const res  = await fetch(LOG_URL, { signal: ctrl.signal });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error(res.status);
-    const text = await res.text();
-    if (text !== prevLog) {
-      prevLog = text;
-      logEl.textContent = text;
-      /* Auto-scroll to bottom */
-      logEl.parentElement.scrollTop = logEl.parentElement.scrollHeight;
-    }
-    statusEl.textContent = '● LIVE';
-    statusEl.className   = 'log-status on';
-  } catch {
-    statusEl.textContent = '● OFFLINE';
-    statusEl.className   = 'log-status off';
-    if (!prevLog) logEl.textContent = '— server offline —\n\nStart on Linux:\npython3 scripts/log_server.py';
-  }
-}
-
-/* ── Boot ─────────────────────────────────────────── */
 async function boot() {
   let run;
   try {
@@ -136,10 +99,6 @@ async function boot() {
   $('app').removeAttribute('hidden');
 
   render(run);
-
-  /* Start log polling */
-  pollLogs();
-  setInterval(pollLogs, LOG_POLL_MS);
 }
 
 boot();
