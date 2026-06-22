@@ -1694,5 +1694,296 @@
         "album_art": "https://i.scdn.co/image/ab67616d0000b2739701faf1c34cc355fd3cd3c0"
       }
     ]
+  },
+  {
+    "timestamp": "2026-06-22T00:00:11.708867",
+    "date": "2026-06-22",
+    "time": "00:00",
+    "runtime_seconds": 7.61,
+    "model": "qwen2.5:7b",
+    "mood": "Balanced Indie",
+    "energy_level": "medium",
+    "genres": [
+      "indie",
+      "alternative",
+      "pop"
+    ],
+    "taste_profile": [
+      "melodic vocals",
+      "emotional lyrics",
+      "modern production",
+      "strong songwriting",
+      "indie influences"
+    ],
+    "preferred_artists": [
+      "Malcolm Todd",
+      "Gracie Abrams",
+      "ROLE MODEL",
+      "Clairo",
+      "Tyler, The Creator",
+      "The Cure",
+      "LAUV",
+      "The Script",
+      "Radiohead",
+      "Frank Ocean"
+    ],
+    "preferred_artists_detail": [
+      {
+        "name": "Malcolm Todd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9f6f7c2d12975d2a4b3a0fd8"
+      },
+      {
+        "name": "Gracie Abrams",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb18e3675ebfda9c29cfb2b57e"
+      },
+      {
+        "name": "ROLE MODEL",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebfe9486c9ef6d86b4f39805c8"
+      },
+      {
+        "name": "Clairo",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb4804c4a44c85afea1a72d1bd"
+      },
+      {
+        "name": "Tyler, The Creator",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebdf2728294ff77dd11eeb18fb"
+      },
+      {
+        "name": "The Cure",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebdd427c765c409ec02dc3a868"
+      },
+      {
+        "name": "LAUV",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9dde640a32d379dd5869fe4e"
+      },
+      {
+        "name": "The Script",
+        "image": null
+      },
+      {
+        "name": "Radiohead",
+        "image": null
+      },
+      {
+        "name": "Frank Ocean",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab"
+      }
+    ],
+    "summary": "Balanced mix drawn from your existing library.",
+    "tracks_added": 30,
+    "library_artist_count": 128,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Malcolm Todd",
+      "Olivia Rodrigo",
+      "Wallows",
+      "ROLE MODEL",
+      "Clairo",
+      "Gracie Abrams",
+      "Tyler, The Creator",
+      "Frank Ocean",
+      "Taylor Swift",
+      "Daniel Caesar"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Boys Don't Cry",
+        "artist": "The Cure"
+      },
+      {
+        "name": "Free Now",
+        "artist": "Gracie Abrams"
+      },
+      {
+        "name": "Fade Into You",
+        "artist": "Mazzy Star"
+      },
+      {
+        "name": "Boys Don't Cry",
+        "artist": "The Cure"
+      },
+      {
+        "name": "I Really Want to Stay at Your House",
+        "artist": "Rosa Walton"
+      },
+      {
+        "name": "The One That I Want (But I Don\u2019t Know Why)",
+        "artist": "Sadie Jean"
+      },
+      {
+        "name": "Tough Love",
+        "artist": "Gracie Abrams"
+      },
+      {
+        "name": "Writing's On The Wall",
+        "artist": "ROLE MODEL"
+      },
+      {
+        "name": "stranger",
+        "artist": "Olivia Rodrigo"
+      },
+      {
+        "name": "Some Protector",
+        "artist": "ROLE MODEL"
+      }
+    ],
+    "curated_tracks_sample": [
+      {
+        "name": "Walk to Class",
+        "artist": "Malcolm Todd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27387607b2c8f5f52f1f057be0d"
+      },
+      {
+        "name": "The blue",
+        "artist": "Gracie Abrams",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730500294bb235c45c0a964d69"
+      },
+      {
+        "name": "High Hopes 3000",
+        "artist": "ROLE MODEL",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730b0cfb2fb43614d2ed8f34af"
+      },
+      {
+        "name": "4EVER",
+        "artist": "Clairo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273d8cde3e29157bf6648459734"
+      },
+      {
+        "name": "NEW MAGIC WAND",
+        "artist": "Tyler, The Creator",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27330a635de2bb0caa4e26f6abb"
+      },
+      {
+        "name": "Friday I'm in Love",
+        "artist": "The Cure",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273e410fa31e3dfcc7521cde86d"
+      },
+      {
+        "name": "Reforget",
+        "artist": "LAUV",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2739ed5fcf212f05d55b1e61eae"
+      },
+      {
+        "name": "Breakeven",
+        "artist": "The Script",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731f198b15f686a4781072acb8"
+      },
+      {
+        "name": "No Surprises",
+        "artist": "Radiohead",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273c8b444df094279e70d0ed856"
+      },
+      {
+        "name": "Ivy",
+        "artist": "Frank Ocean",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273c5649add07ed3720be9d5526"
+      },
+      {
+        "name": "Passionfruit",
+        "artist": "Drake",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734f0fd9dad63977146e685700"
+      },
+      {
+        "name": "Kingston",
+        "artist": "Faye Webster",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273ac4ebd092fa2cf210e4c8023"
+      },
+      {
+        "name": "Billie Jean",
+        "artist": "EDEN",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731a59500c9592f4096f7f65e1"
+      },
+      {
+        "name": "Superpowers",
+        "artist": "Daniel Caesar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737c68face1dc58127f3a7b1cc"
+      },
+      {
+        "name": "Welcome To Japan",
+        "artist": "The Strokes",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f07ef193e0bb6a238ea37f0a"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27335f36cb686b0d5a12ab3a9f0"
+      },
+      {
+        "name": "Origami",
+        "artist": "The Rare Occasions",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2732e87b83a887668524c979a7d"
+      },
+      {
+        "name": "Hell N Back",
+        "artist": "Bakar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2733ee73eb16af247a0ea057542"
+      },
+      {
+        "name": "Impostor Syndrome",
+        "artist": "Sidney Gish",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f7832bb86831bdec9848acda"
+      },
+      {
+        "name": "Stress Relief",
+        "artist": "late night drive home",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27377c339de2168c8b893a64407"
+      },
+      {
+        "name": "505",
+        "artist": "Arctic Monkeys",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273b1f8da74f225fa1225cdface"
+      },
+      {
+        "name": "Where\u2019s My Love - Alternate Version",
+        "artist": "SYML",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f6825dc22434782b58a5681d"
+      },
+      {
+        "name": "Blink 182",
+        "artist": "Half an Orange",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730fc793716c44bcd8939bc3bc"
+      },
+      {
+        "name": "I Was Made For Lovin' You",
+        "artist": "KISS",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734384b6976cadaec272114022"
+      },
+      {
+        "name": "The Spins",
+        "artist": "Mac Miller",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737414c28a11a87cbfd91dce10"
+      },
+      {
+        "name": "War",
+        "artist": "ILLENIUM",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27320471551c9cf165527ac2dfb"
+      },
+      {
+        "name": "Total Eclipse of the Heart",
+        "artist": "Bonnie Tyler",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738cefe8e2f2cfd63ce073fa96"
+      },
+      {
+        "name": "Da Ya Think I'm Sexy?",
+        "artist": "Rod Stewart",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273d6806ddfc58bbaa0cb3e9fa5"
+      },
+      {
+        "name": "Jane!",
+        "artist": "The Long Faces",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2736685599bd4bafe725e532e2f"
+      },
+      {
+        "name": "misses",
+        "artist": "Dominic Fike",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730297fb98f81fc0b611fcf71d"
+      }
+    ]
   }
 ]
