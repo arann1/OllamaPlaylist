@@ -2276,5 +2276,296 @@
         "album_art": "https://i.scdn.co/image/ab67616d0000b2739bdb75b44ff4a197b9541d8a"
       }
     ]
+  },
+  {
+    "timestamp": "2026-06-26T00:07:30.028289",
+    "date": "2026-06-26",
+    "time": "00:07",
+    "runtime_seconds": 447.95,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic reflective",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "alternative rock",
+      "indie pop"
+    ],
+    "taste_profile": [
+      "sentimental",
+      "melancholic",
+      "introspective",
+      "emotional",
+      "uplifting"
+    ],
+    "preferred_artists": [
+      "Malcolm Todd",
+      "Gracie Abrams",
+      "Daniel Caesar",
+      "Frank Ocean",
+      "Clairo",
+      "The Cure",
+      "ROLE MODEL",
+      "Olivia Rodrigo",
+      "Dominic Fike",
+      "Tyler, The Creator"
+    ],
+    "preferred_artists_detail": [
+      {
+        "name": "Malcolm Todd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9f6f7c2d12975d2a4b3a0fd8"
+      },
+      {
+        "name": "Gracie Abrams",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb18e3675ebfda9c29cfb2b57e"
+      },
+      {
+        "name": "Daniel Caesar",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebe4d94f7cbebb17504c25d419"
+      },
+      {
+        "name": "Frank Ocean",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab"
+      },
+      {
+        "name": "Clairo",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb4804c4a44c85afea1a72d1bd"
+      },
+      {
+        "name": "The Cure",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebdd427c765c409ec02dc3a868"
+      },
+      {
+        "name": "ROLE MODEL",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebfe9486c9ef6d86b4f39805c8"
+      },
+      {
+        "name": "Olivia Rodrigo",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb14eb4dcfd2f3858bed06e44"
+      },
+      {
+        "name": "Dominic Fike",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebf2903326ec44d5ecb37dcad9"
+      },
+      {
+        "name": "Tyler, The Creator",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebdf2728294ff77dd11eeb18fb"
+      }
+    ],
+    "summary": "The listener enjoys a mix of pop and alternative rock with introspective and emotional themes.",
+    "tracks_added": 30,
+    "library_artist_count": 129,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Malcolm Todd",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "Wallows",
+      "ROLE MODEL",
+      "Clairo",
+      "Tyler, The Creator",
+      "Frank Ocean",
+      "Daniel Caesar",
+      "Taylor Swift"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "The Zephyr Song",
+        "artist": "Red Hot Chili Peppers"
+      },
+      {
+        "name": "the perfect pair",
+        "artist": "beabadoobee"
+      },
+      {
+        "name": "4EVER",
+        "artist": "Clairo"
+      },
+      {
+        "name": "If I Cannot Be Yours",
+        "artist": "Prateek Kuhad"
+      },
+      {
+        "name": "Impostor Syndrome",
+        "artist": "Sidney Gish"
+      },
+      {
+        "name": "The Zephyr Song",
+        "artist": "Red Hot Chili Peppers"
+      },
+      {
+        "name": "Best",
+        "artist": "Gracie Abrams"
+      },
+      {
+        "name": "Best",
+        "artist": "Gracie Abrams"
+      },
+      {
+        "name": "Free Now",
+        "artist": "Gracie Abrams"
+      },
+      {
+        "name": "Talk About It",
+        "artist": "Post Sex Nachos"
+      }
+    ],
+    "curated_tracks_sample": [
+      {
+        "name": "Walk to Class",
+        "artist": "Malcolm Todd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27387607b2c8f5f52f1f057be0d"
+      },
+      {
+        "name": "The blue",
+        "artist": "Gracie Abrams",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730500294bb235c45c0a964d69"
+      },
+      {
+        "name": "Japanese Denim",
+        "artist": "Daniel Caesar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737465bef53d9e3a27c63c7a1d"
+      },
+      {
+        "name": "Ivy",
+        "artist": "Frank Ocean",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273c5649add07ed3720be9d5526"
+      },
+      {
+        "name": "Slow Dance",
+        "artist": "Clairo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273193c2fafdce8f116b5ca0a78"
+      },
+      {
+        "name": "Boys Don't Cry",
+        "artist": "The Cure",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273145f62824c79efecf474081f"
+      },
+      {
+        "name": "Old Recliners",
+        "artist": "ROLE MODEL",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273ff9e807b292a861ded756d63"
+      },
+      {
+        "name": "less",
+        "artist": "Olivia Rodrigo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2735cf234eeb7a2edf44bf64a46"
+      },
+      {
+        "name": "White Keys",
+        "artist": "Dominic Fike",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2733696096119ef08824cf85ede"
+      },
+      {
+        "name": "NEW MAGIC WAND",
+        "artist": "Tyler, The Creator",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27330a635de2bb0caa4e26f6abb"
+      },
+      {
+        "name": "Passionfruit",
+        "artist": "Drake",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734f0fd9dad63977146e685700"
+      },
+      {
+        "name": "Welcome To Japan",
+        "artist": "The Strokes",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f07ef193e0bb6a238ea37f0a"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27335f36cb686b0d5a12ab3a9f0"
+      },
+      {
+        "name": "Origami",
+        "artist": "The Rare Occasions",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2732e87b83a887668524c979a7d"
+      },
+      {
+        "name": "I Was Made For Lovin' You",
+        "artist": "KISS",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734384b6976cadaec272114022"
+      },
+      {
+        "name": "The Emptiness Machine",
+        "artist": "Linkin Park",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738be9eeb8f19696ef2fd3b6b4"
+      },
+      {
+        "name": "The Spins",
+        "artist": "Mac Miller",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737414c28a11a87cbfd91dce10"
+      },
+      {
+        "name": "Television / So Far So Good",
+        "artist": "Rex Orange County",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731bd6d088d3d81972af4cb81d"
+      },
+      {
+        "name": "War",
+        "artist": "ILLENIUM",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27320471551c9cf165527ac2dfb"
+      },
+      {
+        "name": "Jane!",
+        "artist": "The Long Faces",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2736685599bd4bafe725e532e2f"
+      },
+      {
+        "name": "Orbiter",
+        "artist": "Noah Kahan",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27342045f14bfed607393b91735"
+      },
+      {
+        "name": "Dreams and Nightmares",
+        "artist": "Meek Mill",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2736906201da993c0945e506f8f"
+      },
+      {
+        "name": "Friday",
+        "artist": "Goldspot",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2739bdb75b44ff4a197b9541d8a"
+      },
+      {
+        "name": "Sixty Seconds",
+        "artist": "Bershy",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273a44c20a4d36a285e2147c525"
+      },
+      {
+        "name": "Main Naiyo Jaana",
+        "artist": "Amrinder Gill",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273e5a357c8898c9dd20c3393ec"
+      },
+      {
+        "name": "Ambarsariya",
+        "artist": "Sona Mohapatra",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2739701faf1c34cc355fd3cd3c0"
+      },
+      {
+        "name": "Ishq Wala Love",
+        "artist": "Vishal-Shekhar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273ad40f4e70b2f2a2a6052d49d"
+      },
+      {
+        "name": "Nazar Na Lag Jaaye",
+        "artist": "Ash King",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273757e3e10c59c6e71affce6d6"
+      },
+      {
+        "name": "Sawaar Loon",
+        "artist": "Monali Thakur",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730e26db222796cf4207425abc"
+      },
+      {
+        "name": "Ranjheya Ve",
+        "artist": "Zain Zohaib",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2739876c0fe1a80ecdd1668f886"
+      }
+    ]
   }
 ]
