@@ -6945,5 +6945,297 @@
         "album_art": "https://i.scdn.co/image/ab67616d0000b273b1f8da74f225fa1225cdface"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-03T00:07:24.308331",
+    "date": "2026-08-03",
+    "time": "00:07",
+    "runtime_seconds": 441.83,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic reflective",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "rock",
+      "alternative"
+    ],
+    "taste_profile": [
+      "melancholic",
+      "emotional",
+      "sentimental",
+      "dreamy",
+      "introspective"
+    ],
+    "preferred_artists": [
+      "Clairo",
+      "Olivia Rodrigo",
+      "Daniel Caesar",
+      "Malcolm Todd",
+      "The Cure",
+      "Pink Floyd",
+      "Frank Ocean",
+      "Red Hot Chili Peppers",
+      "Oasis",
+      "Taylor Swift"
+    ],
+    "preferred_artists_detail": [
+      {
+        "name": "Clairo",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb4804c4a44c85afea1a72d1bd"
+      },
+      {
+        "name": "Olivia Rodrigo",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb14eb4dcfd2f3858bed06e44"
+      },
+      {
+        "name": "Daniel Caesar",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebe4d94f7cbebb17504c25d419"
+      },
+      {
+        "name": "Malcolm Todd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9f6f7c2d12975d2a4b3a0fd8"
+      },
+      {
+        "name": "The Cure",
+        "image": null
+      },
+      {
+        "name": "Pink Floyd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb3c9e8c67b087ba0cb5923b78"
+      },
+      {
+        "name": "Frank Ocean",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab"
+      },
+      {
+        "name": "Red Hot Chili Peppers",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebc33cc15260b767ddec982ce8"
+      },
+      {
+        "name": "Oasis",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb4ddbc39706ef0f2ae0f7c9b"
+      },
+      {
+        "name": "Taylor Swift",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebe2e8e7ff002a4afda1c7147e"
+      }
+    ],
+    "summary": "The listener enjoys emotionally charged, introspective music with a mix of pop, rock, and alternative genres.",
+    "tracks_added": 30,
+    "library_artist_count": 164,
+    "source_playlists": [
+      "Yy,?",
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Taylor Swift",
+      "Red Hot Chili Peppers",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "Malcolm Todd",
+      "LAUV",
+      "Oasis",
+      "ROLE MODEL",
+      "Pink Floyd",
+      "Clairo"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Runaway",
+        "artist": "Kanye West"
+      },
+      {
+        "name": "A Pillow of Winds",
+        "artist": "Pink Floyd"
+      },
+      {
+        "name": "This Side of Paradise",
+        "artist": "Coyote Theory"
+      },
+      {
+        "name": "Bartender (feat. Akon)",
+        "artist": "T-Pain"
+      },
+      {
+        "name": "One of These Days",
+        "artist": "Pink Floyd"
+      },
+      {
+        "name": "the cure",
+        "artist": "Olivia Rodrigo"
+      },
+      {
+        "name": "Halley's Comet",
+        "artist": "Billie Eilish"
+      },
+      {
+        "name": "Attention",
+        "artist": "Malcolm Todd"
+      },
+      {
+        "name": "Over My Dead Body",
+        "artist": "Drake"
+      },
+      {
+        "name": "Always",
+        "artist": "Daniel Caesar"
+      }
+    ],
+    "curated_tracks_sample": [
+      {
+        "name": "Harbor",
+        "artist": "Clairo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2732624442cf48e4962d1422da8"
+      },
+      {
+        "name": "less",
+        "artist": "Olivia Rodrigo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2735cf234eeb7a2edf44bf64a46"
+      },
+      {
+        "name": "Walk to Class",
+        "artist": "Malcolm Todd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27387607b2c8f5f52f1f057be0d"
+      },
+      {
+        "name": "Boys Don't Cry",
+        "artist": "The Cure",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273145f62824c79efecf474081f"
+      },
+      {
+        "name": "Comfortably Numb",
+        "artist": "Pink Floyd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273b694e89ba937dd2631ff584c"
+      },
+      {
+        "name": "The Zephyr Song",
+        "artist": "Red Hot Chili Peppers",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273de1af2785a83cc660155a0c4"
+      },
+      {
+        "name": "Champagne Supernova - Remastered",
+        "artist": "Oasis",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27385e5dcc05cc216a10f141480"
+      },
+      {
+        "name": "False God",
+        "artist": "Taylor Swift",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273e787cffec20aa2a396a61647"
+      },
+      {
+        "name": "I Like Me Better",
+        "artist": "LAUV",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273c2f8018c984a8acb592bc7d8"
+      },
+      {
+        "name": "Stitches",
+        "artist": "Shawn Mendes",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273d26246b23c8bfa8ce543b3bb"
+      },
+      {
+        "name": "7 rings",
+        "artist": "Ariana Grande",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27356ac7b86e090f307e218e9c8"
+      },
+      {
+        "name": "Closer",
+        "artist": "The Chainsmokers",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273495ce6da9aeb159e94eaa453"
+      },
+      {
+        "name": "I Feel It Coming",
+        "artist": "The Weeknd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734718e2b124f79258be7bc452"
+      },
+      {
+        "name": "Dusk Till Dawn (feat. Sia) - Radio Edit",
+        "artist": "ZAYN",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738a666ed36f975ba78b1c866e"
+      },
+      {
+        "name": "Without Me",
+        "artist": "Halsey",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737636e1c9e67eaafc9f49aefd"
+      },
+      {
+        "name": "We Don't Talk Anymore (feat. Selena Gomez)",
+        "artist": "Charlie Puth",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27315145482a542a9adb282250b"
+      },
+      {
+        "name": "Love Me Like You Do",
+        "artist": "Ellie Goulding",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2736cd9798b6ace10ff98d1abdd"
+      },
+      {
+        "name": "The First Time",
+        "artist": "Damiano David",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273a1133724ee62a5bcd04f7630"
+      },
+      {
+        "name": "The Night We Met",
+        "artist": "Lord Huron",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273b4916183f769aca218acb85f"
+      },
+      {
+        "name": "Reflections",
+        "artist": "The Neighbourhood",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2739b6ac98a52f62d5cb473da40"
+      },
+      {
+        "name": "NEW MAGIC WAND",
+        "artist": "Tyler, The Creator",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27330a635de2bb0caa4e26f6abb"
+      },
+      {
+        "name": "Kingston",
+        "artist": "Faye Webster",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273ac4ebd092fa2cf210e4c8023"
+      },
+      {
+        "name": "Billie Jean",
+        "artist": "EDEN",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731a59500c9592f4096f7f65e1"
+      },
+      {
+        "name": "Welcome To Japan",
+        "artist": "The Strokes",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f07ef193e0bb6a238ea37f0a"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27335f36cb686b0d5a12ab3a9f0"
+      },
+      {
+        "name": "Origami",
+        "artist": "The Rare Occasions",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2732e87b83a887668524c979a7d"
+      },
+      {
+        "name": "Hell N Back",
+        "artist": "Bakar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2733ee73eb16af247a0ea057542"
+      },
+      {
+        "name": "Impostor Syndrome",
+        "artist": "Sidney Gish",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f7832bb86831bdec9848acda"
+      },
+      {
+        "name": "Stress Relief",
+        "artist": "late night drive home",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27377c339de2168c8b893a64407"
+      },
+      {
+        "name": "High Hopes 3000",
+        "artist": "ROLE MODEL",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730b0cfb2fb43614d2ed8f34af"
+      }
+    ]
   }
 ]
