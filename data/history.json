@@ -7821,5 +7821,296 @@
         "album_art": "https://i.scdn.co/image/ab67616d0000b273f7832bb86831bdec9848acda"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-06T00:07:29.167913",
+    "date": "2026-08-06",
+    "time": "00:07",
+    "runtime_seconds": 446.77,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic romantic",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "rock",
+      "alternative"
+    ],
+    "taste_profile": [
+      "sensitive",
+      "emotional",
+      "dreamy",
+      "melancholic",
+      "reflective"
+    ],
+    "preferred_artists": [
+      "Gracie Abrams",
+      "Malcolm Todd",
+      "Clairo",
+      "The Cure",
+      "LAUV",
+      "Frank Ocean",
+      "Daniel Caesar",
+      "Olivia Rodrigo",
+      "Oasis",
+      "Pink Floyd"
+    ],
+    "preferred_artists_detail": [
+      {
+        "name": "Gracie Abrams",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb18e3675ebfda9c29cfb2b57e"
+      },
+      {
+        "name": "Malcolm Todd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9f6f7c2d12975d2a4b3a0fd8"
+      },
+      {
+        "name": "Clairo",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb4804c4a44c85afea1a72d1bd"
+      },
+      {
+        "name": "The Cure",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebdd427c765c409ec02dc3a868"
+      },
+      {
+        "name": "LAUV",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9dde640a32d379dd5869fe4e"
+      },
+      {
+        "name": "Frank Ocean",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab"
+      },
+      {
+        "name": "Daniel Caesar",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebe4d94f7cbebb17504c25d419"
+      },
+      {
+        "name": "Olivia Rodrigo",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb14eb4dcfd2f3858bed06e44"
+      },
+      {
+        "name": "Oasis",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb4ddbc39706ef0f2ae0f7c9b"
+      },
+      {
+        "name": "Pink Floyd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb3c9e8c67b087ba0cb5923b78"
+      }
+    ],
+    "summary": "The listener appreciates emotionally charged, reflective music with a mix of pop, rock, and alternative genres.",
+    "tracks_added": 30,
+    "library_artist_count": 164,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Taylor Swift",
+      "Malcolm Todd",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "Red Hot Chili Peppers",
+      "LAUV",
+      "ROLE MODEL",
+      "Oasis",
+      "The Strokes",
+      "Clairo"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Lover, You Should've Come Over",
+        "artist": "Jeff Buckley"
+      },
+      {
+        "name": "The First Time",
+        "artist": "Damiano David"
+      },
+      {
+        "name": "The First Time",
+        "artist": "Damiano David"
+      },
+      {
+        "name": "Bartender (feat. Akon)",
+        "artist": "T-Pain"
+      },
+      {
+        "name": "Tough Love",
+        "artist": "Gracie Abrams"
+      },
+      {
+        "name": "Impostor Syndrome",
+        "artist": "Sidney Gish"
+      },
+      {
+        "name": "Love Me Like You Do",
+        "artist": "Ellie Goulding"
+      },
+      {
+        "name": "Lovers Rock",
+        "artist": "TV Girl"
+      },
+      {
+        "name": "The Night We Met",
+        "artist": "Lord Huron"
+      },
+      {
+        "name": "4EVER",
+        "artist": "Clairo"
+      }
+    ],
+    "curated_tracks_sample": [
+      {
+        "name": "Good Reason",
+        "artist": "Gracie Abrams",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27399bc33b47a0a67fd50783055"
+      },
+      {
+        "name": "Walk to Class",
+        "artist": "Malcolm Todd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27387607b2c8f5f52f1f057be0d"
+      },
+      {
+        "name": "Slow Dance",
+        "artist": "Clairo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273193c2fafdce8f116b5ca0a78"
+      },
+      {
+        "name": "Boys Don't Cry",
+        "artist": "The Cure",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273145f62824c79efecf474081f"
+      },
+      {
+        "name": "Reforget",
+        "artist": "LAUV",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2739ed5fcf212f05d55b1e61eae"
+      },
+      {
+        "name": "Ivy",
+        "artist": "Frank Ocean",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273c5649add07ed3720be9d5526"
+      },
+      {
+        "name": "Japanese Denim",
+        "artist": "Daniel Caesar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737465bef53d9e3a27c63c7a1d"
+      },
+      {
+        "name": "Champagne Supernova - Remastered",
+        "artist": "Oasis",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27385e5dcc05cc216a10f141480"
+      },
+      {
+        "name": "Comfortably Numb",
+        "artist": "Pink Floyd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273b694e89ba937dd2631ff584c"
+      },
+      {
+        "name": "Passionfruit",
+        "artist": "Drake",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734f0fd9dad63977146e685700"
+      },
+      {
+        "name": "NEW MAGIC WAND",
+        "artist": "Tyler, The Creator",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27330a635de2bb0caa4e26f6abb"
+      },
+      {
+        "name": "Kingston",
+        "artist": "Faye Webster",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273ac4ebd092fa2cf210e4c8023"
+      },
+      {
+        "name": "Billie Jean",
+        "artist": "EDEN",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731a59500c9592f4096f7f65e1"
+      },
+      {
+        "name": "Welcome To Japan",
+        "artist": "The Strokes",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f07ef193e0bb6a238ea37f0a"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27335f36cb686b0d5a12ab3a9f0"
+      },
+      {
+        "name": "Origami",
+        "artist": "The Rare Occasions",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2732e87b83a887668524c979a7d"
+      },
+      {
+        "name": "Hell N Back",
+        "artist": "Bakar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2733ee73eb16af247a0ea057542"
+      },
+      {
+        "name": "High Hopes 3000",
+        "artist": "ROLE MODEL",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730b0cfb2fb43614d2ed8f34af"
+      },
+      {
+        "name": "505",
+        "artist": "Arctic Monkeys",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273b1f8da74f225fa1225cdface"
+      },
+      {
+        "name": "Where\u2019s My Love - Alternate Version",
+        "artist": "SYML",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f6825dc22434782b58a5681d"
+      },
+      {
+        "name": "Blink 182",
+        "artist": "Half an Orange",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730fc793716c44bcd8939bc3bc"
+      },
+      {
+        "name": "I Was Made For Lovin' You",
+        "artist": "KISS",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734384b6976cadaec272114022"
+      },
+      {
+        "name": "The Emptiness Machine",
+        "artist": "Linkin Park",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738be9eeb8f19696ef2fd3b6b4"
+      },
+      {
+        "name": "The Spins",
+        "artist": "Mac Miller",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737414c28a11a87cbfd91dce10"
+      },
+      {
+        "name": "Television / So Far So Good",
+        "artist": "Rex Orange County",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731bd6d088d3d81972af4cb81d"
+      },
+      {
+        "name": "War",
+        "artist": "ILLENIUM",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27320471551c9cf165527ac2dfb"
+      },
+      {
+        "name": "Total Eclipse of the Heart",
+        "artist": "Bonnie Tyler",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738cefe8e2f2cfd63ce073fa96"
+      },
+      {
+        "name": "Da Ya Think I'm Sexy?",
+        "artist": "Rod Stewart",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273d6806ddfc58bbaa0cb3e9fa5"
+      },
+      {
+        "name": "Jane!",
+        "artist": "The Long Faces",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2736685599bd4bafe725e532e2f"
+      },
+      {
+        "name": "misses",
+        "artist": "Dominic Fike",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730297fb98f81fc0b611fcf71d"
+      }
+    ]
   }
 ]
