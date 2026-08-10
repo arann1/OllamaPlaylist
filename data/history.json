@@ -8985,5 +8985,296 @@
         "album_art": "https://i.scdn.co/image/ab67616d0000b2736685599bd4bafe725e532e2f"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-10T00:07:35.825742",
+    "date": "2026-08-10",
+    "time": "00:07",
+    "runtime_seconds": 454.03,
+    "model": "qwen2.5:7b",
+    "mood": "nostalgic romantic",
+    "energy_level": "medium",
+    "genres": [
+      "pop",
+      "alternative rock",
+      "indie"
+    ],
+    "taste_profile": [
+      "sentimental",
+      "melancholic",
+      "emotional",
+      "introspective",
+      "dreamy"
+    ],
+    "preferred_artists": [
+      "Malcolm Todd",
+      "Clairo",
+      "The Strokes",
+      "Olivia Rodrigo",
+      "Taylor Swift",
+      "Daniel Caesar",
+      "Red Hot Chili Peppers",
+      "Oasis",
+      "Frank Ocean",
+      "ROLE MODEL"
+    ],
+    "preferred_artists_detail": [
+      {
+        "name": "Malcolm Todd",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb9f6f7c2d12975d2a4b3a0fd8"
+      },
+      {
+        "name": "Clairo",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb4804c4a44c85afea1a72d1bd"
+      },
+      {
+        "name": "The Strokes",
+        "image": "https://i.scdn.co/image/ab6761610000e5eb98856eea770468af6dd999d9"
+      },
+      {
+        "name": "Olivia Rodrigo",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb14eb4dcfd2f3858bed06e44"
+      },
+      {
+        "name": "Taylor Swift",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebe2e8e7ff002a4afda1c7147e"
+      },
+      {
+        "name": "Daniel Caesar",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebe4d94f7cbebb17504c25d419"
+      },
+      {
+        "name": "Red Hot Chili Peppers",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebc33cc15260b767ddec982ce8"
+      },
+      {
+        "name": "Oasis",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebb4ddbc39706ef0f2ae0f7c9b"
+      },
+      {
+        "name": "Frank Ocean",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebee3123e593174208f9754fab"
+      },
+      {
+        "name": "ROLE MODEL",
+        "image": "https://i.scdn.co/image/ab6761610000e5ebfe9486c9ef6d86b4f39805c8"
+      }
+    ],
+    "summary": "The listener enjoys emotional and introspective tracks with a mix of pop, alternative rock, and indie genres.",
+    "tracks_added": 30,
+    "library_artist_count": 165,
+    "source_playlists": [
+      "Wowsie",
+      "\ud83e\udeea\ud83e\udeea\ud83e\udeea",
+      "Gracie & etc",
+      "Romcoms",
+      "Zone "
+    ],
+    "top_artists": [
+      "Taylor Swift",
+      "Malcolm Todd",
+      "Gracie Abrams",
+      "Olivia Rodrigo",
+      "LAUV",
+      "ROLE MODEL",
+      "Clairo",
+      "Daniel Caesar",
+      "Oasis",
+      "Red Hot Chili Peppers"
+    ],
+    "recent_tracks_sample": [
+      {
+        "name": "Lovefool",
+        "artist": "The Cardigans"
+      },
+      {
+        "name": "Young And Beautiful",
+        "artist": "Lana Del Rey"
+      },
+      {
+        "name": "Mrs Magic",
+        "artist": "Strawberry Guy"
+      },
+      {
+        "name": "Here With Me",
+        "artist": "d4vd"
+      },
+      {
+        "name": "Hell N Back",
+        "artist": "Bakar"
+      },
+      {
+        "name": "I Love You So",
+        "artist": "The Walters"
+      },
+      {
+        "name": "Welcome To Japan",
+        "artist": "The Strokes"
+      },
+      {
+        "name": "All I Ever Wanted Was You",
+        "artist": "The Sways"
+      },
+      {
+        "name": "Disillusioned (with serpentwithfeet)",
+        "artist": "Daniel Caesar"
+      },
+      {
+        "name": "Don't Touch",
+        "artist": "Love Spells"
+      }
+    ],
+    "curated_tracks_sample": [
+      {
+        "name": "Walk to Class",
+        "artist": "Malcolm Todd",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27387607b2c8f5f52f1f057be0d"
+      },
+      {
+        "name": "4EVER",
+        "artist": "Clairo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273d8cde3e29157bf6648459734"
+      },
+      {
+        "name": "Ode To The Mets",
+        "artist": "The Strokes",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273e3f1ba3de4659708c25d0f39"
+      },
+      {
+        "name": "less",
+        "artist": "Olivia Rodrigo",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2735cf234eeb7a2edf44bf64a46"
+      },
+      {
+        "name": "False God",
+        "artist": "Taylor Swift",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273e787cffec20aa2a396a61647"
+      },
+      {
+        "name": "Japanese Denim",
+        "artist": "Daniel Caesar",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737465bef53d9e3a27c63c7a1d"
+      },
+      {
+        "name": "The Zephyr Song",
+        "artist": "Red Hot Chili Peppers",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273de1af2785a83cc660155a0c4"
+      },
+      {
+        "name": "Champagne Supernova - Remastered",
+        "artist": "Oasis",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27385e5dcc05cc216a10f141480"
+      },
+      {
+        "name": "Ivy",
+        "artist": "Frank Ocean",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273c5649add07ed3720be9d5526"
+      },
+      {
+        "name": "High Hopes 3000",
+        "artist": "ROLE MODEL",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730b0cfb2fb43614d2ed8f34af"
+      },
+      {
+        "name": "Passionfruit",
+        "artist": "Drake",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734f0fd9dad63977146e685700"
+      },
+      {
+        "name": "NEW MAGIC WAND",
+        "artist": "Tyler, The Creator",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27330a635de2bb0caa4e26f6abb"
+      },
+      {
+        "name": "Kingston",
+        "artist": "Faye Webster",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273ac4ebd092fa2cf210e4c8023"
+      },
+      {
+        "name": "Billie Jean",
+        "artist": "EDEN",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731a59500c9592f4096f7f65e1"
+      },
+      {
+        "name": "Chicago",
+        "artist": "Michael Jackson",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27335f36cb686b0d5a12ab3a9f0"
+      },
+      {
+        "name": "Origami",
+        "artist": "The Rare Occasions",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2732e87b83a887668524c979a7d"
+      },
+      {
+        "name": "Impostor Syndrome",
+        "artist": "Sidney Gish",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f7832bb86831bdec9848acda"
+      },
+      {
+        "name": "Stress Relief",
+        "artist": "late night drive home",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27377c339de2168c8b893a64407"
+      },
+      {
+        "name": "505",
+        "artist": "Arctic Monkeys",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273b1f8da74f225fa1225cdface"
+      },
+      {
+        "name": "Where\u2019s My Love - Alternate Version",
+        "artist": "SYML",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273f6825dc22434782b58a5681d"
+      },
+      {
+        "name": "Blink 182",
+        "artist": "Half an Orange",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730fc793716c44bcd8939bc3bc"
+      },
+      {
+        "name": "I Was Made For Lovin' You",
+        "artist": "KISS",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2734384b6976cadaec272114022"
+      },
+      {
+        "name": "The Emptiness Machine",
+        "artist": "Linkin Park",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738be9eeb8f19696ef2fd3b6b4"
+      },
+      {
+        "name": "The Spins",
+        "artist": "Mac Miller",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2737414c28a11a87cbfd91dce10"
+      },
+      {
+        "name": "Television / So Far So Good",
+        "artist": "Rex Orange County",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2731bd6d088d3d81972af4cb81d"
+      },
+      {
+        "name": "War",
+        "artist": "ILLENIUM",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b27320471551c9cf165527ac2dfb"
+      },
+      {
+        "name": "Total Eclipse of the Heart",
+        "artist": "Bonnie Tyler",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2738cefe8e2f2cfd63ce073fa96"
+      },
+      {
+        "name": "Da Ya Think I'm Sexy?",
+        "artist": "Rod Stewart",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b273d6806ddfc58bbaa0cb3e9fa5"
+      },
+      {
+        "name": "Jane!",
+        "artist": "The Long Faces",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2736685599bd4bafe725e532e2f"
+      },
+      {
+        "name": "misses",
+        "artist": "Dominic Fike",
+        "album_art": "https://i.scdn.co/image/ab67616d0000b2730297fb98f81fc0b611fcf71d"
+      }
+    ]
   }
 ]
